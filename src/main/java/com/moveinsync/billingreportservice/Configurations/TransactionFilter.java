@@ -33,14 +33,6 @@ public class TransactionFilter implements Filter {
             if("buid".equals(e.getName())) UserContextResolver.getCurrentContext().setBuid(e.getValue());
         });
 
-        LOG.info(
-                "Starting a transaction for req : {}",
-                req.getRequestURI());
-
-        chain.doFilter(request, response);
-        LOG.info(
-                "Committing a transaction for req : {}",
-                req.getRequestURI());
     }
 
     // other methods
