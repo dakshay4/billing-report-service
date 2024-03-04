@@ -1,5 +1,6 @@
 package com.moveinsync.billingreportservice.Configurations;
 
+import com.moveinsync.tripsheetdomain.client.TripsheetDomainWebClient;
 import io.netty.channel.ChannelOption;
 import io.netty.handler.timeout.IdleStateHandler;
 import io.netty.handler.timeout.ReadTimeoutHandler;
@@ -8,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
@@ -18,6 +20,7 @@ import reactor.netty.resources.ConnectionProvider;
 
 import java.time.Duration;
 
+@Configuration
 public class WebClientConfiguration {
 
   private final Logger logger = LoggerFactory.getLogger(getClass());
@@ -52,8 +55,15 @@ public class WebClientConfiguration {
   @Value("${web.client.evict.life.timeout:60000}")
   private Integer webClientEvictLifeTimeout;
 
+  @Value("${tripsheetdomain_url}")
+  private String tripsheetDomainUrl;
+
+  @Value("${vms_url}")
+  private String vmsUrl;
+
+
   @Bean
-  public WebClient getWebClient() {
+  public WebClient.Builder getWebClient() {
     ExchangeStrategies strategies = ExchangeStrategies.builder()
         .codecs(codecs -> codecs.defaultCodecs().maxInMemorySize(webClientResponseSize))
         .build();
@@ -82,7 +92,16 @@ public class WebClientConfiguration {
         .filter(ExchangeFilterFunction.ofRequestProcessor(request -> {
           logger.info("RestAPI request sent to: for method={} :: url={}, body: {}", request.method(), request.url(), request.body());
           return Mono.just(request);
-        }))
-        .build();
+        }));
+  }
+
+  @Bean
+  public WebClient tripsheetDomainWebClient(WebClient.Builder webClientBuilder) {
+    return webClientBuilder.baseUrl(tripsheetDomainUrl).build();
+  }
+
+  @Bean
+  public WebClient vmsClient(WebClient.Builder webClientBuilder) {
+    return webClientBuilder.baseUrl(vmsUrl).build();
   }
 }
