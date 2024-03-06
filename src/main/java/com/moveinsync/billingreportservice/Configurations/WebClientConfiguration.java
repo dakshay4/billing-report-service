@@ -1,6 +1,7 @@
 package com.moveinsync.billingreportservice.Configurations;
 
 import com.moveinsync.billingreportservice.constants.BeanConstants;
+import com.moveinsync.billingreportservice.constants.ExternalServiceAPIConstants;
 import io.netty.channel.ChannelOption;
 import io.netty.handler.timeout.IdleStateHandler;
 import io.netty.handler.timeout.ReadTimeoutHandler;
@@ -65,36 +66,29 @@ public class WebClientConfiguration {
   @Value("${reporting_service_url}")
   private String reportServiceUrl;
 
+  @Value("${x_reporting_auth_token}")
+  private String reportingAuthToken;
 
   @Bean
   public WebClient.Builder getWebClient() {
     ExchangeStrategies strategies = ExchangeStrategies.builder()
-        .codecs(codecs -> codecs.defaultCodecs().maxInMemorySize(webClientResponseSize))
-        .build();
-    ConnectionProvider provider =
-        ConnectionProvider.builder("custom")
-            .maxConnections(webClientMaxConnection)
-            .maxIdleTime(Duration.ofSeconds(webClientMaxIdealTimeout))
-            .maxLifeTime(Duration.ofSeconds(webClientMaxLifeTimeout))
-            .pendingAcquireTimeout(Duration.ofSeconds(webClientAcquireIdealTimeout))
-            .evictInBackground(Duration.ofSeconds(webClientEvictLifeTimeout))
-            .build();
-    return WebClient.builder()
-        .clientConnector(new ReactorClientHttpConnector(HttpClient.create(provider)
-            .tcpConfiguration(tcpClient -> tcpClient
-                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, webClientConnectionTimeout)
-                .option(ChannelOption.SO_KEEPALIVE, true)
-                .option(ChannelOption.TCP_NODELAY, true)
-                .doOnConnected(conn -> conn
-                    .addHandlerLast(new ReadTimeoutHandler(webClientReadTimeout))
-                    .addHandlerLast(new WriteTimeoutHandler(webClientWriteTimeout))
-                    .addHandlerLast(new IdleStateHandler(webClientMaxLifeTimeout, webClientMaxLifeTimeout, webClientMaxLifeTimeout))
-                ))
-            .responseTimeout(Duration.ofMillis(webClientSocketTimeout))
-        ))
-        .exchangeStrategies(strategies)
-        .filter(ExchangeFilterFunction.ofRequestProcessor(request -> {
-          logger.info("RestAPI request sent to: for method={} :: url={}, body: {}", request.method(), request.url(), request.body());
+        .codecs(codecs -> codecs.defaultCodecs().maxInMemorySize(webClientResponseSize)).build();
+    ConnectionProvider provider = ConnectionProvider.builder("custom").maxConnections(webClientMaxConnection)
+        .maxIdleTime(Duration.ofSeconds(webClientMaxIdealTimeout))
+        .maxLifeTime(Duration.ofSeconds(webClientMaxLifeTimeout))
+        .pendingAcquireTimeout(Duration.ofSeconds(webClientAcquireIdealTimeout))
+        .evictInBackground(Duration.ofSeconds(webClientEvictLifeTimeout)).build();
+    return WebClient.builder().clientConnector(new ReactorClientHttpConnector(HttpClient.create(provider)
+            .tcpConfiguration(
+                tcpClient -> tcpClient.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, webClientConnectionTimeout)
+                    .option(ChannelOption.SO_KEEPALIVE, true).option(ChannelOption.TCP_NODELAY, true).doOnConnected(
+                        conn -> conn.addHandlerLast(new ReadTimeoutHandler(webClientReadTimeout))
+                            .addHandlerLast(new WriteTimeoutHandler(webClientWriteTimeout)).addHandlerLast(
+                                new IdleStateHandler(webClientMaxLifeTimeout, webClientMaxLifeTimeout,
+                                    webClientMaxLifeTimeout)))).responseTimeout(Duration.ofMillis(webClientSocketTimeout))))
+        .exchangeStrategies(strategies).filter(ExchangeFilterFunction.ofRequestProcessor(request -> {
+          logger.info("RestAPI request sent to: for method={} :: url={}, body: {}", request.method(), request.url(),
+              request.body());
           return Mono.just(request);
         }));
   }
@@ -105,10 +99,10 @@ public class WebClientConfiguration {
     return webClientBuilder.baseUrl(vmsUrl).build();
   }
 
-
   @Qualifier(BeanConstants.REPORTING_SERVICE_CLIENT)
   @Bean
   public WebClient reportingServiceClient(WebClient.Builder webClientBuilder) {
-    return webClientBuilder.baseUrl(reportServiceUrl).build();
+    return webClientBuilder.baseUrl(reportServiceUrl)
+        .defaultHeader(ExternalServiceAPIConstants.X_AUTH_TOKEN, reportingAuthToken).build();
   }
 }

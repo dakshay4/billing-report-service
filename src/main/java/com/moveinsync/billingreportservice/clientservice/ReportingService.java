@@ -1,8 +1,25 @@
 package com.moveinsync.billingreportservice.clientservice;
 
+import com.moveinsync.billingreportservice.constants.BeanConstants;
+import com.moveinsync.billingreportservice.external.NrsReportRequest;
+import com.moveinsync.billingreportservice.external.NrsReportResponse;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
 
 @Service
 public class ReportingService {
+  private final WebClient reportingServiceClient;
 
+  public ReportingService(@Qualifier(BeanConstants.REPORTING_SERVICE_CLIENT) WebClient reportingServiceClient) {
+    this.reportingServiceClient = reportingServiceClient;
+  }
+
+  public NrsReportResponse getReportFromNrs(NrsReportRequest nrsReportRequest) {
+    NrsReportResponse reportResponse = reportingServiceClient.post().uri("/billing-reports")
+        .contentType(MediaType.APPLICATION_JSON).bodyValue(nrsReportRequest).retrieve()
+        .bodyToMono(NrsReportResponse.class).block();
+    return reportResponse;
+  }
 }
