@@ -1,6 +1,7 @@
 package com.moveinsync.billingreportservice.services;
 
 
+import com.google.common.collect.Lists;
 import com.moveinsync.billingreportservice.Configurations.UserContextResolver;
 import com.moveinsync.billingreportservice.dto.BillingReportRequestDTO;
 import com.moveinsync.billingreportservice.dto.ExternalReportRequestDTO;
@@ -9,6 +10,8 @@ import com.moveinsync.billingreportservice.enums.BillingReportAggregatedTypes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
+
+import java.util.List;
 
 @Component
 public class BillingReportService {
@@ -26,7 +29,7 @@ public class BillingReportService {
 
         switch (reportName) {
             case VENDOR -> {
-                prepareNRSRequest(reportRequestDTO);
+                prepareNRSRequest(reportRequestDTO, vendorName);
                 break;
             }
             case VEHICLE -> {
@@ -46,12 +49,13 @@ public class BillingReportService {
                 break;
             }
         }
+        return null;
     }
 
-    private void prepareNRSRequest(BillingReportRequestDTO reportRequestDTO) {
+    private void prepareNRSRequest(BillingReportRequestDTO reportRequestDTO, String vendorName) {
         ExternalReportRequestDTO.ReportFilterDTO reportFilterDTO = new ExternalReportRequestDTO.ReportFilterDTO();
         reportFilterDTO.setContract(reportRequestDTO.getContract());
-        reportFilterDTO.setVendor(vendorName);
+        reportFilterDTO.setVendor(Lists.newArrayList(vendorName));
         reportFilterDTO.setEntityId(reportRequestDTO.getEntityId());
         reportFilterDTO.setEntityId(reportRequestDTO.getEntityId());
     }

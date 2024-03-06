@@ -21,7 +21,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import java.util.List;
 
 @RestController
-@RequestMapping("/billingReports")
+@RequestMapping("/billingReports/web")
 public class BillingReportController {
 
     @Autowired

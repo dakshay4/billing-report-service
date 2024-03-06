@@ -25,7 +25,7 @@ public class ExternalReportRequestDTO {
     @AllArgsConstructor
     @NoArgsConstructor
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public class ReportFilterDTO {
+    public static class ReportFilterDTO {
         private List<String> vendor;
         private String contract;
         private String entityId;
