@@ -13,8 +13,8 @@ import java.util.Date;
 public class BillingReportRequestDTO {
 
     private String bunitId;
-    private Date cycleStart;
-    private Date cycleEnd;
+    private String cycleStart;
+    private String cycleEnd;
     private String vendor;
     private String contract;
     private String entityId;

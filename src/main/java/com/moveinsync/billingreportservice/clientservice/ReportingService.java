@@ -1,6 +1,8 @@
 package com.moveinsync.billingreportservice.clientservice;
 
 import com.moveinsync.billingreportservice.constants.BeanConstants;
+import com.moveinsync.billingreportservice.dto.ExternalReportRequestDTO;
+import com.moveinsync.billingreportservice.dto.ReportDataDTO;
 import com.moveinsync.billingreportservice.external.NrsReportRequest;
 import com.moveinsync.billingreportservice.external.NrsReportResponse;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -15,11 +17,10 @@ public class ReportingService {
   public ReportingService(@Qualifier(BeanConstants.REPORTING_SERVICE_CLIENT) WebClient reportingServiceClient) {
     this.reportingServiceClient = reportingServiceClient;
   }
-
-  public NrsReportResponse getReportFromNrs(NrsReportRequest nrsReportRequest) {
+  public ReportDataDTO getReportFromNrs(ExternalReportRequestDTO nrsReportRequest) {
     NrsReportResponse reportResponse = reportingServiceClient.post().uri("/billing-reports")
         .contentType(MediaType.APPLICATION_JSON).bodyValue(nrsReportRequest).retrieve()
         .bodyToMono(NrsReportResponse.class).block();
-    return reportResponse;
+    return ReportDataDTO.builder().data(reportResponse.getTable()).build();
   }
 }

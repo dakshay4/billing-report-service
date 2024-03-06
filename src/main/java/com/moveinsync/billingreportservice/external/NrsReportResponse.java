@@ -11,6 +11,5 @@ public class NrsReportResponse {
   private String status;
   private int statusCode;
   private String message;
-  private String desc;
   private List<List<String>> table;
 }
