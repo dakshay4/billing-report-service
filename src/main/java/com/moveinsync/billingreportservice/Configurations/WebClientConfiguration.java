@@ -1,12 +1,13 @@
 package com.moveinsync.billingreportservice.Configurations;
 
-import com.moveinsync.tripsheetdomain.client.TripsheetDomainWebClient;
+import com.moveinsync.billingreportservice.constants.BeanConstants;
 import io.netty.channel.ChannelOption;
 import io.netty.handler.timeout.IdleStateHandler;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import io.netty.handler.timeout.WriteTimeoutHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -61,6 +62,9 @@ public class WebClientConfiguration {
   @Value("${vms_url}")
   private String vmsUrl;
 
+  @Value("${reporting_service_url}")
+  private String reportServiceUrl;
+
 
   @Bean
   public WebClient.Builder getWebClient() {
@@ -95,13 +99,16 @@ public class WebClientConfiguration {
         }));
   }
 
-  @Bean
-  public WebClient tripsheetDomainWebClient(WebClient.Builder webClientBuilder) {
-    return webClientBuilder.baseUrl(tripsheetDomainUrl).build();
-  }
-
+  @Qualifier(BeanConstants.VMS_CLIENT)
   @Bean
   public WebClient vmsClient(WebClient.Builder webClientBuilder) {
     return webClientBuilder.baseUrl(vmsUrl).build();
+  }
+
+
+  @Qualifier(BeanConstants.REPORTING_SERVICE_CLIENT)
+  @Bean
+  public WebClient reportingServiceClient(WebClient.Builder webClientBuilder) {
+    return webClientBuilder.baseUrl(reportServiceUrl).build();
   }
 }

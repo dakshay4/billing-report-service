@@ -28,11 +28,14 @@ public class TransactionFilter implements Filter {
             FilterChain chain) throws ServletException, IOException {
 
         HttpServletRequest req = (HttpServletRequest) request;
-        Arrays.stream(req.getCookies()).forEach(e->{
-            if("empGuid".equals(e.getName())) UserContextResolver.getCurrentContext().setEmpGuid(e.getValue());
-            if("buid".equals(e.getName())) UserContextResolver.getCurrentContext().setBuid(e.getValue());
-        });
-
+        if(req.getCookies() != null) {
+            Arrays.stream(req.getCookies()).forEach(e -> {
+                if ("empGuid".equals(e.getName()))
+                    UserContextResolver.getCurrentContext().setEmpGuid(e.getValue());
+                if ("buid".equals(e.getName()))
+                    UserContextResolver.getCurrentContext().setBuid(e.getValue());
+            });
+        }
     }
 
     // other methods

@@ -27,9 +27,6 @@ public class BillingReportController {
     @Autowired
     private BillingReportService billingReportService;
 
-    @Autowired
-    private WebClient tripsheetDomainWebClient;
-
     private final Logger LOG = LoggerFactory.getLogger(getClass());
 
 
