@@ -1,5 +1,6 @@
 package com.moveinsync.billingreportservice.Configurations;
 
+import com.mis.serverdata.utils.GsonUtils;
 import com.moveinsync.billingreportservice.constants.BeanConstants;
 import com.moveinsync.billingreportservice.constants.ExternalServiceAPIConstants;
 import io.netty.channel.ChannelOption;
@@ -88,7 +89,7 @@ public class WebClientConfiguration {
                                     webClientMaxLifeTimeout)))).responseTimeout(Duration.ofMillis(webClientSocketTimeout))))
         .exchangeStrategies(strategies).filter(ExchangeFilterFunction.ofRequestProcessor(request -> {
           logger.info("RestAPI request sent to: for method={} :: url={}, body: {}", request.method(), request.url(),
-              request.body());
+              GsonUtils.getGson().toJson(request.body()));
           return Mono.just(request);
         }));
   }

@@ -52,9 +52,13 @@ public class BillingReportService {
       BillingReportAggregatedTypes reportName) {
     ExternalReportRequestDTO.ReportFilterDTO reportFilterDTO = new ExternalReportRequestDTO.ReportFilterDTO();
     reportFilterDTO.setContract(reportRequestDTO.getContract());
-    reportFilterDTO.setVendor(Lists.newArrayList(vendorName));
+    if(vendorName != null) {
+      reportFilterDTO.setVendor(Lists.newArrayList(vendorName));
+    }
     reportFilterDTO.setEntityId(reportRequestDTO.getEntityId());
-    reportFilterDTO.setParentEntity(reportFilterDTO.getParentEntity());
+    if(reportRequestDTO.getVendor() != null) {
+      reportFilterDTO.setParentEntity("VENDOR:" + reportRequestDTO.getVendor());
+    }
     return ExternalReportRequestDTO.builder().reportFilter(reportFilterDTO).reportName(reportName.getReportName())
         .bunit(reportRequestDTO.getBunitId()).startDate(reportRequestDTO.getCycleStart())
         .endDate(reportRequestDTO.getCycleEnd()).build();

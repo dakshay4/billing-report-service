@@ -36,6 +36,7 @@ public class TransactionFilter implements Filter {
                     UserContextResolver.getCurrentContext().setBuid(e.getValue());
             });
         }
+        chain.doFilter(request,response);
     }
 
     // other methods

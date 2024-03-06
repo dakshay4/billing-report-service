@@ -20,13 +20,6 @@ import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfi
 public class BillingreportserviceApplication {
 
 
-	@Value("${els_url}")
-	private String elsUrl;
-
-	@Value("${tripsheetdomain_url}")
-	private String tripsheetDomainUrl;
-
-
 	private static final Logger logger = LoggerFactory.getLogger(BillingreportserviceApplication.class);
 
 	public static void main(String[] args) {
