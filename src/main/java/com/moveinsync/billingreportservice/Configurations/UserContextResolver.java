@@ -1,37 +1,27 @@
 package com.moveinsync.billingreportservice.Configurations;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class UserContextResolver {
 
     private static final Map<Long, UserContextResolver> contextMap = new ConcurrentHashMap<>();
 
     private String empGuid;
     private String buid;
+    private Long sessionStartTime;
 
     private final static Logger logger = LoggerFactory.getLogger(UserContextResolver.class);
 
-
-
-    public String getEmpGuid() {
-        return empGuid;
-    }
-
-    public String getBuid() {
-        return buid;
-    }
-
-    public void setEmpGuid(String empGuid) {
-        this.empGuid = empGuid;
-    }
-
-    public void setBuid(String buid) {
-        this.buid = buid;
-    }
 
     public static UserContextResolver getCurrentContext() {
         long threadId = Thread.currentThread().getId();
