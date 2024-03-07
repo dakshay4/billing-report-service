@@ -19,10 +19,12 @@ import java.util.List;
 public class BillingReportService {
   private final WebClient vmsClient;
   private final ReportingService reportingService;
+  private final WebClient contractClient;
 
-  public BillingReportService(WebClient vmsClient, ReportingService reportingService) {
+  public BillingReportService(WebClient vmsClient, ReportingService reportingService, WebClient contractClient) {
     this.vmsClient = vmsClient;
     this.reportingService = reportingService;
+    this.contractClient = contractClient;
   }
 
   public ReportDataDTO getData(BillingReportAggregatedTypes reportName, BillingReportRequestDTO reportRequestDTO)

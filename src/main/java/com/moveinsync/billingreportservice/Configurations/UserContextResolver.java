@@ -1,5 +1,8 @@
 package com.moveinsync.billingreportservice.Configurations;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -9,6 +12,9 @@ public class UserContextResolver {
 
     private String empGuid;
     private String buid;
+
+    private final static Logger logger = LoggerFactory.getLogger(UserContextResolver.class);
+
 
 
     public String getEmpGuid() {
@@ -34,6 +40,7 @@ public class UserContextResolver {
 
     public static void clear() {
         long threadId = Thread.currentThread().getId();
+        logger.info("Deleting User Context Session with Thread - {}", threadId);
         contextMap.remove(threadId);
     }
 }

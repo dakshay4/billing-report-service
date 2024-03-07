@@ -12,12 +12,12 @@ import java.util.Date;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class BillingReportRequestDTO {
 
-    private String bunitId;
-    private String cycleStart;
-    private String cycleEnd;
-    private String vendor;
-    private String contract;
-    private String entityId;
-    private String date;
+        private String bunitId;
+        private String cycleStart;
+        private String cycleEnd;
+        private String vendor;
+        private String contract;
+        private String entityId;
+        private String date;
 
 }
