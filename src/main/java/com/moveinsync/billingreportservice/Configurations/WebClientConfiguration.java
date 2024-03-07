@@ -2,7 +2,7 @@ package com.moveinsync.billingreportservice.Configurations;
 
 import com.mis.serverdata.utils.GsonUtils;
 import com.moveinsync.billingreportservice.constants.BeanConstants;
-import com.moveinsync.billingreportservice.constants.ExternalServiceAPIConstants;
+import com.moveinsync.billingreportservice.constants.Constants;
 import io.netty.channel.ChannelOption;
 import io.netty.handler.timeout.IdleStateHandler;
 import io.netty.handler.timeout.ReadTimeoutHandler;
@@ -67,6 +67,12 @@ public class WebClientConfiguration {
   @Value("${reporting_service_url}")
   private String reportServiceUrl;
 
+  @Value("${contract_service_url}")
+  private String contractServiceUrl;
+
+  @Value("${contract_service_auth_token}")
+  private String contractServiceAuthToken;
+
   @Value("${x_reporting_auth_token}")
   private String reportingAuthToken;
 
@@ -104,6 +110,10 @@ public class WebClientConfiguration {
   @Bean
   public WebClient reportingServiceClient(WebClient.Builder webClientBuilder) {
     return webClientBuilder.baseUrl(reportServiceUrl)
-        .defaultHeader(ExternalServiceAPIConstants.X_AUTH_TOKEN, reportingAuthToken).build();
+        .defaultHeader(Constants.X_AUTH_TOKEN, reportingAuthToken).build();
+  }
+  @Bean
+  public WebClient contractClient(WebClient.Builder webClientBuilder) {
+    return webClientBuilder.baseUrl(contractServiceUrl).defaultHeader(Constants.AUTHORIZATION, contractServiceAuthToken).build();
   }
 }

@@ -22,6 +22,8 @@ public class ReportingService {
     NrsReportResponse reportResponse = reportingServiceClient.post().uri("/billing-reports")
         .contentType(MediaType.APPLICATION_JSON).bodyValue(nrsReportRequest).accept(MediaType.APPLICATION_JSON).retrieve()
         .bodyToMono(NrsReportResponse.class).block();
-    return ReportDataDTO.builder().table(reportResponse.getData().getTable()).build();
+
+    if(reportResponse!=null && reportResponse.getData()!=null) return ReportDataDTO.builder().table(reportResponse.getData().getTable()).build();
+    else return new ReportDataDTO();
   }
 }

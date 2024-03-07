@@ -65,10 +65,9 @@ public class BillingReportService {
   }
 
   private ReportDataDTO getContractReportFromNrsResponse(ReportDataDTO reportDataDTO){
+
     return null;
   }
 
-  private void validateManadatoryParameters() {
 
-  }
 }
