@@ -1,5 +1,6 @@
 package com.moveinsync.billingreportservice.Configurations;
 
+import com.moveinsync.billingreportservice.exceptions.MisLocale;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,6 +20,10 @@ public class UserContextResolver {
     private String empGuid;
     private String buid;
     private Long sessionStartTime;
+    /**
+     * {@link MisLocale}
+     */
+    private String locale = "en_US";
 
     private final static Logger logger = LoggerFactory.getLogger(UserContextResolver.class);
 
