@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
+import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -97,7 +98,15 @@ public class WebClientConfiguration {
           logger.info("RestAPI request sent to: for method={} :: url={}, body: {}", request.method(), request.url(),
               GsonUtils.getGson().toJson(request.body()));
           return Mono.just(request);
-        }));
+        })).filter(ExchangeFilterFunction.ofResponseProcessor(this::handleError));
+  }
+
+  private Mono<ClientResponse> handleError(ClientResponse clientResponse) {
+    if (!clientResponse.statusCode().is2xxSuccessful()) {
+      return clientResponse.bodyToMono(String.class)
+              .flatMap(body -> Mono.error(new WebClientException(clientResponse.statusCode().value(), body)));
+    }
+    return Mono.just(clientResponse);
   }
 
   @Qualifier(BeanConstants.VMS_CLIENT)
