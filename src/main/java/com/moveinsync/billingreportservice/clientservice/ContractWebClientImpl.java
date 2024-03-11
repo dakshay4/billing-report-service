@@ -7,9 +7,12 @@ import com.google.common.cache.LoadingCache;
 import com.moveinsync.billing.model.ContractVO;
 import com.moveinsync.billingreportservice.Configurations.UserContextResolver;
 import com.moveinsync.billingreportservice.Configurations.WebClientException;
-import com.moveinsync.billingreportservice.external.NrsReportResponse;
+import com.moveinsync.billingreportservice.exceptions.MisCustomException;
+import com.moveinsync.billingreportservice.exceptions.MisError;
+import com.moveinsync.billingreportservice.exceptions.ReportErrors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
@@ -27,6 +30,8 @@ public class ContractWebClientImpl {
     private final CacheKeyStrategy cacheKeyStrategy;
 
     private final LoadingCache<String, ContractVO> cache;
+
+    private static final Logger logger = LoggerFactory.getLogger(ContractWebClientImpl.class);
 
     public ContractWebClientImpl(WebClient contractClient) {
         this.contractClient = contractClient;
@@ -54,13 +59,13 @@ public class ContractWebClientImpl {
                 });
         mono.subscribe(
                 response ->
-                        System.out.println("Response: " + response),
+                        logger.info("Response: {}", response),
                 error -> {
                     if (error instanceof WebClientException) {
                         WebClientException webClientException = (WebClientException) error;
                         throw new WebClientException(webClientException.getStatusCode(), webClientException.getResponseBody());
                     } else {
-                        System.err.println("Error: " + error.getMessage());
+                        logger.info("Error: {}", error.getMessage());
                     }
                 });
        List<ContractVO> contracts = mono.block();
@@ -72,8 +77,7 @@ public class ContractWebClientImpl {
         try {
             return cache.get(cacheKeyStrategy.generateCacheKey(contractName));
         } catch (Exception e) {
-            // Handle cache loading exceptions
-            throw new RuntimeException("Failed to load ContractVO from cache", e);
+            throw new MisCustomException(ReportErrors.UNABLE_TO_FETCH_FROM_CACHE, e);
         }
     }
 }

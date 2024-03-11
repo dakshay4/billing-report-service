@@ -2,13 +2,16 @@ package com.moveinsync.billingreportservice.services;
 
 import com.google.common.collect.Lists;
 import com.moveinsync.billing.exception.UserDefinedException;
+import com.moveinsync.billing.model.BillingStatusVO;
 import com.moveinsync.billing.model.ContractVO;
 import com.moveinsync.billingreportservice.Configurations.UserContextResolver;
+import com.moveinsync.billingreportservice.Utils.DateUtils;
 import com.moveinsync.billingreportservice.clientservice.ContractWebClientImpl;
 import com.moveinsync.billingreportservice.clientservice.ReportingService;
 import com.moveinsync.billingreportservice.dto.BillingReportRequestDTO;
 import com.moveinsync.billingreportservice.dto.ExternalReportRequestDTO;
 import com.moveinsync.billingreportservice.dto.ReportDataDTO;
+import com.moveinsync.billingreportservice.dto.ReportGenerationTime;
 import com.moveinsync.billingreportservice.dto.VendorResponseDTO;
 import com.moveinsync.billingreportservice.enums.BillingReportAggregatedTypes;
 import com.moveinsync.billingreportservice.enums.ContractHeaders;
@@ -19,10 +22,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,8 +45,7 @@ public class BillingReportService {
     this.contractWebClient = contractWebClient;
   }
 
-  public ReportDataDTO getData(BillingReportAggregatedTypes reportName, BillingReportRequestDTO reportRequestDTO)
-      throws UserDefinedException {
+  public ReportDataDTO getData(BillingReportAggregatedTypes reportName, BillingReportRequestDTO reportRequestDTO){
     String empGuid = UserContextResolver.getCurrentContext().getEmpGuid();
     VendorResponseDTO vendorResponseDTO = vmsClient.get().uri("vendors/id/" + empGuid).retrieve()
         .bodyToMono(VendorResponseDTO.class).block();
@@ -85,8 +89,8 @@ public class BillingReportService {
       reportFilterDTO.setParentEntity("VENDOR:" + reportRequestDTO.getVendor());
     }
     return ExternalReportRequestDTO.builder().reportFilter(reportFilterDTO).reportName(reportName.getReportName())
-        .bunit(reportRequestDTO.getBunitId()).startDate(reportRequestDTO.getCycleStart())
-        .endDate(reportRequestDTO.getCycleEnd()).build();
+        .bunit(reportRequestDTO.getBunitId()).startDate(DateUtils.formatDate(reportRequestDTO.getCycleStart()))
+        .endDate(DateUtils.formatDate(reportRequestDTO.getCycleEnd().toString())).build();
   }
 
   private ReportDataDTO getContractReportFromNrsResponse(List<List<String>> table){
@@ -151,4 +155,7 @@ public class BillingReportService {
   }
 
 
+  public ReportGenerationTime getReportGenerationTime(LocalDate startDate, LocalDate endDate) {
+    return new ReportGenerationTime(BillingStatusVO.BillType.SITE_BILL.name(), new Date());
+  }
 }

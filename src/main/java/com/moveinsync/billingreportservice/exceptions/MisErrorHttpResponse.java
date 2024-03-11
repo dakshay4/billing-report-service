@@ -13,7 +13,6 @@ import lombok.NoArgsConstructor;
 public class MisErrorHttpResponse {
 
     private String error;
-    private int code;
     private String message;
     private long timestamp;
     private String path;
