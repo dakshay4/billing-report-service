@@ -34,6 +34,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 @Component
@@ -118,8 +119,8 @@ public class BillingReportService {
       Integer capacity = Integer.parseInt(rowData.get(capacityIdx));
       int requiredColumns = ContractHeaders.values().length;
       List<String> capacityWiseSubTotalRow = capacityBasedSubTotal.getOrDefault(capacity, new ArrayList<>(Collections.nCopies(requiredColumns, "")));
-      int aggregationIndex = 3;
-      for(int j = aggregationIndex; j<requiredColumns; j++) {
+//      int aggregationIndex = 3;
+      for(int j = 0; j<requiredColumns; j++) {
         String value = capacityWiseSubTotalRow.get(j);
         ContractHeaders contractHeader = ContractHeaders.getFromLabelName(header.get(j));
         ReportDataType dataType = contractHeader!=null ? contractHeader.getDataType() : ReportDataType.STRING;
@@ -137,16 +138,44 @@ public class BillingReportService {
       capacityBasedSubTotal.put(capacity, capacityWiseSubTotalRow);
     }
     Integer capacityBreakPoint = null;
+    Map<Integer, List<String>> indexWiseSubTotalRowPlacement = new TreeMap<>(Comparator.reverseOrder());
     for(int i=1;i<table.size();i++){
       List<String> rowData = table.get(i);
       Integer capacity = Integer.parseInt(rowData.get(capacityIdx));
       if(capacityBreakPoint==null) capacityBreakPoint = capacity;
       if(capacityBreakPoint != capacity) {
+        indexWiseSubTotalRowPlacement.put(i,capacityBasedSubTotal.get(capacityBreakPoint));
         capacityBreakPoint = capacity;
-        table.add(i,capacityBasedSubTotal.get(capacity));
       }
     }
+    indexWiseSubTotalRowPlacement.put(table.size(),capacityBasedSubTotal.get(capacityBreakPoint));
+    indexWiseSubTotalRowPlacement.forEach((index, row) ->{
+      table.add(index,row);
+    });
     return table;
+  }
+
+  public List<String> totalRow(List<List<String>> table) {
+    List<String> header = table.get(0);
+    for(int i=1;i<table.size();i++){
+      List<String> rowData = table.get(i);
+      int requiredColumns = ContractHeaders.values().length;
+      for(int j = 0; j<requiredColumns; j++) {
+        ContractHeaders contractHeader = ContractHeaders.getFromLabelName(header.get(j));
+        ReportDataType dataType = contractHeader!=null ? contractHeader.getDataType() : ReportDataType.STRING;
+        switch (dataType) {
+          case BIGDECIMAL:
+            rowData.set(j, String.valueOf(NumberUtils.roundOff(rowData.get(j))));
+            BigDecimal subTotal = NumberUtils.roundOffAndAnd(value, rowData.get(j));
+            value = String.valueOf(subTotal);
+            break;
+          case INTEGER :
+            value = String.valueOf((value.isEmpty() ? 0 : Integer.parseInt(value)) + Integer.parseInt(rowData.get(j)));
+        }
+        capacityWiseSubTotalRow.set(j,value);
+      }
+      capacityBasedSubTotal.put(capacity, capacityWiseSubTotalRow);
+    }
   }
 
   public static void sortDataBasedOnCapacity(List<List<String>> data) {
