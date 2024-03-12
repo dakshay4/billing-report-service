@@ -155,28 +155,28 @@ public class BillingReportService {
     return table;
   }
 
-  public List<String> totalRow(List<List<String>> table) {
-    List<String> header = table.get(0);
-    for(int i=1;i<table.size();i++){
-      List<String> rowData = table.get(i);
-      int requiredColumns = ContractHeaders.values().length;
-      for(int j = 0; j<requiredColumns; j++) {
-        ContractHeaders contractHeader = ContractHeaders.getFromLabelName(header.get(j));
-        ReportDataType dataType = contractHeader!=null ? contractHeader.getDataType() : ReportDataType.STRING;
-        switch (dataType) {
-          case BIGDECIMAL:
-            rowData.set(j, String.valueOf(NumberUtils.roundOff(rowData.get(j))));
-            BigDecimal subTotal = NumberUtils.roundOffAndAnd(value, rowData.get(j));
-            value = String.valueOf(subTotal);
-            break;
-          case INTEGER :
-            value = String.valueOf((value.isEmpty() ? 0 : Integer.parseInt(value)) + Integer.parseInt(rowData.get(j)));
-        }
-        capacityWiseSubTotalRow.set(j,value);
-      }
-      capacityBasedSubTotal.put(capacity, capacityWiseSubTotalRow);
-    }
-  }
+//  public List<String> totalRow(List<List<String>> table) {
+//    List<String> header = table.get(0);
+//    for(int i=1;i<table.size();i++){
+//      List<String> rowData = table.get(i);
+//      int requiredColumns = ContractHeaders.values().length;
+//      for(int j = 0; j<requiredColumns; j++) {
+//        ContractHeaders contractHeader = ContractHeaders.getFromLabelName(header.get(j));
+//        ReportDataType dataType = contractHeader!=null ? contractHeader.getDataType() : ReportDataType.STRING;
+//        switch (dataType) {
+//          case BIGDECIMAL:
+//            rowData.set(j, String.valueOf(NumberUtils.roundOff(rowData.get(j))));
+//            BigDecimal subTotal = NumberUtils.roundOffAndAnd(value, rowData.get(j));
+//            value = String.valueOf(subTotal);
+//            break;
+//          case INTEGER :
+//            value = String.valueOf((value.isEmpty() ? 0 : Integer.parseInt(value)) + Integer.parseInt(rowData.get(j)));
+//        }
+//        capacityWiseSubTotalRow.set(j,value);
+//      }
+//      capacityBasedSubTotal.put(capacity, capacityWiseSubTotalRow);
+//    }
+//  }
 
   public static void sortDataBasedOnCapacity(List<List<String>> data) {
     // Get the header and remove it from the list
