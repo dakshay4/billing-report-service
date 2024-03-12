@@ -125,4 +125,8 @@ public class WebClientConfiguration {
   public WebClient contractClient(WebClient.Builder webClientBuilder) {
     return webClientBuilder.baseUrl(contractServiceUrl).defaultHeader(Constants.AUTHORIZATION, contractServiceAuthToken).build();
   }
+  @Bean
+  public WebClient etsClient(WebClient.Builder webClientBuilder) {
+    return webClientBuilder.baseUrl(contractServiceUrl).build();
+  }
 }
