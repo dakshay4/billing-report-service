@@ -161,6 +161,7 @@ public class BillingReportService {
   }
 
   public List<String> totalRow(List<List<String>> table) {
+    if(table==null || table.isEmpty()) return new ArrayList<>();
     List<String> header = table.get(0);
     int requiredColumns = header.size();
     List<String> totalRow = new ArrayList<>(Collections.nCopies(requiredColumns, ""));
