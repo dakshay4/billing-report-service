@@ -5,6 +5,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.catalina.User;
 import org.slf4j.Logger;
@@ -28,14 +29,20 @@ public class TransactionFilter implements Filter {
             FilterChain chain) throws ServletException, IOException {
 
         HttpServletRequest req = (HttpServletRequest) request;
+        String empGuid = req.getHeader("empGuid");
+        String buid = req.getHeader("buid");
         if(req.getCookies() != null) {
-            Arrays.stream(req.getCookies()).forEach(e -> {
-                if ("empGuid".equals(e.getName()))
-                    UserContextResolver.getCurrentContext().setEmpGuid(e.getValue());
-                if ("buid".equals(e.getName()))
-                    UserContextResolver.getCurrentContext().setBuid(e.getValue());
-            });
+            for (Cookie e : req.getCookies()) {
+                if (empGuid == null && "empGuid".equals(e.getName()))
+                    empGuid = e.getValue();
+                if (buid == null && "buid".equals(e.getName()))
+                    buid = e.getValue();
+            }
         }
+        UserContextResolver.getCurrentContext().setEmpGuid(empGuid);
+        UserContextResolver.getCurrentContext().setBuid(buid);
+
+
         chain.doFilter(request,response);
     }
 
