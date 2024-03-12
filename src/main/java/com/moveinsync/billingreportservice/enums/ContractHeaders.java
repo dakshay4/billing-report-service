@@ -8,20 +8,20 @@ public enum ContractHeaders {
     VEHICLE_TYPE(1, "Vehicle Type", ReportDataType.STRING),
     CONTRACT(2, "Contract", ReportDataType.STRING),
     TOTAL_TRIP_COUNT(3, "Total Trip Count", ReportDataType.INTEGER),
-    TOTAL_TRIP_KM(4, "Total Trip Km", ReportDataType.DOUBLE),
-    TOTAL_KM(5, "Total km", ReportDataType.DOUBLE),
-    MISC_ADJUSTMENTS(6, "Misc Adjustments", ReportDataType.DOUBLE),
-    ESCORT_COST(7, "Escort Cost", ReportDataType.DOUBLE),
+    TOTAL_TRIP_KM(4, "Total Trip Km", ReportDataType.BIGDECIMAL),
+    TOTAL_KM(5, "Total km", ReportDataType.BIGDECIMAL),
+    MISC_ADJUSTMENTS(6, "Misc Adjustments", ReportDataType.BIGDECIMAL),
+    ESCORT_COST(7, "Escort Cost", ReportDataType.BIGDECIMAL),
     ESCORT_COUNT(8, "Escort Count", ReportDataType.INTEGER),
-    CONTRACT_PRICE(9, "Contract Price", ReportDataType.DOUBLE),
-    EXTRA_KM_COST(10, "Extra Km Cost", ReportDataType.DOUBLE),
-    EXTRA_DUTY_COST(11, "Extra Duty Cost", ReportDataType.DOUBLE),
-    EXTRA_HOUR_COST(12, "Extra Hour Cost", ReportDataType.DOUBLE),
-    DRIVER_ALLOWANCE(13, "Driver Allowance", ReportDataType.DOUBLE),
-    AC_COST(14, "Ac Cost", ReportDataType.DOUBLE),
-    PARKING(15, "Parking", ReportDataType.DOUBLE),
-    GRAND_TOTAL_GST(16, "Grand Total GST", ReportDataType.DOUBLE),
-    GRAND_TOTAL(17, "Grand Total", ReportDataType.DOUBLE);
+    CONTRACT_PRICE(9, "Contract Price", ReportDataType.BIGDECIMAL),
+    EXTRA_KM_COST(10, "Extra Km Cost", ReportDataType.BIGDECIMAL),
+    EXTRA_DUTY_COST(11, "Extra Duty Cost", ReportDataType.BIGDECIMAL),
+    EXTRA_HOUR_COST(12, "Extra Hour Cost", ReportDataType.BIGDECIMAL),
+    DRIVER_ALLOWANCE(13, "Driver Allowance", ReportDataType.BIGDECIMAL),
+    AC_COST(14, "Ac Cost", ReportDataType.BIGDECIMAL),
+    PARKING(15, "Parking", ReportDataType.BIGDECIMAL),
+    GRAND_TOTAL_GST(16, "Grand Total GST", ReportDataType.BIGDECIMAL),
+    GRAND_TOTAL(17, "Grand Total", ReportDataType.BIGDECIMAL);
 
     private final int index;
     private final String columnLabel;

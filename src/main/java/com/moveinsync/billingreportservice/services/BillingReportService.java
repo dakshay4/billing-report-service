@@ -6,6 +6,7 @@ import com.moveinsync.billing.model.BillingStatusVO;
 import com.moveinsync.billing.model.ContractVO;
 import com.moveinsync.billingreportservice.Configurations.UserContextResolver;
 import com.moveinsync.billingreportservice.Utils.DateUtils;
+import com.moveinsync.billingreportservice.Utils.NumberUtils;
 import com.moveinsync.billingreportservice.clientservice.ContractWebClientImpl;
 import com.moveinsync.billingreportservice.clientservice.ReportingService;
 import com.moveinsync.billingreportservice.dto.BillingReportRequestDTO;
@@ -22,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -71,7 +73,8 @@ public class BillingReportService {
                 validIndices.stream().map(row::get).collect(Collectors.toList())
         ).collect(Collectors.toList());
 
-        getContractReportFromNrsResponse(table);
+        table = getContractReportFromNrsResponse(table);
+        reportDataDTO.setTable(table);
         return reportDataDTO;
       }
       default -> {
@@ -96,7 +99,7 @@ public class BillingReportService {
         .endDate(DateUtils.formatDate(reportRequestDTO.getCycleEnd().toString())).build();
   }
 
-  private void getContractReportFromNrsResponse(List<List<String>> table){
+  private List<List<String>> getContractReportFromNrsResponse(List<List<String>> table){
     List<String> header = table.get(0);
     int contractIdx = header.indexOf(ContractHeaders.CONTRACT.getColumnLabel());
     header.add(0, ContractHeaders.VEHICLE_TYPE.getColumnLabel());
@@ -121,11 +124,13 @@ public class BillingReportService {
         ContractHeaders contractHeader = ContractHeaders.getFromLabelName(header.get(j));
         ReportDataType dataType = contractHeader!=null ? contractHeader.getDataType() : ReportDataType.STRING;
         switch (dataType) {
-          case DOUBLE :
-                  Double subTotal = (value.isEmpty() ? 0 : Double.parseDouble(value)) + Double.parseDouble(rowData.get(j));
-                  value = String.valueOf(subTotal);
+          case BIGDECIMAL:
+            rowData.set(j, String.valueOf(NumberUtils.roundOff(rowData.get(j))));
+            BigDecimal subTotal = NumberUtils.roundOffAndAnd(value, rowData.get(j));
+            value = String.valueOf(subTotal);
+            break;
           case INTEGER :
-                  value = String.valueOf((value.isEmpty() ? 0 : Integer.parseInt(value)) + Integer.parseInt(rowData.get(j)));
+            value = String.valueOf((value.isEmpty() ? 0 : Integer.parseInt(value)) + Integer.parseInt(rowData.get(j)));
         }
         capacityWiseSubTotalRow.set(j,value);
       }
@@ -141,6 +146,7 @@ public class BillingReportService {
         table.add(i,capacityBasedSubTotal.get(capacity));
       }
     }
+    return table;
   }
 
   public static void sortDataBasedOnCapacity(List<List<String>> data) {
