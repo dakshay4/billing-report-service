@@ -31,6 +31,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Component
@@ -61,15 +62,17 @@ public class BillingReportService {
       case CONTRACT -> {
         List<List<String>> table = reportDataDTO.getTable();
         List<String> header = table.get(0);
-        header.add(0, ContractHeaders.VEHICLE_TYPE.getColumnLabel());
-        header.add(0 ,ContractHeaders.CAPACITY.getColumnLabel());
-        List<String> headerLabels = Arrays.stream(ContractHeaders.values()).map(ContractHeaders::getColumnLabel).collect(Collectors.toList());
-        List<Integer> validIndices = table.get(0).stream().map(headerLabels::indexOf).filter(index -> index >= 0).collect(Collectors.toList());
+
+        Set<String> headerLabels = Arrays.stream(ContractHeaders.values()).map(ContractHeaders::getColumnLabel).collect(Collectors.toSet());
+        List<Integer> validIndices = new ArrayList<>();
+        for(int i=0 ; i< header.size(); i++) if(headerLabels.contains(header.get(i))) validIndices.add(i);
+
         table = table.stream().map(row ->
                 validIndices.stream().map(row::get).collect(Collectors.toList())
         ).collect(Collectors.toList());
 
-        return getContractReportFromNrsResponse(table);
+        getContractReportFromNrsResponse(table);
+        return reportDataDTO;
       }
       default -> {
         throw new MisCustomException(ReportErrors.INVALID_REPORT_TYPE);
@@ -93,9 +96,11 @@ public class BillingReportService {
         .endDate(DateUtils.formatDate(reportRequestDTO.getCycleEnd().toString())).build();
   }
 
-  private ReportDataDTO getContractReportFromNrsResponse(List<List<String>> table){
+  private void getContractReportFromNrsResponse(List<List<String>> table){
     List<String> header = table.get(0);
     int contractIdx = header.indexOf(ContractHeaders.CONTRACT.getColumnLabel());
+    header.add(0, ContractHeaders.VEHICLE_TYPE.getColumnLabel());
+    header.add(0 ,ContractHeaders.CAPACITY.getColumnLabel());
     for(int i=1;i<table.size();i++){
       String contractName = table.get(i).get(contractIdx);
       ContractVO contractVO = contractWebClient.getContract(contractName);
@@ -116,9 +121,10 @@ public class BillingReportService {
         ContractHeaders contractHeader = ContractHeaders.getFromLabelName(header.get(j));
         ReportDataType dataType = contractHeader!=null ? contractHeader.getDataType() : ReportDataType.STRING;
         switch (dataType) {
-          case DOUBLE ->
-                  value = String.valueOf((value.isEmpty() ? 0 : Double.parseDouble(value)) + Double.parseDouble(rowData.get(j)));
-          case INTEGER ->
+          case DOUBLE :
+                  Double subTotal = (value.isEmpty() ? 0 : Double.parseDouble(value)) + Double.parseDouble(rowData.get(j));
+                  value = String.valueOf(subTotal);
+          case INTEGER :
                   value = String.valueOf((value.isEmpty() ? 0 : Integer.parseInt(value)) + Integer.parseInt(rowData.get(j)));
         }
         capacityWiseSubTotalRow.set(j,value);
@@ -135,7 +141,6 @@ public class BillingReportService {
         table.add(i,capacityBasedSubTotal.get(capacity));
       }
     }
-    return null;
   }
 
   public static void sortDataBasedOnCapacity(List<List<String>> data) {
@@ -155,7 +160,9 @@ public class BillingReportService {
   }
 
 
-  public ReportGenerationTime getReportGenerationTime(LocalDate startDate, LocalDate endDate) {
-    return new ReportGenerationTime(BillingStatusVO.BillType.SITE_BILL.name(), new Date());
+  public List<ReportGenerationTime> getReportGenerationTime(LocalDate startDate, LocalDate endDate) {
+    ReportGenerationTime reportTimeSiteBill = new ReportGenerationTime(BillingStatusVO.BillType.SITE_BILL.name(), new Date());
+    ReportGenerationTime reportTimeVendorBill = new ReportGenerationTime(BillingStatusVO.BillType.VENDOR_BILL.name(), new Date());
+    return List.of(reportTimeSiteBill, reportTimeVendorBill);
   }
 }

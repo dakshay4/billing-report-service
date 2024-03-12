@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Locale;
 
 
@@ -50,7 +51,8 @@ public class BillingReportController {
     }
 
     @GetMapping("/reportGenerationTime")
-    public ReportGenerationTime reportdata(
+    public Li
+    st<ReportGenerationTime> reportdata(
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate
     ) {
