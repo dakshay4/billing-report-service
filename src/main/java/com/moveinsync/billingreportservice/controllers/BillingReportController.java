@@ -51,8 +51,7 @@ public class BillingReportController {
     }
 
     @GetMapping("/reportGenerationTime")
-    public Li
-    st<ReportGenerationTime> reportdata(
+    public List<ReportGenerationTime> reportdata(
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate
     ) {
