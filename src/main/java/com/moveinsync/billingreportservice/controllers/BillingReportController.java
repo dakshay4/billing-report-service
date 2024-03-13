@@ -65,18 +65,15 @@ public class BillingReportController {
     }
 
     @GetMapping("/billing-cycles/all")
-    public List<BillingCycleVO> billingCyclesAll(
-            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
-            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate
-    ) {
+    public List<BillingCycleVO> billingCyclesAll() {
         List<BillingCycleVO> dummy = new ArrayList<>();
-        for(int i=1;i<12;i++) {
+        for(int i=12;i>1;i--) {
             dummy.add(new BillingCycleVO(UUID.randomUUID(), UserContextResolver.getCurrentContext().getBuid(),
                     Date.from(LocalDateTime.of(2023, i, 01, 0, 0).toInstant(ZoneOffset.UTC)),
                     Date.from(LocalDateTime.of(2023, i, 01, 0, 0).toInstant(ZoneOffset.UTC))));
 
         }
-        for(int i=1;i<12;i++) {
+        for(int i=12;i>1;i--) {
             dummy.add(new BillingCycleVO(UUID.randomUUID(), UserContextResolver.getCurrentContext().getBuid(),
                     Date.from(LocalDateTime.of(2024, i, 01, 0, 0).toInstant(ZoneOffset.UTC)),
                     Date.from(LocalDateTime.of(2024, i, 01, 0, 0).toInstant(ZoneOffset.UTC))));
