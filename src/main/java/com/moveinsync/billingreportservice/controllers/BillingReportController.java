@@ -1,6 +1,8 @@
 package com.moveinsync.billingreportservice.controllers;
 
 import com.moveinsync.billing.exception.UserDefinedException;
+import com.moveinsync.billing.model.BillingCycleVO;
+import com.moveinsync.billingreportservice.Configurations.UserContextResolver;
 import com.moveinsync.billingreportservice.dto.BillingReportRequestDTO;
 import com.moveinsync.billingreportservice.dto.ReportDataDTO;
 import com.moveinsync.billingreportservice.dto.ReportGenerationTime;
@@ -26,8 +28,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.UUID;
 
 
 @RestController
@@ -56,6 +62,27 @@ public class BillingReportController {
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate
     ) {
         return billingReportService.getReportGenerationTime(startDate, endDate);
+    }
+
+    @GetMapping("/billing-cycles/all")
+    public List<BillingCycleVO> billingCyclesAll(
+            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
+            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate
+    ) {
+        List<BillingCycleVO> dummy = new ArrayList<>();
+        for(int i=1;i<12;i++) {
+            dummy.add(new BillingCycleVO(UUID.randomUUID(), UserContextResolver.getCurrentContext().getBuid(),
+                    Date.from(LocalDateTime.of(2023, i, 01, 0, 0).toInstant(ZoneOffset.UTC)),
+                    Date.from(LocalDateTime.of(2023, i, 01, 0, 0).toInstant(ZoneOffset.UTC))));
+
+        }
+        for(int i=1;i<12;i++) {
+            dummy.add(new BillingCycleVO(UUID.randomUUID(), UserContextResolver.getCurrentContext().getBuid(),
+                    Date.from(LocalDateTime.of(2024, i, 01, 0, 0).toInstant(ZoneOffset.UTC)),
+                    Date.from(LocalDateTime.of(2024, i, 01, 0, 0).toInstant(ZoneOffset.UTC))));
+
+        }
+        return dummy;
     }
 
     @GetMapping("/exception")
