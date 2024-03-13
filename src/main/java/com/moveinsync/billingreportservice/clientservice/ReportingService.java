@@ -18,12 +18,15 @@ public class ReportingService {
   public ReportingService(@Qualifier(BeanConstants.REPORTING_SERVICE_CLIENT) WebClient reportingServiceClient) {
     this.reportingServiceClient = reportingServiceClient;
   }
+
   public ReportDataDTO getReportFromNrs(ExternalReportRequestDTO nrsReportRequest) {
     NrsReportResponse reportResponse = reportingServiceClient.post().uri("/billing-reports")
-        .contentType(MediaType.APPLICATION_JSON).bodyValue(nrsReportRequest).accept(MediaType.APPLICATION_JSON).retrieve()
-        .bodyToMono(NrsReportResponse.class).block();
+        .contentType(MediaType.APPLICATION_JSON).bodyValue(nrsReportRequest).accept(MediaType.APPLICATION_JSON)
+        .retrieve().bodyToMono(NrsReportResponse.class).block();
 
-    if(reportResponse!=null && reportResponse.getData()!=null) return ReportDataDTO.builder().table(reportResponse.getData().getTable()).build();
-    else return new ReportDataDTO();
+    if (reportResponse != null && reportResponse.getData() != null)
+      return ReportDataDTO.builder().table(reportResponse.getData().getTable()).build();
+    else
+      return new ReportDataDTO();
   }
 }

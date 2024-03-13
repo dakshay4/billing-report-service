@@ -1,7 +1,6 @@
 package com.moveinsync.billingreportservice.controllers;
 
 import com.moveinsync.billing.exception.UserDefinedException;
-import com.moveinsync.billing.model.BillingCycleVO;
 import com.moveinsync.billingreportservice.Configurations.UserContextResolver;
 import com.moveinsync.billingreportservice.dto.BillingReportRequestDTO;
 import com.moveinsync.billingreportservice.dto.ReportDataDTO;
@@ -12,6 +11,7 @@ import com.moveinsync.billingreportservice.exceptions.MisError;
 import com.moveinsync.billingreportservice.exceptions.ReportErrors;
 import com.moveinsync.billingreportservice.services.BillingReportService;
 import com.moveinsync.http.v2.MisHttpResponse;
+import com.moveinsync.tripsheetdomain.models.BillingCycleVO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,57 +35,52 @@ import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 
-
 @RestController
 @RequestMapping("/billingReports/web")
 public class BillingReportController {
 
-    @Autowired
-    private BillingReportService billingReportService;
+  private final Logger LOG = LoggerFactory.getLogger(getClass());
+  @Autowired
+  private BillingReportService billingReportService;
+  @Autowired
+  private MessageSource messageSource;
 
-    @Autowired
-    private MessageSource messageSource;
+  @PostMapping("/data/{reportName}")
+  public ReportDataDTO reportdata(@PathVariable BillingReportAggregatedTypes reportName,
+      @RequestBody BillingReportRequestDTO reportRequestDTO) throws UserDefinedException {
+    return billingReportService.getData(reportName, reportRequestDTO);
+  }
 
+  @GetMapping("/reportGenerationTime")
+  public List<ReportGenerationTime> reportdata(
+      @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
+      @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate) {
+    return billingReportService.getReportGenerationTime(startDate, endDate);
+  }
 
-    private final Logger LOG = LoggerFactory.getLogger(getClass());
-
-
-    @PostMapping("/data/{reportName}")
-    public ReportDataDTO reportdata(@PathVariable BillingReportAggregatedTypes reportName, @RequestBody BillingReportRequestDTO reportRequestDTO)
-        throws UserDefinedException {
-        return billingReportService.getData(reportName, reportRequestDTO);
-    }
-
-    @GetMapping("/reportGenerationTime")
-    public List<ReportGenerationTime> reportdata(
-            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
-            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate
-    ) {
-        return billingReportService.getReportGenerationTime(startDate, endDate);
-    }
-
-    @GetMapping("/billing-cycles/all")
-    public List<BillingCycleVO> billingCyclesAll() {
-        List<BillingCycleVO> dummy = new ArrayList<>();
-        for(int i=12;i>1;i--) {
-            dummy.add(new BillingCycleVO(UUID.randomUUID(), UserContextResolver.getCurrentContext().getBuid(),
-                    Date.from(LocalDateTime.of(2023, i, 01, 0, 0).toInstant(ZoneOffset.UTC)),
-                    Date.from(LocalDateTime.of(2023, i, 01, 0, 0).toInstant(ZoneOffset.UTC))));
-
-        }
-        for(int i=12;i>1;i--) {
-            dummy.add(new BillingCycleVO(UUID.randomUUID(), UserContextResolver.getCurrentContext().getBuid(),
-                    Date.from(LocalDateTime.of(2024, i, 01, 0, 0).toInstant(ZoneOffset.UTC)),
-                    Date.from(LocalDateTime.of(2024, i, 01, 0, 0).toInstant(ZoneOffset.UTC))));
-
-        }
-        return dummy;
-    }
-
-    @GetMapping("/exception")
-    public Object exception() {
-        throw new MisCustomException(ReportErrors.UNABLE_TO_FETCH_REPORTS);
-//        return messageSource.getMessage("UNABLE_TO_FETCH_REPORTS", new Object[]{"Test"}, Locale.US);
+  @GetMapping("/billing-cycles/all")
+  public List<BillingCycleVO> billingCyclesAll() {
+    List<BillingCycleVO> dummy = new ArrayList<>();
+    for (int i = 12; i > 1; i--) {
+      dummy.add(new BillingCycleVO(UserContextResolver.getCurrentContext().getBuid(),
+          Date.from(LocalDateTime.of(2023, i, 01, 0, 0).toInstant(ZoneOffset.UTC)),
+          Date.from(LocalDateTime.of(2023, i, 01, 0, 0).toInstant(ZoneOffset.UTC)), false, i, null));
 
     }
+    for (int i = 12; i > 1; i--) {
+      dummy.add(new BillingCycleVO(UserContextResolver.getCurrentContext().getBuid(),
+          Date.from(LocalDateTime.of(2024, i, 01, 0, 0).toInstant(ZoneOffset.UTC)),
+          Date.from(LocalDateTime.of(2024, i, 01, 0, 0).toInstant(ZoneOffset.UTC)), false, i, null));
+
+    }
+    List<BillingCycleVO> billingCycles = billingReportService.fetchAllBillingCycles();
+    return billingCycles != null && !billingCycles.isEmpty() ? billingCycles : dummy;
+  }
+
+  @GetMapping("/exception")
+  public Object exception() {
+    throw new MisCustomException(ReportErrors.UNABLE_TO_FETCH_REPORTS);
+    // return messageSource.getMessage("UNABLE_TO_FETCH_REPORTS", new Object[]{"Test"}, Locale.US);
+
+  }
 }

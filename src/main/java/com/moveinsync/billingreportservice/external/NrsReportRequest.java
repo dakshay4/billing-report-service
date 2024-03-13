@@ -7,10 +7,10 @@ import lombok.Data;
 @AllArgsConstructor
 public class NrsReportRequest {
 
-    private String reportName;
-    private String startDate;
-    private String endDate;
-    private String bunit;
+  private String reportName;
+  private String startDate;
+  private String endDate;
+  private String bunit;
 
-    private ReportFilter reportFilter;
+  private ReportFilter reportFilter;
 }

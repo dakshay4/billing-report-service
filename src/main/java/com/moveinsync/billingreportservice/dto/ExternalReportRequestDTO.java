@@ -1,6 +1,5 @@
 package com.moveinsync.billingreportservice.dto;
 
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,21 +15,20 @@ import java.util.List;
 @Builder
 public class ExternalReportRequestDTO {
 
-    private ReportFilterDTO reportFilter;
-    private String reportName;
-    private String startDate;
-    private String endDate;
-    private String bunit;
+  private ReportFilterDTO reportFilter;
+  private String reportName;
+  private String startDate;
+  private String endDate;
+  private String bunit;
 
-
-    @Data
-    @AllArgsConstructor
-    @NoArgsConstructor
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    public static class ReportFilterDTO {
-        private List<String> vendor;
-        private String contract;
-        private String entityId;
-        private String parentEntity;
-    }
+  @Data
+  @AllArgsConstructor
+  @NoArgsConstructor
+  @JsonIgnoreProperties(ignoreUnknown = true)
+  public static class ReportFilterDTO {
+    private List<String> vendor;
+    private String contract;
+    private String entityId;
+    private String parentEntity;
+  }
 }

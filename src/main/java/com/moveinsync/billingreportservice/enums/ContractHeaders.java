@@ -1,9 +1,6 @@
 package com.moveinsync.billingreportservice.enums;
 
-
-import java.util.Arrays;
-
-public enum ContractHeaders {
+public enum ContractHeaders implements TableHeaders {
     CAPACITY(0, "Capacity", ReportDataType.INTEGER),
     VEHICLE_TYPE(1, "Vehicle Type", ReportDataType.STRING),
     CONTRACT(2, "Contract", ReportDataType.STRING),
@@ -23,28 +20,30 @@ public enum ContractHeaders {
     GRAND_TOTAL_GST(16, "Grand Total GST", ReportDataType.BIGDECIMAL),
     GRAND_TOTAL(17, "Grand Total", ReportDataType.BIGDECIMAL);
 
-    private final int index;
-    private final String columnLabel;
-    private final ReportDataType dataType;
+  private final int index;
+  private final String columnLabel;
+  private final ReportDataType dataType;
 
-    ContractHeaders(int index, String columnLabel, ReportDataType dataType) {
-        this.index = index;
-        this.columnLabel = columnLabel;
-        this.dataType = dataType;
-    }
+  ContractHeaders(int index, String columnLabel, ReportDataType dataType) {
+    this.index = index;
+    this.columnLabel = columnLabel;
+    this.dataType = dataType;
+  }
 
-    public static ContractHeaders getFromLabelName(String columnLabel) {
-        return Arrays.stream(values())
-                .filter(e -> e.columnLabel.equals(columnLabel))
-                .findFirst()
-                .orElse(null);
+  public static ContractHeaders getFromLabelName(String columnLabel) {
+      return TableHeaders.getFromLabelName(ContractHeaders.class, columnLabel);
+  }
+
+    @Override
+    public int getIndex() {
+        return index;
     }
 
     public String getColumnLabel() {
-        return columnLabel;
-    }
+    return columnLabel;
+  }
 
-    public ReportDataType getDataType() {
-        return dataType;
-    }
+  public ReportDataType getDataType() {
+    return dataType;
+  }
 }

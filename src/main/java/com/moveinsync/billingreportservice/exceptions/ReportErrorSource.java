@@ -6,19 +6,19 @@ import java.util.Locale;
 
 public class ReportErrorSource extends ResourceBundleMessageSource {
 
-    private final static String service_baseName = "reportErrors";
+  private final static String service_baseName = "reportErrors";
 
-    public ReportErrorSource() {
-        setBasename(getBaseName());
-        setDefaultEncoding("UTF-8");
-    }
+  public ReportErrorSource() {
+    setBasename(getBaseName());
+    setDefaultEncoding("UTF-8");
+  }
 
-    private String getBaseName() {
-        return "error_" + service_baseName ;
-    }
+  private String getBaseName() {
+    return "error_" + service_baseName;
+  }
 
-    @Override
-    protected String getMessageInternal(String key, Object[] args, Locale locale) {
-        return super.getMessageInternal(key, args, locale);
-    }
+  @Override
+  protected String getMessageInternal(String key, Object[] args, Locale locale) {
+    return super.getMessageInternal(key, args, locale);
+  }
 }

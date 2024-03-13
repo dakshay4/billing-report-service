@@ -21,47 +21,38 @@ import java.util.regex.Pattern;
 @ControllerAdvice
 public class MisExceptionHandler {
 
-    @Autowired
-    private MessageSource messageSource;
+  private final Logger logger = LoggerFactory.getLogger(getClass());
+  @Autowired
+  private MessageSource messageSource;
 
-    private final Logger logger = LoggerFactory.getLogger(getClass());
+  @ExceptionHandler(MisCustomException.class)
+  public ResponseEntity<MisErrorHttpResponse> handleCustomException(MisCustomException ex, HttpServletRequest request) {
+    Locale locale = LocaleUtils.toLocale(UserContextResolver.getCurrentContext().getLocale());
+    String localizedMessage = messageSource.getMessage(ex.getMisError().getMessageKey(), ex.getArgs(), locale);
+    localizedMessage = replaceUnreplacedPlaceholders(localizedMessage);
+    HttpStatus statusCode = ex.getMisError().getErrorType().getStatusCode();
+    MisErrorHttpResponse errorResponse = new MisErrorHttpResponse("Error", localizedMessage, System.currentTimeMillis(),
+        request.getRequestURI());
+    logger.error("{}", ex);
+    return new ResponseEntity<>(errorResponse, statusCode);
+  }
 
-    @ExceptionHandler(MisCustomException.class)
-    public ResponseEntity<MisErrorHttpResponse> handleCustomException(MisCustomException ex, HttpServletRequest request) {
-        Locale locale = LocaleUtils.toLocale(UserContextResolver.getCurrentContext().getLocale());
-        String localizedMessage = messageSource.getMessage(ex.getMisError().getMessageKey(), ex.getArgs(), locale);
-        localizedMessage = replaceUnreplacedPlaceholders(localizedMessage);
-        HttpStatus statusCode = ex.getMisError().getErrorType().getStatusCode();
-        MisErrorHttpResponse errorResponse = new MisErrorHttpResponse(
-                "Error",
-                localizedMessage,
-                System.currentTimeMillis(),
-                request.getRequestURI()
-        );
-        logger.error("{}",ex);
-        return new ResponseEntity<>(errorResponse,statusCode);
-    }
+  @ExceptionHandler(Exception.class)
+  public ResponseEntity<MisErrorHttpResponse> handleException(Exception ex, HttpServletRequest request) {
+    MisErrorHttpResponse errorResponse = new MisErrorHttpResponse("Error", ex.getMessage(), System.currentTimeMillis(),
+        request.getRequestURI());
+    logger.error("{}", ex);
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<MisErrorHttpResponse> handleException(Exception ex, HttpServletRequest request) {
-        MisErrorHttpResponse errorResponse = new MisErrorHttpResponse(
-                "Error",
-                ex.getMessage(),
-                System.currentTimeMillis(),
-                request.getRequestURI()
-        );
-        logger.error("{}",ex);
+    return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+  }
 
-        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+  private String replaceUnreplacedPlaceholders(String message) {
+    // Regular expression to match placeholders like {0}, {1}, etc.
+    String regex = "\\{\\d+\\}";
+    Pattern pattern = Pattern.compile(regex);
+    Matcher matcher = pattern.matcher(message);
 
-    private String replaceUnreplacedPlaceholders(String message) {
-        // Regular expression to match placeholders like {0}, {1}, etc.
-        String regex = "\\{\\d+\\}";
-        Pattern pattern = Pattern.compile(regex);
-        Matcher matcher = pattern.matcher(message);
-
-        // Replace all matches with "_"
-        return matcher.replaceAll("_");
-    }
+    // Replace all matches with "_"
+    return matcher.replaceAll("_");
+  }
 }

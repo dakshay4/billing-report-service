@@ -1,8 +1,5 @@
 package com.moveinsync.billingreportservice.enums;
 
-
 public enum ReportDataType {
-    INTEGER,
-    STRING,
-    BIGDECIMAL
+  INTEGER, STRING, BOOLEAN, BIGDECIMAL
 }

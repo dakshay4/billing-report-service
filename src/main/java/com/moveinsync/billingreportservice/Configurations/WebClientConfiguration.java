@@ -3,10 +3,7 @@ package com.moveinsync.billingreportservice.Configurations;
 import com.mis.serverdata.utils.GsonUtils;
 import com.moveinsync.billingreportservice.constants.BeanConstants;
 import com.moveinsync.billingreportservice.constants.Constants;
-import io.netty.channel.ChannelOption;
-import io.netty.handler.timeout.IdleStateHandler;
-import io.netty.handler.timeout.ReadTimeoutHandler;
-import io.netty.handler.timeout.WriteTimeoutHandler;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -18,11 +15,16 @@ import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
+
+import java.time.Duration;
+
+import io.netty.channel.ChannelOption;
+import io.netty.handler.timeout.IdleStateHandler;
+import io.netty.handler.timeout.ReadTimeoutHandler;
+import io.netty.handler.timeout.WriteTimeoutHandler;
 import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
 import reactor.netty.resources.ConnectionProvider;
-
-import java.time.Duration;
 
 @Configuration
 public class WebClientConfiguration {
@@ -77,6 +79,9 @@ public class WebClientConfiguration {
   @Value("${x_reporting_auth_token}")
   private String reportingAuthToken;
 
+  @Value("${tripsheetdomain_x_mis_token}")
+  private String tripsheetDomainToken;
+
   @Bean
   public WebClient.Builder getWebClient() {
     ExchangeStrategies strategies = ExchangeStrategies.builder()
@@ -86,14 +91,16 @@ public class WebClientConfiguration {
         .maxLifeTime(Duration.ofSeconds(webClientMaxLifeTimeout))
         .pendingAcquireTimeout(Duration.ofSeconds(webClientAcquireIdealTimeout))
         .evictInBackground(Duration.ofSeconds(webClientEvictLifeTimeout)).build();
-    return WebClient.builder().clientConnector(new ReactorClientHttpConnector(HttpClient.create(provider)
+    return WebClient.builder()
+        .clientConnector(new ReactorClientHttpConnector(HttpClient.create(provider)
             .tcpConfiguration(
                 tcpClient -> tcpClient.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, webClientConnectionTimeout)
-                    .option(ChannelOption.SO_KEEPALIVE, true).option(ChannelOption.TCP_NODELAY, true).doOnConnected(
-                        conn -> conn.addHandlerLast(new ReadTimeoutHandler(webClientReadTimeout))
-                            .addHandlerLast(new WriteTimeoutHandler(webClientWriteTimeout)).addHandlerLast(
-                                new IdleStateHandler(webClientMaxLifeTimeout, webClientMaxLifeTimeout,
-                                    webClientMaxLifeTimeout)))).responseTimeout(Duration.ofMillis(webClientSocketTimeout))))
+                    .option(ChannelOption.SO_KEEPALIVE, true).option(ChannelOption.TCP_NODELAY, true)
+                    .doOnConnected(conn -> conn.addHandlerLast(new ReadTimeoutHandler(webClientReadTimeout))
+                        .addHandlerLast(new WriteTimeoutHandler(webClientWriteTimeout))
+                        .addHandlerLast(new IdleStateHandler(webClientMaxLifeTimeout, webClientMaxLifeTimeout,
+                            webClientMaxLifeTimeout))))
+            .responseTimeout(Duration.ofMillis(webClientSocketTimeout))))
         .exchangeStrategies(strategies).filter(ExchangeFilterFunction.ofRequestProcessor(request -> {
           logger.info("RestAPI request sent to: for method={} :: url={}, body: {}", request.method(), request.url(),
               GsonUtils.getGson().toJson(request.body()));
@@ -104,7 +111,7 @@ public class WebClientConfiguration {
   private Mono<ClientResponse> handleError(ClientResponse clientResponse) {
     if (!clientResponse.statusCode().is2xxSuccessful()) {
       return clientResponse.bodyToMono(String.class)
-              .flatMap(body -> Mono.error(new WebClientException(clientResponse.statusCode().value(), body)));
+          .flatMap(body -> Mono.error(new WebClientException(clientResponse.statusCode().value(), body)));
     }
     return Mono.just(clientResponse);
   }
@@ -118,15 +125,18 @@ public class WebClientConfiguration {
   @Qualifier(BeanConstants.REPORTING_SERVICE_CLIENT)
   @Bean
   public WebClient reportingServiceClient(WebClient.Builder webClientBuilder) {
-    return webClientBuilder.baseUrl(reportServiceUrl)
-        .defaultHeader(Constants.X_AUTH_TOKEN, reportingAuthToken).build();
+    return webClientBuilder.baseUrl(reportServiceUrl).defaultHeader(Constants.X_AUTH_TOKEN, reportingAuthToken).build();
   }
+
   @Bean
   public WebClient contractClient(WebClient.Builder webClientBuilder) {
-    return webClientBuilder.baseUrl(contractServiceUrl).defaultHeader(Constants.AUTHORIZATION, contractServiceAuthToken).build();
+    return webClientBuilder.baseUrl(contractServiceUrl).defaultHeader(Constants.AUTHORIZATION, contractServiceAuthToken)
+        .build();
   }
+
   @Bean
-  public WebClient etsClient(WebClient.Builder webClientBuilder) {
-    return webClientBuilder.baseUrl(contractServiceUrl).build();
+  public WebClient tripsheetDomainClient(WebClient.Builder webClientBuilder) {
+    return webClientBuilder.baseUrl(tripsheetDomainUrl).defaultHeader(Constants.X_MIS_TOKEN, tripsheetDomainToken)
+        .build();
   }
 }
