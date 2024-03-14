@@ -100,14 +100,11 @@ public class BillingReportService {
       ReportBook reportBook = new OfficeReport();
       reportDataDTO = reportBook.generateReport(reportDataDTO);
       break;
-
     }
 
     case VEHICLE -> {
-      List<List<String>> table = reportDataDTO.getTable();
-      List<String> total = totalRow(table);
-      table.add(total);
-      reportDataDTO.setTable(table);
+      ReportBook reportBook = new VehicleReport();
+      reportDataDTO = reportBook.generateReport(reportDataDTO);
       break;
     }
 
