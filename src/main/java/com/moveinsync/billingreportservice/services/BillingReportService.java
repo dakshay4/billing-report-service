@@ -115,14 +115,17 @@ public class BillingReportService {
     }
 
     case CONTRACT -> {
-      List<List<String>> table = reportDataDTO.getTable();
-      table = filterIncomingTableHeadersAndData(table);
-      List<String> totalRow = totalRow(table);
-      table = getContractReportFromNrsResponse(table);
-      table.add(totalRow);
-      reportDataDTO
-              .setTable(table);
+      ReportBook reportBook = new ContractReport(contractWebClient);
+      reportDataDTO = reportBook.generateReport(reportDataDTO);
       break;
+//      List<List<String>> table = reportDataDTO.getTable();
+//      table = filterIncomingTableHeadersAndData(table);
+//      List<String> totalRow = totalRow(table);
+//      table = getContractReportFromNrsResponse(table);
+//      table.add(totalRow);
+//      reportDataDTO
+//              .setTable(table);
+//      break;
     }
     default -> throw new MisCustomException(ReportErrors.INVALID_REPORT_TYPE);
     }

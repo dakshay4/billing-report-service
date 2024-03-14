@@ -1,11 +1,14 @@
 package com.moveinsync.billingreportservice.services;
 
+import com.moveinsync.billingreportservice.BillingreportserviceApplication;
 import com.moveinsync.billingreportservice.Utils.NumberUtils;
 import com.moveinsync.billingreportservice.dto.ReportDataDTO;
 import com.moveinsync.billingreportservice.enums.BillingReportAggregatedTypes;
 import com.moveinsync.billingreportservice.enums.ContractHeaders;
 import com.moveinsync.billingreportservice.enums.ReportDataType;
 import com.moveinsync.billingreportservice.enums.TableHeaders;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 import java.math.BigDecimal;
@@ -20,10 +23,15 @@ public abstract class ReportBook<T extends TableHeaders> {
 
     public abstract T[] getHeaders();
 
+//    public abstract T getEnumClass();
+
+    private final static  Logger logger = LoggerFactory.getLogger(ReportBook.class);
 
     public abstract ReportDataDTO generateReport(ReportDataDTO reportDataDTO);
 
     public List<List<String>> filterIncomingTableHeadersAndData(List<List<String>> table) {
+        logger.info("Filtered table {}", table);
+        table = reorderTable(table);
         if(table == null) return new ArrayList<>();
         List<String> header = table.get(0);
         Set<String> headerLabels = Arrays.stream(getHeaders()).map(e->e.getColumnLabel()).collect(
@@ -66,4 +74,27 @@ public abstract class ReportBook<T extends TableHeaders> {
         return totalRow;
     }
 
+    public List<List<String>> reorderTable(List<List<String>> table) {
+        List<String> baseRow = table.get(0);
+        List<Integer> reorderIndices = new ArrayList<>();
+        for (T header : getHeaders()) {
+            String columnLabel = header.getColumnLabel();
+            int index = baseRow.indexOf(columnLabel);
+            reorderIndices.add(index);
+        }
+
+        for (int i = 0; i < table.size(); i++) {
+            List<String> row = table.get(i);
+            List<String> reorderedRow = new ArrayList<>(row.size());
+            for (int index : reorderIndices) {
+                if (index != -1) {
+                    reorderedRow.add(row.get(index));
+                } else {
+                    reorderedRow.add(null); // or any default value if not found
+                }
+            }
+            table.set(i, reorderedRow);
+        }
+        return table;
+    }
 }
