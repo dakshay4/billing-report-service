@@ -18,8 +18,8 @@ public enum ContractHeaders implements TableHeaders {
     EXTRA_HOUR_COST(12, "Extra Hour Cost", ReportDataType.BIGDECIMAL),
     DRIVER_ALLOWANCE(13, "Driver Allowance", ReportDataType.BIGDECIMAL),
     AC_COST(14, "Ac Cost", ReportDataType.BIGDECIMAL),
-    PARKING(15, "Parking", ReportDataType.BIGDECIMAL),
-    GRAND_TOTAL_GST(16, "Grand Total GST", ReportDataType.BIGDECIMAL),
+    EXPENSE_COST(15, "Expense Cost", ReportDataType.BIGDECIMAL),
+    GST(16, "GST", ReportDataType.BIGDECIMAL),
     GRAND_TOTAL(17, "Grand Total", ReportDataType.BIGDECIMAL);
 
   private final int index;

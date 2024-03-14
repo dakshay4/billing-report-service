@@ -15,8 +15,8 @@ public enum OfficeHeaders implements TableHeaders {
     EXTRA_HOUR_COST(10, "Extra Hour Cost", ReportDataType.BIGDECIMAL),
     DRIVER_ALLOWANCE(11, "Driver Allowance", ReportDataType.BIGDECIMAL),
     AC_COST(12, "Ac Cost", ReportDataType.BIGDECIMAL),
-    EXPENSE_COST(13, "Parking", ReportDataType.BIGDECIMAL),
-    GRAND_TOTAL_GST(14, "Grand Total GST", ReportDataType.BIGDECIMAL),
+    EXPENSE_COST(13, "Expense Cost", ReportDataType.BIGDECIMAL),
+    GST(14, "GST", ReportDataType.BIGDECIMAL),
     GRAND_TOTAL(15, "Grand Total", ReportDataType.BIGDECIMAL),
     FROZEN(16, "Frozen", ReportDataType.BOOLEAN);
 

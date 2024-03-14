@@ -43,9 +43,13 @@ public class ContractReport <T extends Enum<T>> extends ReportBook<ContractHeade
         table = getContractReportFromNrsResponse(reportDataDTO);
         List<String> totalRow = totalRow(table);
         table.add(totalRow);
+        for (Map.Entry<Integer, List<String>> entry : reportDataDTO.getSubTotalRow().entrySet()) {
+            Integer index = entry.getKey();
+            List<String> row = entry.getValue();
+            row.set(0, "Sub Total");
+            table.add(index, row);
+        }
         reportDataDTO.setTable(table);
-        reportDataDTO
-                .setTable(table);
         return reportDataDTO;
     }
 
@@ -100,10 +104,7 @@ public class ContractReport <T extends Enum<T>> extends ReportBook<ContractHeade
                 capacityBreakPoint = capacity;
             }
         }
-/*        indexWiseSubTotalRowPlacement.put(table.size(), capacityBasedSubTotal.get(capacityBreakPoint));
-        indexWiseSubTotalRowPlacement.forEach((index, row) -> {
-            table.add(index, row);
-        });*/
+        indexWiseSubTotalRowPlacement.put(table.size(), capacityBasedSubTotal.get(capacityBreakPoint));// FOR last Seat Capacity group
         reportDataDTO.setSubTotalRow(indexWiseSubTotalRowPlacement);
         return table;
     }
