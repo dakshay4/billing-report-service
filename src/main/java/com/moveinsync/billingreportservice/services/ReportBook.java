@@ -62,6 +62,7 @@ public abstract class ReportBook<T extends TableHeaders> {
                 totalRow.set(j, value);
             }
         }
+        totalRow.set(0, "Total");
         return totalRow;
     }
 

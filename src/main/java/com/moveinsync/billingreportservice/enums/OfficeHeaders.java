@@ -1,6 +1,6 @@
 package com.moveinsync.billingreportservice.enums;
 
-public enum OfficeHeaders {
+public enum OfficeHeaders implements TableHeaders {
 
     OFFICE(0, "Office", ReportDataType.STRING),
     TOTAL_TRIP_COUNT(1, "Total Trip Count", ReportDataType.INTEGER),

@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.moveinsync.billing.model.BillingStatusVO;
 import com.moveinsync.billing.model.ContractVO;
 import com.moveinsync.billing.types.BillingCurrentStatus;
+import com.moveinsync.billingreportservice.BillingreportserviceApplication;
 import com.moveinsync.billingreportservice.Configurations.UserContextResolver;
 import com.moveinsync.billingreportservice.Utils.DateUtils;
 import com.moveinsync.billingreportservice.Utils.NumberUtils;
@@ -25,6 +26,8 @@ import com.moveinsync.billingreportservice.exceptions.ReportErrors;
 import com.moveinsync.tripsheetdomain.client.TripsheetDomainWebClient;
 import com.moveinsync.tripsheetdomain.models.BillingCycleVO;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -48,6 +51,9 @@ public class BillingReportService {
   private final ContractWebClientImpl contractWebClient;
   private final BillingCycleServiceImpl tripsheetDomainClient;
   private final TripsheetDomainWebClient tripsheetDomainWebClient;
+
+  private static final Logger logger = LoggerFactory.getLogger(BillingReportService.class);
+
 
   public BillingReportService(WebClient vmsClient, ReportingService reportingService,
                               ContractWebClientImpl contractWebClient, BillingCycleServiceImpl tripsheetDomainClient, TripsheetDomainWebClient tripsheetDomainWebClient) {
@@ -82,11 +88,22 @@ public class BillingReportService {
         : (vendorResponseDTO != null ? vendorResponseDTO.getVendorName() : null);
     ExternalReportRequestDTO externalReportRequestDTO = prepareNRSRequest(reportRequestDTO, vendorName, reportName);
     ReportDataDTO reportDataDTO = reportingService.getReportFromNrs(externalReportRequestDTO);
+    logger.info("Response from reportDataDTO {}", reportDataDTO);
     switch (reportName) {
     case VENDOR -> {
       ReportBook reportBook = new VendorReport();
       reportDataDTO = reportBook.generateReport(reportDataDTO);
+      break;
+    }
 
+    case OFFICE -> {
+      ReportBook reportBook = new OfficeReport();
+      reportDataDTO = reportBook.generateReport(reportDataDTO);
+      break;
+
+    }
+
+    case VEHICLE -> {
       List<List<String>> table = reportDataDTO.getTable();
       List<String> total = totalRow(table);
       table.add(total);
@@ -94,13 +111,12 @@ public class BillingReportService {
       break;
     }
 
-    case VEHICLE, OFFICE, DUTY -> {
-      List<List<String>> table = reportDataDTO.getTable();
-      List<String> total = totalRow(table);
-      table.add(total);
-      reportDataDTO.setTable(table);
+    case DUTY -> {
+      ReportBook reportBook = new DutyReport();
+      reportDataDTO = reportBook.generateReport(reportDataDTO);
       break;
     }
+
     case CONTRACT -> {
       List<List<String>> table = reportDataDTO.getTable();
       table = filterIncomingTableHeadersAndData(table);

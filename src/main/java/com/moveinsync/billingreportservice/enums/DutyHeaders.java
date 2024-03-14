@@ -1,6 +1,6 @@
 package com.moveinsync.billingreportservice.enums;
 
-public enum DutyHeaders {
+public enum DutyHeaders implements TableHeaders {
 
     DATE(0, "Date", ReportDataType.STRING),
     DUTIES(1, "No of Duties", ReportDataType.INTEGER),
