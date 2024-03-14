@@ -4,6 +4,10 @@ import com.mis.serverdata.utils.GsonUtils;
 import com.moveinsync.billingreportservice.constants.BeanConstants;
 import com.moveinsync.billingreportservice.constants.Constants;
 
+import com.moveinsync.processing.CircuitBreakerBuilder;
+import com.moveinsync.processing.ClientBuilder;
+import com.moveinsync.tripsheetdomain.client.TripsheetDomainWebClient;
+import io.micrometer.prometheus.PrometheusMeterRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -11,6 +15,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
@@ -22,6 +27,7 @@ import io.netty.channel.ChannelOption;
 import io.netty.handler.timeout.IdleStateHandler;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import io.netty.handler.timeout.WriteTimeoutHandler;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
 import reactor.netty.resources.ConnectionProvider;
@@ -138,5 +144,15 @@ public class WebClientConfiguration {
   public WebClient tripsheetDomainClient(WebClient.Builder webClientBuilder) {
     return webClientBuilder.baseUrl(tripsheetDomainUrl).defaultHeader(Constants.X_MIS_TOKEN, tripsheetDomainToken)
         .build();
+  }
+
+  @Bean
+  TripsheetDomainWebClient tripsheetDomainWebClient(PrometheusMeterRegistry prometheusMeterRegistry) {
+    ClientBuilder clientBuilder = TripsheetDomainWebClient.getClientBuilder();
+    CircuitBreakerBuilder circuitBreakerBuilder = new CircuitBreakerBuilder().addExceptionToExclude(
+            HttpServerErrorException.InternalServerError.class).addExceptionToExclude(WebClientResponseException.InternalServerError.class);
+    clientBuilder.withUrl(tripsheetDomainUrl).withMeterRegistry(prometheusMeterRegistry).withReadTimeOut(Duration.ZERO)
+            .withWriteTimeOut(Duration.ZERO).withCircuitBreakerBuilder(circuitBreakerBuilder);
+    return new TripsheetDomainWebClient();
   }
 }

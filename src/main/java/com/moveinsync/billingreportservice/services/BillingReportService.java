@@ -9,7 +9,8 @@ import com.moveinsync.billingreportservice.Utils.DateUtils;
 import com.moveinsync.billingreportservice.Utils.NumberUtils;
 import com.moveinsync.billingreportservice.clientservice.ContractWebClientImpl;
 import com.moveinsync.billingreportservice.clientservice.ReportingService;
-import com.moveinsync.billingreportservice.clientservice.TripsheetDomainClientImpl;
+import com.moveinsync.billingreportservice.clientservice.BillingCycleServiceImpl;
+import com.moveinsync.billingreportservice.dto.BillingCycleDTO;
 import com.moveinsync.billingreportservice.dto.BillingReportRequestDTO;
 import com.moveinsync.billingreportservice.dto.ExternalReportRequestDTO;
 import com.moveinsync.billingreportservice.dto.ReportDataDTO;
@@ -21,6 +22,7 @@ import com.moveinsync.billingreportservice.enums.ReportDataType;
 import com.moveinsync.billingreportservice.exceptions.MisCustomException;
 import com.moveinsync.billingreportservice.exceptions.ReportErrors;
 
+import com.moveinsync.tripsheetdomain.client.TripsheetDomainWebClient;
 import com.moveinsync.tripsheetdomain.models.BillingCycleVO;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
@@ -44,14 +46,16 @@ public class BillingReportService {
   private final WebClient vmsClient;
   private final ReportingService reportingService;
   private final ContractWebClientImpl contractWebClient;
-  private final TripsheetDomainClientImpl tripsheetDomainClient;
+  private final BillingCycleServiceImpl tripsheetDomainClient;
+  private final TripsheetDomainWebClient tripsheetDomainWebClient;
 
   public BillingReportService(WebClient vmsClient, ReportingService reportingService,
-      ContractWebClientImpl contractWebClient, TripsheetDomainClientImpl tripsheetDomainClient) {
+                              ContractWebClientImpl contractWebClient, BillingCycleServiceImpl tripsheetDomainClient, TripsheetDomainWebClient tripsheetDomainWebClient) {
     this.vmsClient = vmsClient;
     this.reportingService = reportingService;
     this.contractWebClient = contractWebClient;
     this.tripsheetDomainClient = tripsheetDomainClient;
+      this.tripsheetDomainWebClient = tripsheetDomainWebClient;
   }
 
   public static void sortDataBasedOnCapacity(List<List<String>> data) {
@@ -240,8 +244,13 @@ public class BillingReportService {
     return reportGenerationTimes;
   }
 
-  public List<BillingCycleVO> fetchAllBillingCycles() {
-    List<BillingCycleVO> cycleVOS = tripsheetDomainClient.fetchAllBillingCycles();
-    return cycleVOS;
+  public List<BillingCycleDTO> fetchAllBillingCycles() {
+    List<BillingCycleVO> cycleVOS = tripsheetDomainClient.fetchBillingCyclesCached();
+    return cycleVOS.parallelStream().map(cycleVO -> convertToDTO(cycleVO)).collect(Collectors.toList());
+  }
+
+  private BillingCycleDTO convertToDTO(BillingCycleVO cycleVO) {
+    return new BillingCycleDTO(cycleVO.getBillingCycleId(), cycleVO.getStartDate(), cycleVO.getEndDate(),
+        cycleVO.getIsFrozen());
   }
 }

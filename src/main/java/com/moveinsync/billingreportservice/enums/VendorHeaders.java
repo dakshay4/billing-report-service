@@ -1,5 +1,7 @@
 package com.moveinsync.billingreportservice.enums;
 
+import java.util.Arrays;
+
 public enum VendorHeaders implements TableHeaders {
     VENDOR(0, "Vendor", ReportDataType.STRING),
     TOTAL_TRIP_COUNT(1, "Total Trip Count", ReportDataType.INTEGER),
@@ -42,7 +44,9 @@ public enum VendorHeaders implements TableHeaders {
     }
 
     public static VendorHeaders getFromLabelName(String columnLabel) {
-        return TableHeaders.getFromLabelName(VendorHeaders.class, columnLabel);
-
+        return Arrays.stream(values())
+                .filter(e -> e.getColumnLabel().equals(columnLabel))
+                .findFirst()
+                .orElse(null);
     }
 }

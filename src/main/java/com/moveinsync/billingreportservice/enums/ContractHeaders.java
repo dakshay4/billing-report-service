@@ -1,5 +1,7 @@
 package com.moveinsync.billingreportservice.enums;
 
+import java.util.Arrays;
+
 public enum ContractHeaders implements TableHeaders {
     CAPACITY(0, "Capacity", ReportDataType.INTEGER),
     VEHICLE_TYPE(1, "Vehicle Type", ReportDataType.STRING),
@@ -31,7 +33,10 @@ public enum ContractHeaders implements TableHeaders {
   }
 
   public static ContractHeaders getFromLabelName(String columnLabel) {
-      return TableHeaders.getFromLabelName(ContractHeaders.class, columnLabel);
+      return Arrays.stream(values())
+              .filter(e -> e.getColumnLabel().equals(columnLabel))
+              .findFirst()
+              .orElse(null);
   }
 
     @Override

@@ -2,6 +2,7 @@ package com.moveinsync.billingreportservice.controllers;
 
 import com.moveinsync.billing.exception.UserDefinedException;
 import com.moveinsync.billingreportservice.Configurations.UserContextResolver;
+import com.moveinsync.billingreportservice.dto.BillingCycleDTO;
 import com.moveinsync.billingreportservice.dto.BillingReportRequestDTO;
 import com.moveinsync.billingreportservice.dto.ReportDataDTO;
 import com.moveinsync.billingreportservice.dto.ReportGenerationTime;
@@ -59,22 +60,9 @@ public class BillingReportController {
   }
 
   @GetMapping("/billing-cycles/all")
-  public List<BillingCycleVO> billingCyclesAll() {
-    List<BillingCycleVO> dummy = new ArrayList<>();
-    for (int i = 12; i > 1; i--) {
-      dummy.add(new BillingCycleVO(UserContextResolver.getCurrentContext().getBuid(),
-          Date.from(LocalDateTime.of(2023, i, 01, 0, 0).toInstant(ZoneOffset.UTC)),
-          Date.from(LocalDateTime.of(2023, i, 01, 0, 0).toInstant(ZoneOffset.UTC)), false, i, null));
-
-    }
-    for (int i = 12; i > 1; i--) {
-      dummy.add(new BillingCycleVO(UserContextResolver.getCurrentContext().getBuid(),
-          Date.from(LocalDateTime.of(2024, i, 01, 0, 0).toInstant(ZoneOffset.UTC)),
-          Date.from(LocalDateTime.of(2024, i, 01, 0, 0).toInstant(ZoneOffset.UTC)), false, i, null));
-
-    }
-    List<BillingCycleVO> billingCycles = billingReportService.fetchAllBillingCycles();
-    return billingCycles != null && !billingCycles.isEmpty() ? billingCycles : dummy;
+  public List<BillingCycleDTO> billingCyclesAll() {
+    List<BillingCycleDTO> billingCycles = billingReportService.fetchAllBillingCycles();
+    return billingCycles;
   }
 
   @GetMapping("/exception")
