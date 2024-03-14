@@ -39,6 +39,7 @@ public class ContractReport <T extends Enum<T>> extends ReportBook<ContractHeade
     public ReportDataDTO generateReport(ReportDataDTO reportDataDTO) {
         List<List<String>> table = reportDataDTO.getTable();
         table = filterIncomingTableHeadersAndData(table);
+        reportDataDTO.setTable(table);
         table = getContractReportFromNrsResponse(reportDataDTO);
         List<String> totalRow = totalRow(table);
         table.add(totalRow);
