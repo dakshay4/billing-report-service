@@ -31,7 +31,6 @@ public abstract class ReportBook<T extends TableHeaders> {
 
     public List<List<String>> filterIncomingTableHeadersAndData(List<List<String>> table) {
         logger.info("Filtered table {}", table);
-        table = reorderTable(table);
         if(table == null) return new ArrayList<>();
         List<String> header = table.get(0);
         Set<String> headerLabels = Arrays.stream(getHeaders()).map(e->e.getColumnLabel()).collect(
@@ -43,6 +42,7 @@ public abstract class ReportBook<T extends TableHeaders> {
 
         table = table.stream().map(row -> validIndices.stream().map(row::get).collect(Collectors.toList()))
                 .collect(Collectors.toList());
+        table = reorderTable(table);
         return table;
     }
 
@@ -90,7 +90,7 @@ public abstract class ReportBook<T extends TableHeaders> {
                 if (index != -1) {
                     reorderedRow.add(row.get(index));
                 } else {
-                    reorderedRow.add(null); // or any default value if not found
+                    reorderedRow.add(""); // or any default value if not found
                 }
             }
             table.set(i, reorderedRow);

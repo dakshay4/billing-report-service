@@ -3,11 +3,11 @@ package com.moveinsync.billingreportservice.enums;
 import java.util.Arrays;
 
 public enum VendorHeaders implements TableHeaders {
-    VENDOR(0, "Vendor", ReportDataType.STRING),
+    VENDOR(0, "Entity Id", ReportDataType.STRING),
     TOTAL_TRIP_COUNT(1, "Total Trip Count", ReportDataType.INTEGER),
     TOTAL_TRIP_KM(2, "Total Trip Km", ReportDataType.BIGDECIMAL),
     TOTAL_KM(3, "Total km", ReportDataType.BIGDECIMAL),
-    ADJUSTMENT(4, "Adjustment", ReportDataType.BIGDECIMAL),
+    ADJUSTMENT(4, "Misc Adjustments", ReportDataType.BIGDECIMAL),
     ESCORT_COUNT(5, "Escort Count", ReportDataType.INTEGER),
     ESCORT_COST(6, "Escort Cost", ReportDataType.BIGDECIMAL),
     BASE_COST(7, "Contract Price", ReportDataType.BIGDECIMAL),
