@@ -21,12 +21,12 @@ public enum DutyHeaders implements TableHeaders {
     ACTION(16, "Action", ReportDataType.STRING);
 
     private final int index;
-    private final String columnLabel;
+    private final String key;
     private final ReportDataType dataType;
 
-    DutyHeaders(int index, String columnLabel, ReportDataType dataType) {
+    DutyHeaders(int index, String key, ReportDataType dataType) {
         this.index = index;
-        this.columnLabel = columnLabel;
+        this.key = key;
         this.dataType = dataType;
     }
 
@@ -34,8 +34,8 @@ public enum DutyHeaders implements TableHeaders {
         return index;
     }
 
-    public String getColumnLabel() {
-        return columnLabel;
+    public String getKey() {
+        return key;
     }
 
     public ReportDataType getDataType() {

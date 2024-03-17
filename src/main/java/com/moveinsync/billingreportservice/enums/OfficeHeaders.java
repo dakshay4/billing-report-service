@@ -21,12 +21,12 @@ public enum OfficeHeaders implements TableHeaders {
     FROZEN(16, "Frozen", ReportDataType.BOOLEAN);
 
     private final int index;
-    private final String columnLabel;
+    private final String key;
     private final ReportDataType dataType;
 
-    OfficeHeaders(int index, String columnLabel, ReportDataType dataType) {
+    OfficeHeaders(int index, String key, ReportDataType dataType) {
         this.index = index;
-        this.columnLabel = columnLabel;
+        this.key = key;
         this.dataType = dataType;
     }
 
@@ -34,8 +34,8 @@ public enum OfficeHeaders implements TableHeaders {
         return index;
     }
 
-    public String getColumnLabel() {
-        return columnLabel;
+    public String getKey() {
+        return key;
     }
 
     public ReportDataType getDataType() {

@@ -1,9 +1,8 @@
 package com.moveinsync.billingreportservice.services;
 
-import com.moveinsync.billingreportservice.BillingreportserviceApplication;
 import com.moveinsync.billingreportservice.Utils.NumberUtils;
+import com.moveinsync.billingreportservice.dto.BillingReportRequestDTO;
 import com.moveinsync.billingreportservice.dto.ReportDataDTO;
-import com.moveinsync.billingreportservice.enums.BillingReportAggregatedTypes;
 import com.moveinsync.billingreportservice.enums.ContractHeaders;
 import com.moveinsync.billingreportservice.enums.ReportDataType;
 import com.moveinsync.billingreportservice.enums.TableHeaders;
@@ -23,17 +22,20 @@ public abstract class ReportBook<T extends TableHeaders> {
 
     public abstract T[] getHeaders();
 
-//    public abstract T getEnumClass();
-
     private final static  Logger logger = LoggerFactory.getLogger(ReportBook.class);
 
-    public abstract ReportDataDTO generateReport(ReportDataDTO reportDataDTO);
+        public abstract ReportDataDTO generateReport(BillingReportRequestDTO billingReportRequestDTO, ReportDataDTO reportDataDTO);
+
+    public List<String> getHeaderRow(List<List<String>> table) {
+        if(table!=null && !table.isEmpty()) return table.get(0);
+        return new ArrayList<>();
+    }
 
     public List<List<String>> filterIncomingTableHeadersAndData(List<List<String>> table) {
         logger.info("Filtered table {}", table);
         if(table == null || table.isEmpty()) return new ArrayList<>();
         List<String> header = table.get(0);
-        Set<String> headerLabels = Arrays.stream(getHeaders()).map(e->e.getColumnLabel()).collect(
+        Set<String> headerLabels = Arrays.stream(getHeaders()).map(e->e.getKey()).collect(
                 Collectors.toSet());
         List<Integer> validIndices = new ArrayList<>();
         for (int i = 0; i < header.size(); i++)
@@ -78,7 +80,7 @@ public abstract class ReportBook<T extends TableHeaders> {
         List<String> baseRow = table.get(0);
         List<Integer> reorderIndices = new ArrayList<>();
         for (T header : getHeaders()) {
-            String columnLabel = header.getColumnLabel();
+            String columnLabel = header.getKey();
             int index = baseRow.indexOf(columnLabel);
             reorderIndices.add(index);
         }
@@ -95,6 +97,7 @@ public abstract class ReportBook<T extends TableHeaders> {
             }
             table.set(i, reorderedRow);
         }
+
         return table;
     }
 }

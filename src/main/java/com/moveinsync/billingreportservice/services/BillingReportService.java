@@ -2,15 +2,13 @@ package com.moveinsync.billingreportservice.services;
 
 import com.google.common.collect.Lists;
 import com.moveinsync.billing.model.BillingStatusVO;
-import com.moveinsync.billing.model.ContractVO;
 import com.moveinsync.billing.types.BillingCurrentStatus;
-import com.moveinsync.billingreportservice.BillingreportserviceApplication;
 import com.moveinsync.billingreportservice.Configurations.UserContextResolver;
 import com.moveinsync.billingreportservice.Utils.DateUtils;
-import com.moveinsync.billingreportservice.Utils.NumberUtils;
 import com.moveinsync.billingreportservice.clientservice.ContractWebClientImpl;
 import com.moveinsync.billingreportservice.clientservice.ReportingService;
-import com.moveinsync.billingreportservice.clientservice.BillingCycleServiceImpl;
+import com.moveinsync.billingreportservice.clientservice.TripsheetDomainServiceImpl;
+import com.moveinsync.billingreportservice.clientservice.VmsClientImpl;
 import com.moveinsync.billingreportservice.dto.BillingCycleDTO;
 import com.moveinsync.billingreportservice.dto.BillingReportRequestDTO;
 import com.moveinsync.billingreportservice.dto.ExternalReportRequestDTO;
@@ -19,7 +17,6 @@ import com.moveinsync.billingreportservice.dto.ReportGenerationTime;
 import com.moveinsync.billingreportservice.dto.VendorResponseDTO;
 import com.moveinsync.billingreportservice.enums.BillingReportAggregatedTypes;
 import com.moveinsync.billingreportservice.enums.ContractHeaders;
-import com.moveinsync.billingreportservice.enums.ReportDataType;
 import com.moveinsync.billingreportservice.exceptions.MisCustomException;
 import com.moveinsync.billingreportservice.exceptions.ReportErrors;
 
@@ -29,34 +26,27 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import org.springframework.web.reactive.function.client.WebClient;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 @Component
 public class BillingReportService {
-  private final WebClient vmsClient;
+  private final VmsClientImpl vmsClient;
   private final ReportingService reportingService;
   private final ContractWebClientImpl contractWebClient;
-  private final BillingCycleServiceImpl tripsheetDomainClient;
+  private final TripsheetDomainServiceImpl tripsheetDomainClient;
   private final TripsheetDomainWebClient tripsheetDomainWebClient;
 
   private static final Logger logger = LoggerFactory.getLogger(BillingReportService.class);
 
 
-  public BillingReportService(WebClient vmsClient, ReportingService reportingService,
-                              ContractWebClientImpl contractWebClient, BillingCycleServiceImpl tripsheetDomainClient, TripsheetDomainWebClient tripsheetDomainWebClient) {
+  public BillingReportService(VmsClientImpl vmsClient, ReportingService reportingService,
+                              ContractWebClientImpl contractWebClient, TripsheetDomainServiceImpl tripsheetDomainClient, TripsheetDomainWebClient tripsheetDomainWebClient) {
     this.vmsClient = vmsClient;
     this.reportingService = reportingService;
     this.contractWebClient = contractWebClient;
@@ -82,8 +72,7 @@ public class BillingReportService {
 
   public ReportDataDTO getData(BillingReportAggregatedTypes reportName, BillingReportRequestDTO reportRequestDTO) {
     String empGuid = UserContextResolver.getCurrentContext().getEmpGuid();
-    VendorResponseDTO vendorResponseDTO = vmsClient.get().uri("vendors/id/" + empGuid).retrieve()
-        .bodyToMono(VendorResponseDTO.class).block();
+    VendorResponseDTO vendorResponseDTO = vmsClient.fetchVendorByEmpGuIdCached(empGuid);
     String vendorName = reportRequestDTO.getVendor() != null ? reportRequestDTO.getVendor()
         : (vendorResponseDTO != null ? vendorResponseDTO.getVendorName() : null);
     ExternalReportRequestDTO externalReportRequestDTO = prepareNRSRequest(reportRequestDTO, vendorName, reportName);
@@ -91,41 +80,33 @@ public class BillingReportService {
     logger.info("Response from reportDataDTO {}", reportDataDTO);
     switch (reportName) {
     case VENDOR -> {
-      ReportBook reportBook = new VendorReport();
-      reportDataDTO = reportBook.generateReport(reportDataDTO);
+      ReportBook reportBook = new VendorReport(vmsClient, tripsheetDomainClient);
+      reportDataDTO = reportBook.generateReport(reportRequestDTO, reportDataDTO);
       break;
     }
 
     case OFFICE -> {
       ReportBook reportBook = new OfficeReport();
-      reportDataDTO = reportBook.generateReport(reportDataDTO);
+      reportDataDTO = reportBook.generateReport(reportRequestDTO, reportDataDTO);
       break;
     }
 
     case VEHICLE -> {
       ReportBook reportBook = new VehicleReport();
-      reportDataDTO = reportBook.generateReport(reportDataDTO);
+      reportDataDTO = reportBook.generateReport(reportRequestDTO, reportDataDTO);
       break;
     }
 
     case DUTY -> {
       ReportBook reportBook = new DutyReport();
-      reportDataDTO = reportBook.generateReport(reportDataDTO);
+      reportDataDTO = reportBook.generateReport(reportRequestDTO, reportDataDTO);
       break;
     }
 
     case CONTRACT -> {
       ReportBook reportBook = new ContractReport(contractWebClient);
-      reportDataDTO = reportBook.generateReport(reportDataDTO);
+      reportDataDTO = reportBook.generateReport(reportRequestDTO, reportDataDTO);
       break;
-//      List<List<String>> table = reportDataDTO.getTable();
-//      table = filterIncomingTableHeadersAndData(table);
-//      List<String> totalRow = totalRow(table);
-//      table = getContractReportFromNrsResponse(table);
-//      table.add(totalRow);
-//      reportDataDTO
-//              .setTable(table);
-//      break;
     }
     default -> throw new MisCustomException(ReportErrors.INVALID_REPORT_TYPE);
     }
@@ -135,7 +116,7 @@ public class BillingReportService {
   @NotNull
   private static List<List<String>> filterIncomingTableHeadersAndData(List<List<String>> table) {
     List<String> header = table.get(0);
-    Set<String> headerLabels = Arrays.stream(ContractHeaders.values()).map(ContractHeaders::getColumnLabel).collect(
+    Set<String> headerLabels = Arrays.stream(ContractHeaders.values()).map(ContractHeaders::getKey).collect(
             Collectors.toSet());
     List<Integer> validIndices = new ArrayList<>();
     for (int i = 0; i < header.size(); i++)
@@ -161,90 +142,6 @@ public class BillingReportService {
     return ExternalReportRequestDTO.builder().reportFilter(reportFilterDTO).reportName(reportName.getReportName())
         .bunit(reportRequestDTO.getBunitId()).startDate(DateUtils.formatDate(reportRequestDTO.getCycleStart()))
         .endDate(DateUtils.formatDate(reportRequestDTO.getCycleEnd().toString())).build();
-  }
-
-  private List<List<String>> getContractReportFromNrsResponse(List<List<String>> table) {
-    List<String> header = table.get(0);
-    int contractIdx = header.indexOf(ContractHeaders.CONTRACT.getColumnLabel());
-    header.add(0, ContractHeaders.VEHICLE_TYPE.getColumnLabel());
-    header.add(0, ContractHeaders.CAPACITY.getColumnLabel());
-    for (int i = 1; i < table.size(); i++) {
-      String contractName = table.get(i).get(contractIdx);
-      ContractVO contractVO = contractWebClient.getContract(contractName);
-      table.get(i).add(0, contractVO.getCabType());
-      table.get(i).add(0, contractVO.getSeatCapacity().toString());
-    }
-    sortDataBasedOnCapacity(table);
-    int capacityIdx = header.indexOf(ContractHeaders.CAPACITY.getColumnLabel());
-    Map<Integer, List<String>> capacityBasedSubTotal = new HashMap<>();
-    for (int i = 1; i < table.size(); i++) {
-      List<String> rowData = table.get(i);
-      Integer capacity = Integer.parseInt(rowData.get(capacityIdx));
-      int requiredColumns = ContractHeaders.values().length;
-      List<String> capacityWiseSubTotalRow = capacityBasedSubTotal.getOrDefault(capacity,
-          new ArrayList<>(Collections.nCopies(requiredColumns, "")));
-      // int aggregationIndex = 3;
-      for (int j = 0; j < requiredColumns; j++) {
-        String value = capacityWiseSubTotalRow.get(j);
-        ContractHeaders contractHeader = ContractHeaders.getFromLabelName(header.get(j));
-        ReportDataType dataType = contractHeader != null ? contractHeader.getDataType() : ReportDataType.STRING;
-        switch (dataType) {
-        case BIGDECIMAL:
-          rowData.set(j, String.valueOf(NumberUtils.roundOff(rowData.get(j))));
-          BigDecimal subTotal = NumberUtils.roundOffAndAnd(value, rowData.get(j));
-          value = String.valueOf(subTotal);
-          break;
-        case INTEGER:
-          value = String.valueOf((value.isEmpty() ? 0 : Integer.parseInt(value)) + Integer.parseInt(rowData.get(j)));
-        }
-        capacityWiseSubTotalRow.set(j, value);
-      }
-      capacityBasedSubTotal.put(capacity, capacityWiseSubTotalRow);
-    }
-    Integer capacityBreakPoint = null;
-    Map<Integer, List<String>> indexWiseSubTotalRowPlacement = new TreeMap<>(Comparator.reverseOrder());
-    for (int i = 1; i < table.size(); i++) {
-      List<String> rowData = table.get(i);
-      Integer capacity = Integer.parseInt(rowData.get(capacityIdx));
-      if (capacityBreakPoint == null)
-        capacityBreakPoint = capacity;
-      if (capacityBreakPoint != capacity) {
-        indexWiseSubTotalRowPlacement.put(i, capacityBasedSubTotal.get(capacityBreakPoint));
-        capacityBreakPoint = capacity;
-      }
-    }
-    indexWiseSubTotalRowPlacement.put(table.size(), capacityBasedSubTotal.get(capacityBreakPoint));
-    indexWiseSubTotalRowPlacement.forEach((index, row) -> {
-      table.add(index, row);
-    });
-    return table;
-  }
-
-  public List<String> totalRow(List<List<String>> table) {
-    if (table == null || table.isEmpty())
-      return new ArrayList<>();
-    List<String> header = table.get(0);
-    int requiredColumns = header.size();
-    List<String> totalRow = new ArrayList<>(Collections.nCopies(requiredColumns, ""));
-    for (int i = 1; i < table.size(); i++) {
-      List<String> rowData = table.get(i);
-      for (int j = 0; j < requiredColumns; j++) {
-        String value = totalRow.get(j);
-        ContractHeaders contractHeader = ContractHeaders.getFromLabelName(header.get(j));
-        ReportDataType dataType = contractHeader != null ? contractHeader.getDataType() : ReportDataType.STRING;
-        switch (dataType) {
-        case BIGDECIMAL:
-          rowData.set(j, String.valueOf(NumberUtils.roundOff(rowData.get(j))));
-          BigDecimal subTotal = NumberUtils.roundOffAndAnd(value, rowData.get(j));
-          value = String.valueOf(subTotal);
-          break;
-        case INTEGER:
-          value = String.valueOf((value.isEmpty() ? 0 : Integer.parseInt(value)) + Integer.parseInt(rowData.get(j)));
-        }
-        totalRow.set(j, value);
-      }
-    }
-    return totalRow;
   }
 
   public List<ReportGenerationTime> getReportGenerationTime(LocalDate startDate, LocalDate endDate) {

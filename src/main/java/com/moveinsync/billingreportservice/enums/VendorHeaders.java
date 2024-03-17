@@ -22,12 +22,12 @@ public enum VendorHeaders implements TableHeaders {
     FROZEN(16, "Frozen", ReportDataType.BOOLEAN);
 
     private final int index;
-    private final String columnLabel;
+    private final String key;
     private final ReportDataType dataType;
 
-    VendorHeaders(int index, String columnLabel, ReportDataType dataType) {
+    VendorHeaders(int index, String key, ReportDataType dataType) {
         this.index = index;
-        this.columnLabel = columnLabel;
+        this.key = key;
         this.dataType = dataType;
     }
 
@@ -35,8 +35,8 @@ public enum VendorHeaders implements TableHeaders {
         return index;
     }
 
-    public String getColumnLabel() {
-        return columnLabel;
+    public String getKey() {
+        return key;
     }
 
     public ReportDataType getDataType() {
@@ -45,7 +45,7 @@ public enum VendorHeaders implements TableHeaders {
 
     public static VendorHeaders getFromLabelName(String columnLabel) {
         return Arrays.stream(values())
-                .filter(e -> e.getColumnLabel().equals(columnLabel))
+                .filter(e -> e.getKey().equals(columnLabel))
                 .findFirst()
                 .orElse(null);
     }

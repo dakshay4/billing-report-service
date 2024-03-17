@@ -3,11 +3,10 @@ package com.moveinsync.billingreportservice.services;
 import com.moveinsync.billing.model.ContractVO;
 import com.moveinsync.billingreportservice.Utils.NumberUtils;
 import com.moveinsync.billingreportservice.clientservice.ContractWebClientImpl;
+import com.moveinsync.billingreportservice.dto.BillingReportRequestDTO;
 import com.moveinsync.billingreportservice.dto.ReportDataDTO;
 import com.moveinsync.billingreportservice.enums.ContractHeaders;
-import com.moveinsync.billingreportservice.enums.OfficeHeaders;
 import com.moveinsync.billingreportservice.enums.ReportDataType;
-import org.springframework.web.reactive.function.client.WebClient;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -24,11 +23,6 @@ public class ContractReport <T extends Enum<T>> extends ReportBook<ContractHeade
         return ContractHeaders.values();
     }
 
-/*  @Override
-  public Class<VendorHeaders> getEnumClass() {
-    return VendorHeaders.class;
-  }*/
-
     private final ContractWebClientImpl contractWebClient;
 
     public ContractReport(ContractWebClientImpl contractWebClient) {
@@ -36,7 +30,7 @@ public class ContractReport <T extends Enum<T>> extends ReportBook<ContractHeade
     }
 
     @Override
-    public ReportDataDTO generateReport(ReportDataDTO reportDataDTO) {
+    public ReportDataDTO generateReport(BillingReportRequestDTO billingReportRequestDTO, ReportDataDTO reportDataDTO) {
         List<List<String>> table = reportDataDTO.getTable();
         table = filterIncomingTableHeadersAndData(table);
         reportDataDTO.setTable(table);
@@ -56,9 +50,9 @@ public class ContractReport <T extends Enum<T>> extends ReportBook<ContractHeade
     private List<List<String>> getContractReportFromNrsResponse(ReportDataDTO reportDataDTO) {
         List<List<String>> table = reportDataDTO.getTable();
         List<String> header = table.get(0);
-        int contractIdx = header.indexOf(ContractHeaders.CONTRACT.getColumnLabel());
-        header.set(0, ContractHeaders.CAPACITY.getColumnLabel());
-        header.set(1, ContractHeaders.VEHICLE_TYPE.getColumnLabel());
+        int contractIdx = header.indexOf(ContractHeaders.CONTRACT.getKey());
+        header.set(0, ContractHeaders.CAPACITY.getKey());
+        header.set(1, ContractHeaders.VEHICLE_TYPE.getKey());
         for (int i = 1; i < table.size(); i++) {
             String contractName = table.get(i).get(contractIdx);
             ContractVO contractVO = contractWebClient.getContract(contractName);
@@ -66,7 +60,7 @@ public class ContractReport <T extends Enum<T>> extends ReportBook<ContractHeade
             table.get(i).set(1, contractVO.getCabType());
         }
         sortDataBasedOnCapacity(table);
-        int capacityIdx = header.indexOf(ContractHeaders.CAPACITY.getColumnLabel());
+        int capacityIdx = header.indexOf(ContractHeaders.CAPACITY.getKey());
         Map<Integer, List<String>> capacityBasedSubTotal = new HashMap<>();
         for (int i = 1; i < table.size(); i++) {
             List<String> rowData = table.get(i);

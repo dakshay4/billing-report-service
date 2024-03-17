@@ -23,12 +23,12 @@ public enum VehicleHeaders implements TableHeaders {
     ACTION(18, "Action", ReportDataType.STRING);
 
     private final int index;
-    private final String columnLabel;
+    private final String key;
     private final ReportDataType dataType;
 
-    VehicleHeaders(int index, String columnLabel, ReportDataType dataType) {
+    VehicleHeaders(int index, String key, ReportDataType dataType) {
         this.index = index;
-        this.columnLabel = columnLabel;
+        this.key = key;
         this.dataType = dataType;
     }
 
@@ -38,8 +38,8 @@ public enum VehicleHeaders implements TableHeaders {
     }
 
     @Override
-    public String getColumnLabel() {
-        return columnLabel;
+    public String getKey() {
+        return key;
     }
 
     @Override

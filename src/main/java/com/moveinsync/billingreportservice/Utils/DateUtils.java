@@ -19,4 +19,15 @@ public class DateUtils {
     }
     return formattedDate;
   }
+
+
+  public static Date convert(String reqDate, SimpleDateFormat format) {
+    try {
+      Date date = format.parse(reqDate);
+      return date;
+    } catch (Exception e) {
+
+    }
+    return null;
+  }
 }

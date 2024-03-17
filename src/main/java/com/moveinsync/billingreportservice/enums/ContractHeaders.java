@@ -23,18 +23,18 @@ public enum ContractHeaders implements TableHeaders {
     GRAND_TOTAL(17, "Grand Total", ReportDataType.BIGDECIMAL);
 
   private final int index;
-  private final String columnLabel;
+  private final String key;
   private final ReportDataType dataType;
 
-  ContractHeaders(int index, String columnLabel, ReportDataType dataType) {
+  ContractHeaders(int index, String key, ReportDataType dataType) {
     this.index = index;
-    this.columnLabel = columnLabel;
+    this.key = key;
     this.dataType = dataType;
   }
 
   public static ContractHeaders getFromLabelName(String columnLabel) {
       return Arrays.stream(values())
-              .filter(e -> e.getColumnLabel().equals(columnLabel))
+              .filter(e -> e.getKey().equals(columnLabel))
               .findFirst()
               .orElse(null);
   }
@@ -44,8 +44,8 @@ public enum ContractHeaders implements TableHeaders {
         return index;
     }
 
-    public String getColumnLabel() {
-    return columnLabel;
+    public String getKey() {
+    return key;
   }
 
   public ReportDataType getDataType() {
