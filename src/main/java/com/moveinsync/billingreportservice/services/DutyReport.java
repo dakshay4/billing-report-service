@@ -1,14 +1,19 @@
 package com.moveinsync.billingreportservice.services;
 
+import com.moveinsync.billingreportservice.clientservice.TripsheetDomainServiceImpl;
+import com.moveinsync.billingreportservice.clientservice.VmsClientImpl;
 import com.moveinsync.billingreportservice.dto.BillingReportRequestDTO;
 import com.moveinsync.billingreportservice.dto.ReportDataDTO;
 import com.moveinsync.billingreportservice.enums.DutyHeaders;
-import com.moveinsync.billingreportservice.enums.VendorHeaders;
 
 import java.util.List;
 
 public class DutyReport<T extends Enum<T>> extends ReportBook<DutyHeaders>  {
 
+
+    public DutyReport(VmsClientImpl vmsClient, TripsheetDomainServiceImpl tripsheetDomainService) {
+        super(vmsClient, tripsheetDomainService);
+    }
 
     @Override
     public DutyHeaders[] getHeaders() {

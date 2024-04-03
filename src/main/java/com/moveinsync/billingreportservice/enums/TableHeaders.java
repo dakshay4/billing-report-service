@@ -4,9 +4,16 @@ import java.util.Arrays;
 
 public interface TableHeaders {
 
-    public static <T extends Enum<T>> T getFromLabelName(Class<T> enumClass, String label) {
+    public static <T extends TableHeaders> T getFromLabelName(Class<T> enumClass, String label) {
         return Arrays.stream(enumClass.getEnumConstants())
-                .filter(e -> e.name().equals(label))
+                .filter(e -> e.getKey().equals(label))
+                .findFirst()
+                .orElse(null);
+    }
+
+    public static <T extends TableHeaders> T getFromName(Class<T> enumClass, String name) {
+        return Arrays.stream(enumClass.getEnumConstants())
+                .filter(e -> e.name().equals(name))
                 .findFirst()
                 .orElse(null);
     }
@@ -16,6 +23,8 @@ public interface TableHeaders {
     public String getKey();
 
     public ReportDataType getDataType();
+
+    public String name();
 
 
 

@@ -3,10 +3,13 @@ package com.moveinsync.billingreportservice.services;
 import com.moveinsync.billing.model.ContractVO;
 import com.moveinsync.billingreportservice.Utils.NumberUtils;
 import com.moveinsync.billingreportservice.clientservice.ContractWebClientImpl;
+import com.moveinsync.billingreportservice.clientservice.TripsheetDomainServiceImpl;
+import com.moveinsync.billingreportservice.clientservice.VmsClientImpl;
 import com.moveinsync.billingreportservice.dto.BillingReportRequestDTO;
 import com.moveinsync.billingreportservice.dto.ReportDataDTO;
 import com.moveinsync.billingreportservice.enums.ContractHeaders;
 import com.moveinsync.billingreportservice.enums.ReportDataType;
+import com.moveinsync.billingreportservice.enums.VendorHeaders;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -25,7 +28,8 @@ public class ContractReport <T extends Enum<T>> extends ReportBook<ContractHeade
 
     private final ContractWebClientImpl contractWebClient;
 
-    public ContractReport(ContractWebClientImpl contractWebClient) {
+    public ContractReport(VmsClientImpl vmsClient, TripsheetDomainServiceImpl tripsheetDomainService, ContractWebClientImpl contractWebClient) {
+        super(vmsClient, tripsheetDomainService);
         this.contractWebClient = contractWebClient;
     }
 
@@ -68,7 +72,6 @@ public class ContractReport <T extends Enum<T>> extends ReportBook<ContractHeade
             int requiredColumns = ContractHeaders.values().length;
             List<String> capacityWiseSubTotalRow = capacityBasedSubTotal.getOrDefault(capacity,
                     new ArrayList<>(Collections.nCopies(requiredColumns, "")));
-            // int aggregationIndex = 3;
             for (int j = 0; j < requiredColumns; j++) {
                 String value = capacityWiseSubTotalRow.get(j);
                 ContractHeaders contractHeader = ContractHeaders.getFromLabelName(header.get(j));

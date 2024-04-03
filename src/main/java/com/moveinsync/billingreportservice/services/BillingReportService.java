@@ -1,6 +1,8 @@
 package com.moveinsync.billingreportservice.services;
 
 import com.google.common.collect.Lists;
+import com.mis.pc.utils.GsonUtils;
+import com.mis.serverdata.exception.STWOperationNotAllowedException;
 import com.moveinsync.billing.model.BillingStatusVO;
 import com.moveinsync.billing.types.BillingCurrentStatus;
 import com.moveinsync.billingreportservice.Configurations.UserContextResolver;
@@ -12,6 +14,7 @@ import com.moveinsync.billingreportservice.clientservice.VmsClientImpl;
 import com.moveinsync.billingreportservice.dto.BillingCycleDTO;
 import com.moveinsync.billingreportservice.dto.BillingReportRequestDTO;
 import com.moveinsync.billingreportservice.dto.ExternalReportRequestDTO;
+import com.moveinsync.billingreportservice.dto.FreezeBillingDTO;
 import com.moveinsync.billingreportservice.dto.ReportDataDTO;
 import com.moveinsync.billingreportservice.dto.ReportGenerationTime;
 import com.moveinsync.billingreportservice.dto.VendorResponseDTO;
@@ -20,6 +23,7 @@ import com.moveinsync.billingreportservice.enums.ContractHeaders;
 import com.moveinsync.billingreportservice.exceptions.MisCustomException;
 import com.moveinsync.billingreportservice.exceptions.ReportErrors;
 
+import com.moveinsync.models.billing.BillingCycle;
 import com.moveinsync.tripsheetdomain.client.TripsheetDomainWebClient;
 import com.moveinsync.tripsheetdomain.models.BillingCycleVO;
 import org.jetbrains.annotations.NotNull;
@@ -30,6 +34,7 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -86,46 +91,31 @@ public class BillingReportService {
     }
 
     case OFFICE -> {
-      ReportBook reportBook = new OfficeReport();
+      ReportBook reportBook = new OfficeReport(vmsClient, tripsheetDomainClient);
       reportDataDTO = reportBook.generateReport(reportRequestDTO, reportDataDTO);
       break;
     }
 
     case VEHICLE -> {
-      ReportBook reportBook = new VehicleReport();
+      ReportBook reportBook = new VehicleReport(vmsClient, tripsheetDomainClient);
       reportDataDTO = reportBook.generateReport(reportRequestDTO, reportDataDTO);
       break;
     }
 
     case DUTY -> {
-      ReportBook reportBook = new DutyReport();
+      ReportBook reportBook = new DutyReport(vmsClient, tripsheetDomainClient);
       reportDataDTO = reportBook.generateReport(reportRequestDTO, reportDataDTO);
       break;
     }
 
     case CONTRACT -> {
-      ReportBook reportBook = new ContractReport(contractWebClient);
+      ReportBook reportBook = new ContractReport(vmsClient, tripsheetDomainClient, contractWebClient);
       reportDataDTO = reportBook.generateReport(reportRequestDTO, reportDataDTO);
       break;
     }
     default -> throw new MisCustomException(ReportErrors.INVALID_REPORT_TYPE);
     }
     return reportDataDTO;
-  }
-
-  @NotNull
-  private static List<List<String>> filterIncomingTableHeadersAndData(List<List<String>> table) {
-    List<String> header = table.get(0);
-    Set<String> headerLabels = Arrays.stream(ContractHeaders.values()).map(ContractHeaders::getKey).collect(
-            Collectors.toSet());
-    List<Integer> validIndices = new ArrayList<>();
-    for (int i = 0; i < header.size(); i++)
-      if (headerLabels.contains(header.get(i)))
-        validIndices.add(i);
-
-    table = table.stream().map(row -> validIndices.stream().map(row::get).collect(Collectors.toList()))
-            .collect(Collectors.toList());
-    return table;
   }
 
   private ExternalReportRequestDTO prepareNRSRequest(BillingReportRequestDTO reportRequestDTO, String vendorName,
@@ -165,5 +155,32 @@ public class BillingReportService {
   private BillingCycleDTO convertToDTO(BillingCycleVO cycleVO) {
     return new BillingCycleDTO(cycleVO.getBillingCycleId(), cycleVO.getStartDate(), cycleVO.getEndDate(),
         cycleVO.getIsFrozen());
+  }
+
+  public void freezeBilling(FreezeBillingDTO freezeBillingDTO) {
+    int vendorId = freezeBillingDTO.vendorId();
+    boolean freezeStatus = freezeBillingDTO.frozen();
+    Date startDate = freezeBillingDTO.startDate();
+    Date endDate = freezeBillingDTO.endDate();
+
+    if (
+//            !unfreezePermission &&
+            !freezeStatus) {
+      throw new MisCustomException(ReportErrors.OPERATION_NOT_ALLOWED);
+    }
+
+    if (!freezeStatus) {
+      List<BillingCycleDTO> billingCycles = fetchAllBillingCycles();
+      BillingCycleDTO cycle = billingCycles.stream().filter(e-> e.startDate().equals(startDate)).findFirst().orElse(null);
+//      cycle.freezeVendorBilling(vendorId, freezeStatus);
+//      cycle.unfreezeBillingCycle();
+//      vendorBillingManagementService.updateVendorBillingFreezeStatus(vendorId, BillingCycle
+//              .getBillingCycleForDate(startDate).getId(), freezeStatus);
+//      sendData(response, true);
+      return;
+    }
+
+
+
   }
 }

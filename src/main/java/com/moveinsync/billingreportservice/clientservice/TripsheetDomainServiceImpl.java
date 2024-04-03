@@ -14,9 +14,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Component
 public class TripsheetDomainServiceImpl {
@@ -56,7 +59,11 @@ public class TripsheetDomainServiceImpl {
   }
 
   private List<BillingCycleVO> fetchAllBillingCycles() {
-    return tripsheetDomainWebClient.fetchAllBillingCycle(UserContextResolver.getCurrentContext().getBuid()).getBody();
+    List<BillingCycleVO> billingCycles = tripsheetDomainWebClient
+        .fetchAllBillingCycle(UserContextResolver.getCurrentContext().getBuid()).getBody();
+    return billingCycles != null ? billingCycles.stream()
+        .sorted((o1, o2) -> o2.getStartDate().compareTo(o1.getStartDate())).collect(Collectors.toList())
+        : new ArrayList<>();
   }
 
   public VendorBillingFrozenStatusDTO findVendorBillingFrozenStatusById(Integer billingCycleId, Integer vendorId) {

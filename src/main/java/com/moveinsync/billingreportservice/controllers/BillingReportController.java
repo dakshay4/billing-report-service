@@ -4,6 +4,7 @@ import com.moveinsync.billing.exception.UserDefinedException;
 import com.moveinsync.billingreportservice.Configurations.UserContextResolver;
 import com.moveinsync.billingreportservice.dto.BillingCycleDTO;
 import com.moveinsync.billingreportservice.dto.BillingReportRequestDTO;
+import com.moveinsync.billingreportservice.dto.FreezeBillingDTO;
 import com.moveinsync.billingreportservice.dto.ReportDataDTO;
 import com.moveinsync.billingreportservice.dto.ReportGenerationTime;
 import com.moveinsync.billingreportservice.enums.BillingReportAggregatedTypes;
@@ -19,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -63,6 +65,13 @@ public class BillingReportController {
   public List<BillingCycleDTO> billingCyclesAll() {
     List<BillingCycleDTO> billingCycles = billingReportService.fetchAllBillingCycles();
     return billingCycles;
+  }
+
+  @PostMapping("/freeze-billing")
+  public void freezeBilling(
+          @RequestBody FreezeBillingDTO freezeBillingDTO
+  ) {
+    billingReportService.freezeBilling(freezeBillingDTO);
   }
 
   @GetMapping("/exception")
