@@ -27,6 +27,7 @@ public class ExternalReportRequestDTO {
   @JsonIgnoreProperties(ignoreUnknown = true)
   public static class ReportFilterDTO {
     private List<String> vendor;
+    private List<String> office;
     private String contract;
     private String entityId;
     private String parentEntity;

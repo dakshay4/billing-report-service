@@ -5,6 +5,7 @@ import com.moveinsync.billingreportservice.Configurations.UserContextResolver;
 import com.moveinsync.billingreportservice.dto.BillingCycleDTO;
 import com.moveinsync.billingreportservice.dto.BillingReportRequestDTO;
 import com.moveinsync.billingreportservice.dto.FreezeBillingDTO;
+import com.moveinsync.billingreportservice.dto.RegenerateBillDTO;
 import com.moveinsync.billingreportservice.dto.ReportDataDTO;
 import com.moveinsync.billingreportservice.dto.ReportGenerationTime;
 import com.moveinsync.billingreportservice.enums.BillingReportAggregatedTypes;
@@ -56,8 +57,8 @@ public class BillingReportController {
 
   @GetMapping("/reportGenerationTime")
   public List<ReportGenerationTime> reportdata(
-      @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
-      @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate) {
+      @RequestParam @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate startDate,
+      @RequestParam @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate endDate) {
     return billingReportService.getReportGenerationTime(startDate, endDate);
   }
 
@@ -68,10 +69,19 @@ public class BillingReportController {
   }
 
   @PostMapping("/freeze-billing")
-  public void freezeBilling(
+  public ResponseEntity<Boolean>  freezeBilling(
           @RequestBody FreezeBillingDTO freezeBillingDTO
   ) {
-    billingReportService.freezeBilling(freezeBillingDTO);
+    boolean result = billingReportService.freezeBilling(freezeBillingDTO);
+    return ResponseEntity.ok(result);
+  }
+
+  @PostMapping("/regenerate-billing")
+  public ResponseEntity<String> regenerateBilling(
+          @RequestBody RegenerateBillDTO regenerateBillDTO
+  ) {
+    String message = billingReportService.regenerateBilling(regenerateBillDTO);
+    return ResponseEntity.ok(message);
   }
 
   @GetMapping("/exception")

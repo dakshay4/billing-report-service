@@ -70,6 +70,9 @@ public class WebClientConfiguration {
   @Value("${tripsheetdomain_url}")
   private String tripsheetDomainUrl;
 
+  @Value("${billingCalculationUrl}")
+  private String billingCalculationUrl;
+
   @Value("${vms_url}")
   private String vmsUrl;
 
@@ -144,6 +147,12 @@ public class WebClientConfiguration {
   public WebClient tripsheetDomainClient(WebClient.Builder webClientBuilder) {
     return webClientBuilder.baseUrl(tripsheetDomainUrl).defaultHeader(Constants.X_MIS_TOKEN, tripsheetDomainToken)
         .build();
+  }
+
+
+  @Bean
+  public WebClient billingCalculationClient(WebClient.Builder webClientBuilder) {
+    return webClientBuilder.baseUrl(billingCalculationUrl).build();
   }
 
   @Bean

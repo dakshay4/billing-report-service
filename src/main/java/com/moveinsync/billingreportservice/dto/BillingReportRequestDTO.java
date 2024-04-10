@@ -5,11 +5,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.experimental.FieldNameConstants;
-import org.springframework.format.annotation.DateTimeFormat;
-
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.Date;
 
 @Data
 @AllArgsConstructor
@@ -25,6 +20,7 @@ public class BillingReportRequestDTO {
   private String vendor;
   private String contract;
   private String entityId;
+  private String office;
   private String date;
 
 }

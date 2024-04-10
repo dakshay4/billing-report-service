@@ -31,12 +31,10 @@ public class ContractWebClientImpl {
   private final static String API_BILLING_STATUS_ALL = "/api/billingStatus/";
   private static final Logger logger = LoggerFactory.getLogger(ContractWebClientImpl.class);
   private final WebClient contractClient;
-  private final CacheKeyStrategy cacheKeyStrategy;
   private final LoadingCache<String, ContractVO> cache;
 
   public ContractWebClientImpl(WebClient contractClient) {
     this.contractClient = contractClient;
-    this.cacheKeyStrategy = new ContractCacheKeyGenerator();
     this.cache = CacheBuilder.newBuilder().expireAfterWrite(10, TimeUnit.MINUTES)
         .build(new CacheLoader<String, ContractVO>() {
           @Override
@@ -71,7 +69,7 @@ public class ContractWebClientImpl {
 
   public ContractVO getContract(String contractName) {
     try {
-      return cache.get(cacheKeyStrategy.generateCacheKey(contractName));
+      return cache.get(CacheKeyStrategy.generateCacheKeyWithDelimiter(contractName));
     } catch (Exception e) {
       throw new MisCustomException(ReportErrors.UNABLE_TO_FETCH_FROM_CACHE, e);
     }
