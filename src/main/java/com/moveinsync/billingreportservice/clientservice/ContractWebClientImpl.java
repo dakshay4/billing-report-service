@@ -39,8 +39,8 @@ public class ContractWebClientImpl {
         .build(new CacheLoader<String, ContractVO>() {
           @Override
           public ContractVO load(String key) {
-            String[] parts = key.split("\\|", 2);
-            String contractName = parts[1];
+            Object[] params = key.split(CacheKeyStrategy.DELIMITER);
+            String contractName = params[1].toString();
             return getContractByName(contractName);
           }
         });
