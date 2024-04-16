@@ -28,6 +28,6 @@ public class BillingReportRequestDTO {
   }
 
   public boolean isContractPresent() {
-    return this.getContract() != null && !this.office.isBlank();
+    return this.getContract() != null && !this.contract.isBlank();
   }
 }
