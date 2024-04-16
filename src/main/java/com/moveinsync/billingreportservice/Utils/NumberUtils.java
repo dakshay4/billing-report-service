@@ -1,5 +1,6 @@
 package com.moveinsync.billingreportservice.Utils;
 
+import lombok.val;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,10 +23,14 @@ public class NumberUtils {
   }
 
   public static BigDecimal roundOff(String val1) {
-    if (val1 == null || val1.isEmpty())
-      val1 = "0";
-    BigDecimal val = new BigDecimal(val1);
-    return val.setScale(scale, RoundingMode.HALF_EVEN);
+    if(val1 == null) return BigDecimal.ZERO;
+    try {
+      if (val1 == null || val1.isEmpty())
+        val1 = "0";
+      BigDecimal val = new BigDecimal(val1);
+      return val.setScale(scale, RoundingMode.HALF_EVEN);
+    }catch (NumberFormatException ex) {log.warn("Unable to Parse to BigDecimal {}", val1);}
+    return BigDecimal.ZERO;
   }
   public static Integer parseInteger(String val) {
     Integer res = 0;
