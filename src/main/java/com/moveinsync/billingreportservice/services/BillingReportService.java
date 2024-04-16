@@ -18,6 +18,7 @@ import com.moveinsync.billingreportservice.dto.BillingCycleDTO;
 import com.moveinsync.billingreportservice.dto.BillingReportRequestDTO;
 import com.moveinsync.billingreportservice.dto.ExternalReportRequestDTO;
 import com.moveinsync.billingreportservice.dto.FreezeBillingDTO;
+import com.moveinsync.billingreportservice.dto.FreezeBillingResponseDTO;
 import com.moveinsync.billingreportservice.dto.RegenerateBillDTO;
 import com.moveinsync.billingreportservice.dto.ReportDataDTO;
 import com.moveinsync.billingreportservice.dto.ReportGenerationTime;
@@ -37,6 +38,7 @@ import com.moveinsync.models.billing.Vendor;
 import com.moveinsync.tripsheetdomain.client.TripsheetDomainWebClient;
 import com.moveinsync.tripsheetdomain.models.BillingCycleVO;
 import com.moveinsync.tripsheetdomain.models.VendorResponse;
+import com.moveinsync.tripsheetdomain.response.VendorBillingFrozenStatusDTO;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,6 +52,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -198,27 +201,81 @@ public class BillingReportService {
                 cycleVO.getIsFrozen());
     }
 
-    public boolean freezeBilling(FreezeBillingDTO freezeBillingDTO) {
+    public List<FreezeBillingResponseDTO> freezeBilling(FreezeBillingDTO freezeBillingDTO) {
         int vendorId = freezeBillingDTO.vendorId();
         boolean freezeStatus = freezeBillingDTO.frozen();
         Date startDate = freezeBillingDTO.startDate();
         Date endDate = freezeBillingDTO.endDate();
 
-        if (
-//            !unfreezePermission &&
-                !freezeStatus) {
-            throw new MisCustomException(ReportErrors.OPERATION_NOT_ALLOWED);
+        List<FreezeBillingResponseDTO> freezeBillingResponse = new ArrayList<>();
+        if(vendorId == -1 && freezeStatus) {
+            freezeBillingResponse.addAll(
+                    freezeBillingForAllVendors(startDate, endDate)
+            );
+        }else {
+            if (freezeStatus) {
+                if (!isVendorAuditDoneForBillingCycle(vendorId, startDate, endDate))
+                    throw new MisCustomException(ReportErrors.VENDOR_AUDIT_NOT_DONE_FOR_BILLING_CYCLE);
+            } else {
+                tripsheetDomainClient.updateFrozen(startDate, endDate, freezeStatus); // Unfreeze Bill Cycle
+            }
+            boolean freezeResult = freezeBilling(startDate, vendorId, endDate, freezeStatus);
+            freezeBillingResponse.add(
+                    new FreezeBillingResponseDTO(freezeResult, vendorId, null)
+            );
         }
+        return freezeBillingResponse;
+    }
 
-        if (!freezeStatus) {
+    private List<FreezeBillingResponseDTO> freezeBillingForAllVendors(Date startDate, Date endDate) {
+        List<FreezeBillingResponseDTO> freezeBillingResponse = new ArrayList<>();
+        List<VendorResponse> vendorResponse = tripsheetDomainClient.findVendorByStatuses(List.of(Constants.VENDOR_STATUS_ACTIVE));
+        vendorResponse.forEach(vendor ->{
+            boolean freezeResult;
+            if (!isVendorAuditDoneForBillingCycle(vendor.getId(), startDate, endDate)) {
+                freezeResult = false;
+            }else {
+                freezeBilling(startDate, vendor.getId(), endDate, true);
+                freezeResult = true;
+            }
+            freezeBillingResponse.add(
+                    new FreezeBillingResponseDTO(freezeResult, vendor.getId(), vendor.getVendorName())
+            );
+        });
+        return freezeBillingResponse;
+    }
+
+    private boolean freezeBilling(Date startDate, int vendorId, Date endDate, boolean freezeStatus) {
+        boolean freezeResult = true;
+        try {
             List<BillingCycleDTO> billingCycles = fetchAllBillingCycles();
             BillingCycleDTO cycle = billingCycles.stream().filter(e -> e.startDate().equals(startDate)).findFirst()
                     .orElse(null);
-            tripsheetDomainClient.freezeVendorBilling(vendorId, startDate, endDate, freezeStatus);
-            tripsheetDomainClient.updateFrozen(startDate, endDate, false);
-            tripsheetDomainClient.updateVendorBillingFreezeStatus(vendorId, cycle.id(), freezeStatus);
+
+            Map<String, Integer> freezeVendorBilling =
+                    tripsheetDomainClient.freezeVendorBilling(vendorId, startDate, endDate, freezeStatus);
+
+            VendorBillingFrozenStatusDTO vendorBillingFrozenStatusDTO =
+                    tripsheetDomainClient.updateVendorBillingFreezeStatus(vendorId, cycle.id(), freezeStatus);
+
+            logger.info("Freeze Vendor Billing Results {}", freezeVendorBilling);
+            logger.info("vendorBillingFrozenStatusDTO Results {}", vendorBillingFrozenStatusDTO);
+        }catch (Exception ex) {
+            logger.warn("Failed in Freeze Billing for VendorId: {} startDate: {} endDate: {}",
+                    vendorId, startDate, endDate, ex);
+            freezeResult = false;
         }
-        return true;
+        return freezeResult;
+    }
+
+    private boolean isVendorAuditDoneForBillingCycle(int vendorId, Date startDate, Date endDate) {
+        List<Integer> vendorCabIds = tripsheetDomainClient.allCabsIdsOfActiveVendor(-1, vendorId);
+        Integer count = tripsheetDomainClient.getCountBetweenDateAndByAudit(
+                DateUtils.getEpochFromDate(startDate),
+                DateUtils.getEpochFromDate(endDate),
+                vendorCabIds
+        );
+        return count == null || count <= 0;
     }
 
     public String regenerateBilling(RegenerateBillDTO regenerateBillDTO) {

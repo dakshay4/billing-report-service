@@ -1,6 +1,9 @@
 package com.moveinsync.billingreportservice.Utils;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.Date;
 
 public class DateUtils {
@@ -40,5 +43,10 @@ public class DateUtils {
 
     }
     return null;
+  }
+
+  public static long getEpochFromDate(Date date) {
+    LocalDateTime localDateTime = LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault());
+    return localDateTime.toInstant(ZoneOffset.UTC).toEpochMilli();
   }
 }

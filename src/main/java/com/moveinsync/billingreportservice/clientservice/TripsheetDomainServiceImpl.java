@@ -7,10 +7,10 @@ import com.moveinsync.billingreportservice.Configurations.UserContextResolver;
 import com.moveinsync.billingreportservice.exceptions.MisCustomException;
 import com.moveinsync.billingreportservice.exceptions.ReportErrors;
 import com.moveinsync.data.envers.models.EntityAuditDetails;
-import com.moveinsync.models.VendorDTO;
 import com.moveinsync.tripsheetdomain.client.TripsheetDomainWebClient;
 import com.moveinsync.tripsheetdomain.models.BillingCycleVO;
 import com.moveinsync.tripsheetdomain.models.VendorResponse;
+import com.moveinsync.tripsheetdomain.request.BillingIssueAuditRequestDTO;
 import com.moveinsync.tripsheetdomain.response.VendorBillingFrozenStatusDTO;
 
 import org.slf4j.Logger;
@@ -94,6 +94,23 @@ public class TripsheetDomainServiceImpl {
             vendorId,
             billingCycleId,
             freezeStatus).getBody();
+  }
+
+
+  public List<Integer> allCabsIdsOfActiveVendor(int status, Integer vendorId) {
+    return tripsheetDomainWebClient.allCabsIdsOfActiveVendor(UserContextResolver.getCurrentContext().getBuid(),
+            status,
+            vendorId
+            ).getBody();
+  }
+
+  public Integer getCountBetweenDateAndByAudit(Long startDate, Long endDte, List<Integer> cabIds) {
+    BillingIssueAuditRequestDTO billingIssueAuditRequestDTO = new BillingIssueAuditRequestDTO(
+            startDate, endDte, false, cabIds
+    );
+    return tripsheetDomainWebClient.getCountBetweenDateAndByAudit(UserContextResolver.getCurrentContext().getBuid(),
+            billingIssueAuditRequestDTO
+            ).getBody();
   }
 
   public List<VendorResponse> findVendorByStatuses(List<Integer> status) {

@@ -4,6 +4,7 @@ import com.moveinsync.billing.exception.UserDefinedException;
 import com.moveinsync.billingreportservice.dto.BillingCycleDTO;
 import com.moveinsync.billingreportservice.dto.BillingReportRequestDTO;
 import com.moveinsync.billingreportservice.dto.FreezeBillingDTO;
+import com.moveinsync.billingreportservice.dto.FreezeBillingResponseDTO;
 import com.moveinsync.billingreportservice.dto.RegenerateBillDTO;
 import com.moveinsync.billingreportservice.dto.ReportDataDTO;
 import com.moveinsync.billingreportservice.dto.ReportGenerationTime;
@@ -58,10 +59,10 @@ public class BillingReportController {
   }
 
   @PostMapping("/freeze-billing")
-  public ResponseEntity<Boolean>  freezeBilling(
+  public ResponseEntity<List<FreezeBillingResponseDTO>>  freezeBilling(
           @RequestBody FreezeBillingDTO freezeBillingDTO
   ) {
-    boolean result = billingReportService.freezeBilling(freezeBillingDTO);
+    List<FreezeBillingResponseDTO> result = billingReportService.freezeBilling(freezeBillingDTO);
     return ResponseEntity.ok(result);
   }
 

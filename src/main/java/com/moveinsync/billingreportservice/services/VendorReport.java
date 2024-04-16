@@ -27,6 +27,10 @@ public class VendorReport<T extends Enum<T>> extends ReportBook<VendorHeaders> {
     List<String> totalRow = totalRow(table);
     table.add(totalRow);
     reportDataDTO.setTable(table);
+    List<String> header = table.get(0);
+    header.forEach(s-> {
+//      s.equals(VendorHeaders.get)
+    });
     return reportDataDTO;
   }
 }
