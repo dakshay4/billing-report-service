@@ -150,7 +150,7 @@ public class BillingReportService {
             reportFilterDTO.setParentEntity(null);
         }
 
-        if (vendorName != null && BillingReportAggregatedTypes.VENDOR.equals(reportName)) {
+        if (BillingReportAggregatedTypes.VENDOR.equals(reportName)) {
             reportFilterDTO.setVendor(Lists.newArrayList());
             reportFilterDTO.setEntityId(vendorName);
             reportFilterDTO.setEntity(BillingEntityType.VENDOR);
