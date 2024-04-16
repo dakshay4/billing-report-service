@@ -83,7 +83,6 @@ public class BillingReportController {
   @GetMapping("/vendors/audits/all")
   public ResponseEntity getVendorBillingAudit(@RequestParam int billingCycleID)
           throws NumberFormatException {
-    billingReportService.getVendorBillingAudit(billingCycleID);
-    return ResponseEntity.ok(null);
+    return ResponseEntity.ok(billingReportService.getVendorBillingAudit(billingCycleID));
   }
 }
