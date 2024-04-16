@@ -87,7 +87,7 @@ public abstract class ReportBook<T extends TableHeaders> {
                         value = String.valueOf(subTotal);
                         break;
                     case INTEGER:
-                        value = String.valueOf((value.isEmpty() ? 0 : Integer.parseInt(value)) + Integer.parseInt(rowData.get(j)));
+                        value = String.valueOf((value.isEmpty() ? 0 : Integer.parseInt(value)) + NumberUtils.parseInteger(rowData.get(j)));
                 }
                 totalRow.set(j, value);
             }

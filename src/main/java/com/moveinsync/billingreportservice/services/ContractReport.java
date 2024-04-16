@@ -18,6 +18,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.TreeMap;
 
 public class ContractReport <T extends Enum<T>> extends ReportBook<ContractHeaders>   {
@@ -59,16 +60,17 @@ public class ContractReport <T extends Enum<T>> extends ReportBook<ContractHeade
         header.set(1, ContractHeaders.VEHICLE_TYPE.getKey());
         for (int i = 1; i < table.size(); i++) {
             String contractName = table.get(i).get(contractIdx);
-            ContractVO contractVO = contractWebClient.getContract(contractName);
-            table.get(i).set(0, contractVO.getSeatCapacity().toString());
-            table.get(i).set(1, contractVO.getCabType());
+            Optional<ContractVO> contractVO = contractWebClient.getContract(contractName);
+            if(contractVO.isPresent()) {
+                table.get(i).set(0, contractVO.get().getSeatCapacity().toString());
+                table.get(i).set(1, contractVO.get().getCabType());
+            }
         }
         sortDataBasedOnCapacity(table);
-        int capacityIdx = header.indexOf(ContractHeaders.CAPACITY.getKey());
         Map<Integer, List<String>> capacityBasedSubTotal = new HashMap<>();
         for (int i = 1; i < table.size(); i++) {
             List<String> rowData = table.get(i);
-            Integer capacity = Integer.parseInt(rowData.get(capacityIdx));
+            Integer capacity = getCapacity(rowData, header);
             int requiredColumns = ContractHeaders.values().length;
             List<String> capacityWiseSubTotalRow = capacityBasedSubTotal.getOrDefault(capacity,
                     new ArrayList<>(Collections.nCopies(requiredColumns, "")));
@@ -83,7 +85,7 @@ public class ContractReport <T extends Enum<T>> extends ReportBook<ContractHeade
                         value = String.valueOf(subTotal);
                         break;
                     case INTEGER:
-                        value = String.valueOf((value.isEmpty() ? 0 : Integer.parseInt(value)) + Integer.parseInt(rowData.get(j)));
+                        value = String.valueOf((value.isBlank() ? 0 : Integer.parseInt(value)) + NumberUtils.parseInteger(rowData.get(j)));
                 }
                 capacityWiseSubTotalRow.set(j, value);
             }
@@ -93,7 +95,7 @@ public class ContractReport <T extends Enum<T>> extends ReportBook<ContractHeade
         Map<Integer, List<String>> indexWiseSubTotalRowPlacement = new TreeMap<>(Comparator.reverseOrder());
         for (int i = 1; i < table.size(); i++) {
             List<String> rowData = table.get(i);
-            Integer capacity = Integer.parseInt(rowData.get(capacityIdx));
+            Integer capacity = getCapacity(rowData, header);
             if (capacityBreakPoint == null)
                 capacityBreakPoint = capacity;
             if (capacityBreakPoint != capacity) {
@@ -113,8 +115,8 @@ public class ContractReport <T extends Enum<T>> extends ReportBook<ContractHeade
         // Sort the data based on the "Capacity" column
         data.sort((row1, row2) -> {
             // Assuming "Capacity" is at index 0
-            int capacity1 = Integer.parseInt(row1.get(0));
-            int capacity2 = Integer.parseInt(row2.get(0));
+            int capacity1 = getCapacity(row1, header);
+            int capacity2 = getCapacity(row2, header);
             return Integer.compare(capacity1, capacity2);
         });
 
@@ -122,4 +124,12 @@ public class ContractReport <T extends Enum<T>> extends ReportBook<ContractHeade
         data.add(0, header);
     }
 
+    public static int getCapacity(List<String> row, List<String> header) {
+        int capacityIdx = header.indexOf(ContractHeaders.CAPACITY.getKey());
+        try {
+            return row.get(capacityIdx)==null || row.get(capacityIdx).isBlank() ? 0 : NumberUtils.parseInteger(row.get(0));
+        }catch (NumberFormatException ex) {
+            return 0;
+        }
+    }
 }

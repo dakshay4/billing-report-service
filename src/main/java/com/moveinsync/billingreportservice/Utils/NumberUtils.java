@@ -1,11 +1,15 @@
 package com.moveinsync.billingreportservice.Utils;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 public class NumberUtils {
 
   private static final int scale = 2;
+  private static final Logger log = LoggerFactory.getLogger(NumberUtils.class);
 
   public static BigDecimal roundOffAndAnd(String val1, String val2) {
     if (val1 == null || val1.isEmpty())
@@ -23,4 +27,12 @@ public class NumberUtils {
     BigDecimal val = new BigDecimal(val1);
     return val.setScale(scale, RoundingMode.HALF_EVEN);
   }
+  public static Integer parseInteger(String val) {
+    Integer res = 0;
+    try {
+      res = Integer.parseInt(val);
+    }catch (NumberFormatException ex) {log.warn("Unable to Parse to Integer {}", val);}
+    return res;
+  }
+
 }

@@ -20,6 +20,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import reactor.core.publisher.Mono;
@@ -31,25 +32,26 @@ public class ContractWebClientImpl {
   private final static String API_BILLING_STATUS_ALL = "/api/billingStatus/";
   private static final Logger logger = LoggerFactory.getLogger(ContractWebClientImpl.class);
   private final WebClient contractClient;
-  private final LoadingCache<String, ContractVO> cache;
+  private final LoadingCache<String, Optional<ContractVO>> cache;
 
   public ContractWebClientImpl(WebClient contractClient) {
     this.contractClient = contractClient;
     this.cache = CacheBuilder.newBuilder().expireAfterWrite(10, TimeUnit.MINUTES)
-        .build(new CacheLoader<String, ContractVO>() {
+        .build(new CacheLoader<String, Optional<ContractVO>>() {
           @Override
-          public ContractVO load(String key) {
+          public Optional<ContractVO> load(String key) {
             Object[] params = key.split(CacheKeyStrategy.DELIMITER);
+            String buId = params[0].toString();
             String contractName = params[1].toString();
-            return getContractByName(contractName);
+            return getContractByName(buId, contractName);
           }
         });
   }
 
-  public ContractVO getContractByName(String contractName) {
+  public Optional<ContractVO> getContractByName(String buId, String contractName) {
     Mono<List<ContractVO>> mono = contractClient.get()
         .uri(uriBuilder -> uriBuilder.path(API_CONTRACT_GET_LIST).queryParam("name", contractName)
-            .queryParam("buid", UserContextResolver.getCurrentContext().getBuid()).build())
+            .queryParam("buid", buId).build())
         .retrieve().bodyToMono(new ParameterizedTypeReference<List<ContractVO>>() {
         });
     mono.subscribe(response -> logger.info("Response: {}", response), error -> {
@@ -62,14 +64,16 @@ public class ContractWebClientImpl {
     });
     List<ContractVO> contracts = mono.block();
     if (contracts == null || contracts.isEmpty())
-      return null;
+      return Optional.empty();
     else
-      return contracts.get(0);
+      return Optional.of(contracts.get(0));
   }
 
-  public ContractVO getContract(String contractName) {
+  public Optional<ContractVO> getContract(String contractName) {
     try {
-      return cache.get(CacheKeyStrategy.generateCacheKeyWithDelimiter(contractName));
+      return cache.get(CacheKeyStrategy.generateCacheKeyWithDelimiter(
+              UserContextResolver.getCurrentContext().getBuid(),
+              contractName));
     } catch (Exception e) {
       throw new MisCustomException(ReportErrors.UNABLE_TO_FETCH_FROM_CACHE, e);
     }
