@@ -1,7 +1,6 @@
 package com.moveinsync.billingreportservice.controllers;
 
 import com.moveinsync.billing.exception.UserDefinedException;
-import com.moveinsync.billingreportservice.Configurations.UserContextResolver;
 import com.moveinsync.billingreportservice.dto.BillingCycleDTO;
 import com.moveinsync.billingreportservice.dto.BillingReportRequestDTO;
 import com.moveinsync.billingreportservice.dto.FreezeBillingDTO;
@@ -10,17 +9,13 @@ import com.moveinsync.billingreportservice.dto.ReportDataDTO;
 import com.moveinsync.billingreportservice.dto.ReportGenerationTime;
 import com.moveinsync.billingreportservice.enums.BillingReportAggregatedTypes;
 import com.moveinsync.billingreportservice.exceptions.MisCustomException;
-import com.moveinsync.billingreportservice.exceptions.MisError;
 import com.moveinsync.billingreportservice.exceptions.ReportErrors;
 import com.moveinsync.billingreportservice.services.BillingReportService;
-import com.moveinsync.http.v2.MisHttpResponse;
-import com.moveinsync.tripsheetdomain.models.BillingCycleVO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -31,13 +26,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/billingReports/web")
@@ -89,5 +78,12 @@ public class BillingReportController {
     throw new MisCustomException(ReportErrors.UNABLE_TO_FETCH_REPORTS);
     // return messageSource.getMessage("UNABLE_TO_FETCH_REPORTS", new Object[]{"Test"}, Locale.US);
 
+  }
+
+  @GetMapping("/vendors/audits/all")
+  public ResponseEntity getVendorBillingAudit(@RequestParam int billingCycleID)
+          throws NumberFormatException {
+    billingReportService.getVendorBillingAudit(billingCycleID);
+    return ResponseEntity.ok(null);
   }
 }

@@ -10,6 +10,7 @@ import com.moveinsync.tripsheetdomain.client.TripsheetDomainWebClient;
 import io.micrometer.prometheus.PrometheusMeterRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -37,6 +38,14 @@ public class WebClientConfiguration {
 
   private final Logger logger = LoggerFactory.getLogger(getClass());
 
+  @Value("${test.jpa}")
+  public static String jpaEnabled;
+
+ /* @Autowired
+  public WebClientConfiguration(@Value("${test.jpa}") String jpaEnabled) {
+    this.jpaEnabled = jpaEnabled;
+  }
+*/
   @Value("${web.client.response.size:16777216}")
   private Integer webClientResponseSize;
 

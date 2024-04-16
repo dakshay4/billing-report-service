@@ -13,6 +13,7 @@ import com.moveinsync.billingreportservice.clientservice.ContractWebClientImpl;
 import com.moveinsync.billingreportservice.clientservice.ReportingService;
 import com.moveinsync.billingreportservice.clientservice.TripsheetDomainServiceImpl;
 import com.moveinsync.billingreportservice.clientservice.VmsClientImpl;
+import com.moveinsync.billingreportservice.constants.Constants;
 import com.moveinsync.billingreportservice.dto.BillingCycleDTO;
 import com.moveinsync.billingreportservice.dto.BillingReportRequestDTO;
 import com.moveinsync.billingreportservice.dto.ExternalReportRequestDTO;
@@ -20,23 +21,33 @@ import com.moveinsync.billingreportservice.dto.FreezeBillingDTO;
 import com.moveinsync.billingreportservice.dto.RegenerateBillDTO;
 import com.moveinsync.billingreportservice.dto.ReportDataDTO;
 import com.moveinsync.billingreportservice.dto.ReportGenerationTime;
+import com.moveinsync.billingreportservice.dto.VendorFreezeBillingAuditDTO;
 import com.moveinsync.billingreportservice.dto.VendorResponseDTO;
+import com.moveinsync.billingreportservice.enums.BillingEntityType;
 import com.moveinsync.billingreportservice.enums.BillingReportAggregatedTypes;
 import com.moveinsync.billingreportservice.enums.ContractHeaders;
 import com.moveinsync.billingreportservice.exceptions.MisCustomException;
 import com.moveinsync.billingreportservice.exceptions.ReportErrors;
 
+import com.moveinsync.data.envers.models.AuditType;
+import com.moveinsync.data.envers.models.EntityAuditDetails;
+import com.moveinsync.models.VendorDTO;
 import com.moveinsync.models.billing.BillingCycle;
+import com.moveinsync.models.billing.Vendor;
 import com.moveinsync.tripsheetdomain.client.TripsheetDomainWebClient;
 import com.moveinsync.tripsheetdomain.models.BillingCycleVO;
+import com.moveinsync.tripsheetdomain.models.VendorResponse;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import org.springframework.web.servlet.ModelAndView;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -49,21 +60,19 @@ public class BillingReportService {
     private final ReportingService reportingService;
     private final ContractWebClientImpl contractWebClient;
     private final TripsheetDomainServiceImpl tripsheetDomainClient;
-    private final TripsheetDomainWebClient tripsheetDomainWebClient;
     private final BillingCalculationClientImpl billingCalculationClient;
 
-    public BillingReportService(VmsClientImpl vmsClient, ReportingService reportingService,
-                                ContractWebClientImpl contractWebClient, TripsheetDomainServiceImpl tripsheetDomainClient,
-                                TripsheetDomainWebClient tripsheetDomainWebClient,
+    public BillingReportService(VmsClientImpl vmsClient,
+                                ReportingService reportingService,
+                                ContractWebClientImpl contractWebClient,
+                                TripsheetDomainServiceImpl tripsheetDomainClient,
                                 BillingCalculationClientImpl billingCalculationClient) {
         this.vmsClient = vmsClient;
         this.reportingService = reportingService;
         this.contractWebClient = contractWebClient;
         this.tripsheetDomainClient = tripsheetDomainClient;
-        this.tripsheetDomainWebClient = tripsheetDomainWebClient;
         this.billingCalculationClient = billingCalculationClient;
     }
-
 
     public static void sortDataBasedOnCapacity(List<List<String>> data) {
         // Get the header and remove it from the list
@@ -128,25 +137,38 @@ public class BillingReportService {
                                                        BillingReportAggregatedTypes reportName) {
         ExternalReportRequestDTO.ReportFilterDTO reportFilterDTO = new ExternalReportRequestDTO.ReportFilterDTO();
         reportFilterDTO.setContract(reportRequestDTO.getContract());
+        if(reportRequestDTO.isOfficePresent()) reportFilterDTO.setOffice(Lists.newArrayList(reportRequestDTO.getOffice()));
+        reportFilterDTO.setEntity(BillingEntityType.TRIP);
         if (vendorName != null && BillingReportAggregatedTypes.VEHICLE.equals(reportName)) {
             reportFilterDTO.setVendor(Lists.newArrayList());
-        }
-        if (vendorName != null && (
-                BillingReportAggregatedTypes.CONTRACT.equals(reportName) ||
-                        BillingReportAggregatedTypes.OFFICE.equals(reportName) ||
-                        (BillingReportAggregatedTypes.VENDOR.equals(reportName) && reportRequestDTO.getOffice() != null) ||
-                        (BillingReportAggregatedTypes.VEHICLE.equals(reportName) && reportRequestDTO.getOffice() != null) ||
-                        (BillingReportAggregatedTypes.DUTY.equals(reportName) && reportRequestDTO.getOffice() != null)
-        )) {
-            reportFilterDTO.setVendor(Lists.newArrayList(vendorName));
-        }
-        reportFilterDTO.setOffice(Lists.newArrayList(reportRequestDTO.getOffice()));
-        reportFilterDTO.setEntityId(reportRequestDTO.getEntityId());
-        if (vendorName != null) {
+            reportFilterDTO.setEntity(BillingEntityType.VEHICLE);
             reportFilterDTO.setParentEntity("VENDOR:" + reportRequestDTO.getVendor());
         }
-        if (BillingReportAggregatedTypes.OFFICE.equals(reportName) || reportRequestDTO.getOffice() != null) {
+        if (BillingReportAggregatedTypes.VEHICLE.equals(reportName) && (reportRequestDTO.isOfficePresent() || reportRequestDTO.isContractPresent())) {
+            reportFilterDTO.setEntity(BillingEntityType.TRIP);
+            if(vendorName!=null) reportFilterDTO.setVendor(Lists.newArrayList(vendorName));
             reportFilterDTO.setParentEntity(null);
+        }
+
+        if (vendorName != null && BillingReportAggregatedTypes.VENDOR.equals(reportName)) {
+            reportFilterDTO.setVendor(Lists.newArrayList());
+            reportFilterDTO.setEntityId(vendorName);
+            reportFilterDTO.setEntity(BillingEntityType.VENDOR);
+        }
+
+        if ( BillingReportAggregatedTypes.CONTRACT.equals(reportName)) {
+            if(vendorName!=null) reportFilterDTO.setEntityId(vendorName);
+            reportFilterDTO.setEntity(BillingEntityType.TRIP);
+        }
+
+        if ( BillingReportAggregatedTypes.DUTY.equals(reportName)) {
+            reportFilterDTO.setEntityId(reportFilterDTO.getEntityId()); //CAB ID
+            reportFilterDTO.setEntity(BillingEntityType.TRIP);
+        }
+
+        if (BillingReportAggregatedTypes.OFFICE.equals(reportName)) {
+            if(vendorName!=null) reportFilterDTO.setVendor(Lists.newArrayList(vendorName));
+            reportFilterDTO.setEntity(BillingEntityType.TRIP);
         }
         return ExternalReportRequestDTO.builder().reportFilter(reportFilterDTO).reportName(reportName.getReportName())
                 .bunit(reportRequestDTO.getBunitId()).startDate(DateUtils.formatDate(reportRequestDTO.getCycleStart(), "yyyy-MM-dd"))
@@ -192,11 +214,9 @@ public class BillingReportService {
             List<BillingCycleDTO> billingCycles = fetchAllBillingCycles();
             BillingCycleDTO cycle = billingCycles.stream().filter(e -> e.startDate().equals(startDate)).findFirst()
                     .orElse(null);
-            tripsheetDomainWebClient.freezeVendorBilling(UserContextResolver.getCurrentContext().getBuid(), vendorId,
-                    startDate.toInstant().toEpochMilli(), endDate.toInstant().toEpochMilli(), freezeStatus);
-            tripsheetDomainWebClient.updateFrozen(UserContextResolver.getCurrentContext().getBuid(), startDate.toInstant().toEpochMilli(),
-                    endDate.toInstant().toEpochMilli(), false);
-            tripsheetDomainWebClient.updateVendorBillingFreezeStatus(UserContextResolver.getCurrentContext().getBuid(), vendorId, cycle.id(), freezeStatus);
+            tripsheetDomainClient.freezeVendorBilling(vendorId, startDate, endDate, freezeStatus);
+            tripsheetDomainClient.updateFrozen(startDate, endDate, false);
+            tripsheetDomainClient.updateVendorBillingFreezeStatus(vendorId, cycle.id(), freezeStatus);
         }
         return true;
     }
@@ -209,6 +229,43 @@ public class BillingReportService {
         );
 
     }
+
+    public List<VendorFreezeBillingAuditDTO> getVendorBillingAudit(int billingCycleID) {
+        List<VendorFreezeBillingAuditDTO> vendorsFreezeBillingAudit = Lists.newArrayList();
+        for (VendorResponse vendor : tripsheetDomainClient.findVendorByStatuses(List.of(Constants.VENDOR_STATUS_ACTIVE))) {
+
+            List<EntityAuditDetails> auditDetails = tripsheetDomainClient.getVendorBillingFrozenStatusAuditById(billingCycleID, vendor.getId());
+            if (!auditDetails.isEmpty()){
+
+                for (EntityAuditDetails entityAuditDetail : auditDetails) {
+                    // Vendor wise freeze status is created automatically for the first time with freeze status as false in
+                    // BillingFreezeCoreServiceHandler while taking any action on the billing entities for that particular billing
+                    // cycle. So there is no need to show the audit history for such instances.
+                    if (entityAuditDetail.getAuditType() == AuditType.CREATED) {
+                        continue;
+                    }
+
+                    VendorFreezeBillingAuditDTO vendorBillingFreezeAuditVo = convertToVendorBillingFreezeAuditVO(entityAuditDetail, vendor);
+                    vendorsFreezeBillingAudit.add(vendorBillingFreezeAuditVo);
+                }
+            }
+        }
+        vendorsFreezeBillingAudit.sort(Comparator.comparing(VendorFreezeBillingAuditDTO::timeStamp));
+        return vendorsFreezeBillingAudit;
+    }
+
+    public static VendorFreezeBillingAuditDTO convertToVendorBillingFreezeAuditVO(
+            EntityAuditDetails entityAuditDetails,
+            VendorResponse vendorResponse){
+        VendorFreezeBillingAuditDTO vo = new VendorFreezeBillingAuditDTO(
+                entityAuditDetails.getComment(),
+                entityAuditDetails.getAuditDate(),
+                (String)entityAuditDetails.getPropertyAuditDetailsList().get(0).getOldValue(),
+                (String)entityAuditDetails.getPropertyAuditDetailsList().get(0).getNewValue(),
+                vendorResponse.getVendorName());
+        return vo;
+    }
+
 
 /*
   private boolean isVendorAuditDoneForBillingCycle(int vendorID, Date startDate, Date endDate)

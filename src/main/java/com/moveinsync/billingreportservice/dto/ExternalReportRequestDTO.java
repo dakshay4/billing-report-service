@@ -1,6 +1,7 @@
 package com.moveinsync.billingreportservice.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.moveinsync.billingreportservice.enums.BillingEntityType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -30,6 +31,7 @@ public class ExternalReportRequestDTO {
     private List<String> office;
     private String contract;
     private String entityId;
+    private BillingEntityType entity;
     private String parentEntity;
   }
 }

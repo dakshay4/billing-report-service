@@ -23,4 +23,11 @@ public class BillingReportRequestDTO {
   private String office;
   private String date;
 
+  public boolean isOfficePresent() {
+    return this.getOffice()!=null && !this.office.isBlank();
+  }
+
+  public boolean isContractPresent() {
+    return this.getContract() != null && !this.office.isBlank();
+  }
 }

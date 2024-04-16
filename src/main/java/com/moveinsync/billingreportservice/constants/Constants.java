@@ -8,4 +8,7 @@ public class Constants {
   public static final String START_DATE_STR = "startDate";
   public static final String END_DATE_STR = "endDate";
 
+
+  public static final Integer VENDOR_STATUS_ACTIVE=1;
+
 }

@@ -49,7 +49,7 @@
 		<dependency>
 			<groupId>com.moveinsync</groupId>
 			<artifactId>tripsheet-domain-client</artifactId>
-			<version>0.0.83DK-SNAPSHOT</version>
+			<version>0.0.84DK-SNAPSHOT</version>
 			<exclusions>
 				<exclusion>
 					<groupId>com.moveinsync.billing.v2</groupId>

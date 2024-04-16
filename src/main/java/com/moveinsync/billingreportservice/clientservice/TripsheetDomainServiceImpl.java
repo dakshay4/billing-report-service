@@ -6,8 +6,11 @@ import com.google.common.cache.LoadingCache;
 import com.moveinsync.billingreportservice.Configurations.UserContextResolver;
 import com.moveinsync.billingreportservice.exceptions.MisCustomException;
 import com.moveinsync.billingreportservice.exceptions.ReportErrors;
+import com.moveinsync.data.envers.models.EntityAuditDetails;
+import com.moveinsync.models.VendorDTO;
 import com.moveinsync.tripsheetdomain.client.TripsheetDomainWebClient;
 import com.moveinsync.tripsheetdomain.models.BillingCycleVO;
+import com.moveinsync.tripsheetdomain.models.VendorResponse;
 import com.moveinsync.tripsheetdomain.response.VendorBillingFrozenStatusDTO;
 
 import org.slf4j.Logger;
@@ -15,9 +18,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
-import java.util.Comparator;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -70,5 +74,35 @@ public class TripsheetDomainServiceImpl {
     return tripsheetDomainWebClient
         .getVendorBillingFrozenStatusById(UserContextResolver.getCurrentContext().getBuid(), billingCycleId, vendorId)
         .getBody();
+  }
+
+  public Map<String, Integer> freezeVendorBilling(int vendorId, Date startDate, Date endDate, boolean freezeStatus) {
+    return tripsheetDomainWebClient.freezeVendorBilling(UserContextResolver.getCurrentContext().getBuid(), vendorId,
+            startDate.toInstant().toEpochMilli(), endDate.toInstant().toEpochMilli(), freezeStatus).getBody();
+  }
+
+
+  public List<BillingCycleVO> updateFrozen(Date startDate, Date endDate, boolean b) {
+     return tripsheetDomainWebClient.updateFrozen(UserContextResolver.getCurrentContext().getBuid(),
+             startDate.toInstant().toEpochMilli(),
+             endDate.toInstant().toEpochMilli(), false).getBody();
+
+  }
+
+  public VendorBillingFrozenStatusDTO updateVendorBillingFreezeStatus(int vendorId, int billingCycleId, boolean freezeStatus) {
+    return tripsheetDomainWebClient.updateVendorBillingFreezeStatus(UserContextResolver.getCurrentContext().getBuid(),
+            vendorId,
+            billingCycleId,
+            freezeStatus).getBody();
+  }
+
+  public List<VendorResponse> findVendorByStatuses(List<Integer> status) {
+    return tripsheetDomainWebClient.findVendorByStatus(UserContextResolver.getCurrentContext().getBuid(), status).getBody();
+  }
+
+  public List<EntityAuditDetails> getVendorBillingFrozenStatusAuditById(int billingCycleID, Integer id) {
+    return tripsheetDomainWebClient.getVendorBillingFrozenStatusAuditById(
+            UserContextResolver.getCurrentContext().getBuid(),
+            billingCycleID, id).getBody();
   }
 }
