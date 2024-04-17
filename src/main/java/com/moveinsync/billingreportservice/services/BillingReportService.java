@@ -338,6 +338,12 @@ public class BillingReportService {
     }
 
 
+
+    public  Map<String, String> getAllCabs(){
+        return tripsheetDomainClient.findAllCabs();
+    }
+
+
 /*
   private boolean isVendorAuditDoneForBillingCycle(int vendorID, Date startDate, Date endDate)
           throws STWInternalServerException {

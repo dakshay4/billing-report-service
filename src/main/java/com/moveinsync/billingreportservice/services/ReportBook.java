@@ -10,6 +10,7 @@ import com.moveinsync.billingreportservice.dto.ReportDataDTO;
 import com.moveinsync.billingreportservice.dto.VendorResponseDTO;
 import com.moveinsync.billingreportservice.enums.ReportDataType;
 import com.moveinsync.billingreportservice.enums.TableHeaders;
+import com.moveinsync.billingreportservice.enums.VendorHeaders;
 import com.moveinsync.tripsheetdomain.models.BillingCycleVO;
 import com.moveinsync.tripsheetdomain.response.VendorBillingFrozenStatusDTO;
 import org.slf4j.Logger;
@@ -23,6 +24,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -146,6 +148,16 @@ public abstract class ReportBook<T extends TableHeaders> {
                         .findVendorBillingFrozenStatusById(billingCycleVO.getBillingCycleId(), Integer.parseInt(vendorId));
                 dataRows.set(frozenRowIndex,  String.valueOf(vendorBillingFrozenStatusDTO.isFreezed()));
             }
+        }
+    }
+
+    public void replaceEntityIdByVendorName(List<List<String>> table) {
+        Map<String, String> cabMap = tripsheetDomainService.findAllCabs();
+        for(int i=1; i<table.size(); i++) {
+            List<String> row = table.get(i);
+            String entityId = row.get(VendorHeaders.VENDOR.getIndex());
+            if(cabMap.containsKey(entityId))
+                row.set(VendorHeaders.VENDOR.getIndex(), cabMap.get(entityId));
         }
     }
 }

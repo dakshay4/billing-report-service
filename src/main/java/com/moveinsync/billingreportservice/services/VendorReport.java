@@ -31,6 +31,9 @@ public class VendorReport<T extends Enum<T>> extends ReportBook<VendorHeaders> {
       for (int i=0; i< header.size(); i++) {
           if (header.get(i).equals(VendorHeaders.VENDOR.getKey())) header.set(i, "Vendor Name");
       }
+      if(billingReportRequestDTO.isOfficePresent()) replaceEntityIdByVendorName(table);
       return reportDataDTO;
   }
+
+
 }

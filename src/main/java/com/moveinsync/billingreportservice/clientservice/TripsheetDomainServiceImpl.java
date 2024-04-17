@@ -7,6 +7,7 @@ import com.moveinsync.billingreportservice.Configurations.UserContextResolver;
 import com.moveinsync.billingreportservice.exceptions.MisCustomException;
 import com.moveinsync.billingreportservice.exceptions.ReportErrors;
 import com.moveinsync.data.envers.models.EntityAuditDetails;
+import com.moveinsync.models.CabDTO;
 import com.moveinsync.tripsheetdomain.client.TripsheetDomainWebClient;
 import com.moveinsync.tripsheetdomain.models.BillingCycleVO;
 import com.moveinsync.tripsheetdomain.models.VendorResponse;
@@ -19,6 +20,7 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -123,5 +125,16 @@ public class TripsheetDomainServiceImpl {
       logger.warn("Client error {}", ex.getResponseBodyAsString());
     }
     return new ArrayList<>();
+  }
+
+  public Map<String, String> findAllCabs() {
+    List<CabDTO> cabs = tripsheetDomainWebClient.getAllCabs(UserContextResolver.getCurrentContext().getBuid()).getBody();
+    Map<String, String> map = new HashMap<>();
+    for (CabDTO cab : cabs) {
+      String key = cab.getVendor().getVendorId() + "-" + cab.getCabId();
+      String value = cab.getVendor().getVendorName();
+      map.put(key, value.toUpperCase());
+    }
+    return map;
   }
 }

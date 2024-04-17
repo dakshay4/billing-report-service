@@ -88,4 +88,9 @@ public class BillingReportController {
           throws NumberFormatException {
     return ResponseEntity.ok(billingReportService.getVendorBillingAudit(billingCycleID));
   }
+
+  @GetMapping("/all/cabs")
+  public ResponseEntity getAllCabs() {
+    return ResponseEntity.ok(billingReportService.getAllCabs());
+  }
 }
