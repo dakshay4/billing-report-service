@@ -7,7 +7,9 @@ import com.mis.serverdata.exception.STWOperationNotAllowedException;
 import com.moveinsync.billing.model.BillingStatusVO;
 import com.moveinsync.billing.types.BillingCurrentStatus;
 import com.moveinsync.billingreportservice.Configurations.UserContextResolver;
+import com.moveinsync.billingreportservice.Configurations.WebClientException;
 import com.moveinsync.billingreportservice.Utils.DateUtils;
+import com.moveinsync.billingreportservice.Utils.NumberUtils;
 import com.moveinsync.billingreportservice.clientservice.BillingCalculationClientImpl;
 import com.moveinsync.billingreportservice.clientservice.ContractWebClientImpl;
 import com.moveinsync.billingreportservice.clientservice.ReportingService;
@@ -43,6 +45,7 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.time.LocalDate;
@@ -156,7 +159,8 @@ public class BillingReportService {
         if (BillingReportAggregatedTypes.VENDOR.equals(reportName)) {
             reportFilterDTO.setVendor(Lists.newArrayList());
             reportFilterDTO.setEntityId(vendorName);
-            reportFilterDTO.setEntity(BillingEntityType.VENDOR);
+            if(reportRequestDTO.isOfficePresent()) reportFilterDTO.setEntity(BillingEntityType.TRIP);
+            else reportFilterDTO.setEntity(BillingEntityType.VENDOR);
         }
 
         if ( BillingReportAggregatedTypes.CONTRACT.equals(reportName)) {
@@ -202,26 +206,32 @@ public class BillingReportService {
     }
 
     public List<FreezeBillingResponseDTO> freezeBilling(FreezeBillingDTO freezeBillingDTO) {
-        int vendorId = freezeBillingDTO.vendorId();
+        Integer vendorId = freezeBillingDTO.vendorId();
+        String vendorName = freezeBillingDTO.vendorName();
         boolean freezeStatus = freezeBillingDTO.frozen();
         Date startDate = freezeBillingDTO.startDate();
         Date endDate = freezeBillingDTO.endDate();
 
         List<FreezeBillingResponseDTO> freezeBillingResponse = new ArrayList<>();
-        if(vendorId == -1 && freezeStatus) {
+        if(freezeStatus && (vendorId!=null && vendorId == -1) || vendorName == null ) {
             freezeBillingResponse.addAll(
                     freezeBillingForAllVendors(startDate, endDate)
             );
         }else {
-            if (freezeStatus) {
-                if (!isVendorAuditDoneForBillingCycle(vendorId, startDate, endDate))
-                    throw new MisCustomException(ReportErrors.VENDOR_AUDIT_NOT_DONE_FOR_BILLING_CYCLE);
-            } else {
-                tripsheetDomainClient.updateFrozen(startDate, endDate, freezeStatus); // Unfreeze Bill Cycle
+            VendorResponseDTO vendorResponseDTO = vmsClient.fetchVendorByVendorNameCached(vendorName);
+            vendorId = vendorResponseDTO!=null ? NumberUtils.parseInteger(vendorResponseDTO.getVendorId()) : null;
+            boolean freezeResult = false;
+            if(vendorId!=null && vendorId!=0 && vendorId!=-1) {
+                if (freezeStatus) {
+                    if (!isVendorAuditDoneForBillingCycle(vendorId, startDate, endDate))
+                        throw new MisCustomException(ReportErrors.VENDOR_AUDIT_NOT_DONE_FOR_BILLING_CYCLE);
+                } else {
+                    tripsheetDomainClient.updateFrozen(startDate, endDate, freezeStatus); // Unfreeze Bill Cycle
+                }
+                freezeResult = freezeBilling(startDate, vendorId, endDate, freezeStatus);
             }
-            boolean freezeResult = freezeBilling(startDate, vendorId, endDate, freezeStatus);
             freezeBillingResponse.add(
-                    new FreezeBillingResponseDTO(freezeResult, vendorId, null)
+                    new FreezeBillingResponseDTO(freezeResult, vendorId, vendorName)
             );
         }
         return freezeBillingResponse;
@@ -260,10 +270,13 @@ public class BillingReportService {
 
             logger.info("Freeze Vendor Billing Results {}", freezeVendorBilling);
             logger.info("vendorBillingFrozenStatusDTO Results {}", vendorBillingFrozenStatusDTO);
-        }catch (Exception ex) {
+        }catch (WebClientResponseException webClientException) {
+            logger.warn("Web Client Call failed in Freeze Billing for VendorId: {} startDate: {} endDate: {}, response {}",
+                    vendorId, startDate, endDate, webClientException.getResponseBodyAsString());
+            freezeResult = false;
+        } catch (Exception ex) {
             logger.warn("Failed in Freeze Billing for VendorId: {} startDate: {} endDate: {}",
                     vendorId, startDate, endDate, ex);
-            freezeResult = false;
         }
         return freezeResult;
     }

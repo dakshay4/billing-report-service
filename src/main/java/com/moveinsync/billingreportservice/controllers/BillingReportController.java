@@ -6,6 +6,7 @@ import com.moveinsync.billingreportservice.dto.BillingReportRequestDTO;
 import com.moveinsync.billingreportservice.dto.FreezeBillingDTO;
 import com.moveinsync.billingreportservice.dto.FreezeBillingResponseDTO;
 import com.moveinsync.billingreportservice.dto.RegenerateBillDTO;
+import com.moveinsync.billingreportservice.dto.RegenerateBillResponseDTO;
 import com.moveinsync.billingreportservice.dto.ReportDataDTO;
 import com.moveinsync.billingreportservice.dto.ReportGenerationTime;
 import com.moveinsync.billingreportservice.enums.BillingReportAggregatedTypes;
@@ -67,11 +68,12 @@ public class BillingReportController {
   }
 
   @PostMapping("/regenerate-billing")
-  public ResponseEntity<String> regenerateBilling(
+  public ResponseEntity<RegenerateBillResponseDTO> regenerateBilling(
           @RequestBody RegenerateBillDTO regenerateBillDTO
   ) {
     String message = billingReportService.regenerateBilling(regenerateBillDTO);
-    return ResponseEntity.ok(message);
+    RegenerateBillResponseDTO regenerateBillResponseDTO = new RegenerateBillResponseDTO(message);
+    return ResponseEntity.ok(regenerateBillResponseDTO);
   }
 
   @GetMapping("/exception")
