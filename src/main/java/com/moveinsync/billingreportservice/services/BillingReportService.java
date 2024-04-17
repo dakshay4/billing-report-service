@@ -302,7 +302,8 @@ public class BillingReportService {
 
     public List<VendorFreezeBillingAuditDTO> getVendorBillingAudit(int billingCycleID) {
         List<VendorFreezeBillingAuditDTO> vendorsFreezeBillingAudit = Lists.newArrayList();
-        for (VendorResponse vendor : tripsheetDomainClient.findVendorByStatuses(List.of(Constants.VENDOR_STATUS_ACTIVE))) {
+        List<VendorResponse> vendorResponses = tripsheetDomainClient.findVendorByStatuses(List.of(Constants.VENDOR_STATUS_ACTIVE));
+        for (VendorResponse vendor : vendorResponses) {
 
             List<EntityAuditDetails> auditDetails = tripsheetDomainClient.getVendorBillingFrozenStatusAuditById(billingCycleID, vendor.getId());
             if (!auditDetails.isEmpty()){
