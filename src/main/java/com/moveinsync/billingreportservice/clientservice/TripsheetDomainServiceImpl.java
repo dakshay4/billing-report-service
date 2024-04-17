@@ -10,7 +10,6 @@ import com.moveinsync.data.envers.models.EntityAuditDetails;
 import com.moveinsync.tripsheetdomain.client.TripsheetDomainWebClient;
 import com.moveinsync.tripsheetdomain.models.BillingCycleVO;
 import com.moveinsync.tripsheetdomain.models.VendorResponse;
-import com.moveinsync.tripsheetdomain.request.BillingIssueAuditRequestDTO;
 import com.moveinsync.tripsheetdomain.response.VendorBillingFrozenStatusDTO;
 
 import org.slf4j.Logger;
@@ -19,7 +18,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -106,11 +104,9 @@ public class TripsheetDomainServiceImpl {
   }
 
   public Integer getCountBetweenDateAndByAudit(Long startDate, Long endDte, List<Integer> cabIds) {
-    BillingIssueAuditRequestDTO billingIssueAuditRequestDTO = new BillingIssueAuditRequestDTO(
-            startDate, endDte, false, cabIds
-    );
+
     return tripsheetDomainWebClient.getCountBetweenDateAndByAudit(UserContextResolver.getCurrentContext().getBuid(),
-            billingIssueAuditRequestDTO
+            startDate, endDte, false, cabIds
             ).getBody();
   }
 
