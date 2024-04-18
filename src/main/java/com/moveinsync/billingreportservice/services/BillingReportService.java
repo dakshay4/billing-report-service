@@ -196,8 +196,11 @@ public class BillingReportService {
     }
 
     public List<BillingCycleDTO> fetchAllBillingCycles() {
+        Date current = new Date();
         List<BillingCycleVO> cycleVOS = tripsheetDomainClient.fetchBillingCyclesCached();
-        return cycleVOS.parallelStream().map(cycleVO -> convertToDTO(cycleVO)).collect(Collectors.toList());
+        return cycleVOS.parallelStream()
+                .filter(billingCycleVO -> !billingCycleVO.getStartDate().after(current))
+                .map(this::convertToDTO).collect(Collectors.toList());
     }
 
     private BillingCycleDTO convertToDTO(BillingCycleVO cycleVO) {

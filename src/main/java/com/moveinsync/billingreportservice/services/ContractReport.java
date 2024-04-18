@@ -9,7 +9,6 @@ import com.moveinsync.billingreportservice.dto.BillingReportRequestDTO;
 import com.moveinsync.billingreportservice.dto.ReportDataDTO;
 import com.moveinsync.billingreportservice.enums.ContractHeaders;
 import com.moveinsync.billingreportservice.enums.ReportDataType;
-import com.moveinsync.billingreportservice.enums.VendorHeaders;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -55,9 +54,9 @@ public class ContractReport <T extends Enum<T>> extends ReportBook<ContractHeade
     private List<List<String>> getContractReportFromNrsResponse(ReportDataDTO reportDataDTO) {
         List<List<String>> table = reportDataDTO.getTable();
         List<String> header = table.get(0);
-        int contractIdx = header.indexOf(ContractHeaders.CONTRACT.getKey());
-        header.set(0, ContractHeaders.CAPACITY.getKey());
-        header.set(1, ContractHeaders.VEHICLE_TYPE.getKey());
+        int contractIdx = header.indexOf(ContractHeaders.CONTRACT.getLabel());
+        header.set(0, ContractHeaders.CAPACITY.getLabel());
+        header.set(1, ContractHeaders.VEHICLE_TYPE.getLabel());
         for (int i = 1; i < table.size(); i++) {
             String contractName = table.get(i).get(contractIdx);
             Optional<ContractVO> contractVO = contractWebClient.getContract(contractName);
@@ -125,7 +124,7 @@ public class ContractReport <T extends Enum<T>> extends ReportBook<ContractHeade
     }
 
     public static int getCapacity(List<String> row, List<String> header) {
-        int capacityIdx = header.indexOf(ContractHeaders.CAPACITY.getKey());
+        int capacityIdx = header.indexOf(ContractHeaders.CAPACITY.getLabel());
         try {
             return row.get(capacityIdx)==null || row.get(capacityIdx).isBlank() ? 0 : NumberUtils.parseInteger(row.get(0));
         }catch (NumberFormatException ex) {

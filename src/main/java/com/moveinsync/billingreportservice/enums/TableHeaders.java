@@ -6,7 +6,7 @@ public interface TableHeaders {
 
     public static <T extends TableHeaders> T getFromLabelName(Class<T> enumClass, String label) {
         return Arrays.stream(enumClass.getEnumConstants())
-                .filter(e -> e.getKey().equals(label))
+                .filter(e -> e.getLabel().equals(label))
                 .findFirst()
                 .orElse(null);
     }
@@ -20,7 +20,7 @@ public interface TableHeaders {
 
     public int getIndex();
 
-    public String getKey();
+    public String getLabel();
 
     public ReportDataType getDataType();
 

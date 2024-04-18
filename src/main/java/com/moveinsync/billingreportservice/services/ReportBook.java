@@ -57,7 +57,7 @@ public abstract class ReportBook<T extends TableHeaders> {
         logger.info("Filtered table {}", table);
         if(table == null || table.isEmpty()) return new ArrayList<>();
         List<String> header = table.get(0);
-        Set<String> headerLabels = Arrays.stream(getHeaders()).map(e->e.getKey()).collect(
+        Set<String> headerLabels = Arrays.stream(getHeaders()).map(e->e.getLabel()).collect(
                 Collectors.toSet());
         List<Integer> validIndices = new ArrayList<>();
         for (int i = 0; i < header.size(); i++)
@@ -102,7 +102,7 @@ public abstract class ReportBook<T extends TableHeaders> {
         List<String> baseRow = table.get(0);
         List<Integer> reorderIndices = new ArrayList<>();
         for (T header : getHeaders()) {
-            String columnLabel = header.getKey();
+            String columnLabel = header.getLabel();
             int index = baseRow.indexOf(columnLabel);
             reorderIndices.add(index);
         }
@@ -128,7 +128,7 @@ public abstract class ReportBook<T extends TableHeaders> {
                                 TableHeaders tableHeaderVendor
                                 ) {
         int frozenRowIndex = tableHeaderFrozen.getIndex();
-        if(frozenRowIndex < getHeaderRow(table).size()) getHeaderRow(table).set(frozenRowIndex, tableHeaderFrozen.getKey());
+        if(frozenRowIndex < getHeaderRow(table).size()) getHeaderRow(table).set(frozenRowIndex, tableHeaderFrozen.getLabel());
         for (int i = 1; i < table.size(); i++) {
             List<String> dataRows = table.get(i);
             String vendorName = tableHeaderVendor!=null ? dataRows.get(tableHeaderVendor.getIndex()) : null;
