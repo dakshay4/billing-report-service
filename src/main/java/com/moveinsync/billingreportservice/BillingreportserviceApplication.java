@@ -8,7 +8,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 
-@SpringBootApplication()
+@SpringBootApplication
 public class BillingreportserviceApplication {
 
   private static final Logger logger = LoggerFactory.getLogger(BillingreportserviceApplication.class);
