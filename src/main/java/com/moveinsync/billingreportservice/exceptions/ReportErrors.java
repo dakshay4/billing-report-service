@@ -9,7 +9,8 @@ public enum ReportErrors implements MisError {
   INVALID_REPORT_TYPE(ErrorType.VALIDATION, "INVALID_REPORT_TYPE"),
   OPERATION_NOT_ALLOWED(ErrorType.VALIDATION, "OPERATION_NOT_ALLOWED"),
   VENDOR_AUDIT_NOT_DONE_FOR_BILLING_CYCLE(ErrorType.VALIDATION, "VENDOR_AUDIT_NOT_DONE_FOR_BILLING_CYCLE"),
-  NO_PARAMETERS_PROVIDED_FOR_GENERATING_CACHE_KEY(ErrorType.RUNTIME, "No.parameters.provided.for.generating.cache.key");
+  NO_PARAMETERS_PROVIDED_FOR_GENERATING_CACHE_KEY(ErrorType.RUNTIME, "No.parameters.provided.for.generating.cache.key"),
+  CLIENT_ERROR(ErrorType.RUNTIME, "CLIENT.ERROR");
 
   private ErrorType errorType;
   private String messageKey;

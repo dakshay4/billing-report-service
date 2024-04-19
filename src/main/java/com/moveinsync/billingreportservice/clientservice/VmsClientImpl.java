@@ -13,6 +13,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientRequestException;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import java.util.List;
 import java.util.Optional;
@@ -75,7 +77,12 @@ public class VmsClientImpl {
         try {
             Optional<VendorResponseDTO> res = vendorByEmpGuidCacheCache.get(empGuid);
             return res.orElse(null);
-        } catch (Exception e) {
+        }catch (WebClientResponseException ex) {
+            throw new MisCustomException(ReportErrors.CLIENT_ERROR, ex);
+        } catch (WebClientRequestException ex) {
+            throw new MisCustomException(ReportErrors.CLIENT_ERROR, ex);
+        }
+        catch (Exception e) {
             throw new MisCustomException(ReportErrors.UNABLE_TO_FETCH_FROM_CACHE, e);
         }
     }

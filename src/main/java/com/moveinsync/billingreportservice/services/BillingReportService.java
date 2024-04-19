@@ -1,13 +1,9 @@
 package com.moveinsync.billingreportservice.services;
 
 import com.google.common.collect.Lists;
-import com.mis.pc.utils.GsonUtils;
-import com.mis.serverdata.exception.STWInternalServerException;
-import com.mis.serverdata.exception.STWOperationNotAllowedException;
 import com.moveinsync.billing.model.BillingStatusVO;
 import com.moveinsync.billing.types.BillingCurrentStatus;
 import com.moveinsync.billingreportservice.Configurations.UserContextResolver;
-import com.moveinsync.billingreportservice.Configurations.WebClientException;
 import com.moveinsync.billingreportservice.Utils.DateUtils;
 import com.moveinsync.billingreportservice.Utils.NumberUtils;
 import com.moveinsync.billingreportservice.clientservice.BillingCalculationClientImpl;
@@ -28,35 +24,25 @@ import com.moveinsync.billingreportservice.dto.VendorFreezeBillingAuditDTO;
 import com.moveinsync.billingreportservice.dto.VendorResponseDTO;
 import com.moveinsync.billingreportservice.enums.BillingEntityType;
 import com.moveinsync.billingreportservice.enums.BillingReportAggregatedTypes;
-import com.moveinsync.billingreportservice.enums.ContractHeaders;
 import com.moveinsync.billingreportservice.exceptions.MisCustomException;
 import com.moveinsync.billingreportservice.exceptions.ReportErrors;
 
 import com.moveinsync.data.envers.models.AuditType;
 import com.moveinsync.data.envers.models.EntityAuditDetails;
-import com.moveinsync.models.VendorDTO;
-import com.moveinsync.models.billing.BillingCycle;
-import com.moveinsync.models.billing.Vendor;
-import com.moveinsync.tripsheetdomain.client.TripsheetDomainWebClient;
 import com.moveinsync.tripsheetdomain.models.BillingCycleVO;
 import com.moveinsync.tripsheetdomain.models.VendorResponse;
 import com.moveinsync.tripsheetdomain.response.VendorBillingFrozenStatusDTO;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
-import org.springframework.web.servlet.ModelAndView;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Component
@@ -341,9 +327,11 @@ public class BillingReportService {
     }
 
 
-
-    public  Map<String, String> getAllCabs(){
-        return tripsheetDomainClient.findAllCabs();
+    public  Map<String, String> cabToVendorNameMap(){
+        return tripsheetDomainClient.cabToVendorNameMap();
+    }
+    public  Map<String, String> cabToVehicleNumberMap(){
+        return tripsheetDomainClient.cabToVehicleNumberMap();
     }
 
 

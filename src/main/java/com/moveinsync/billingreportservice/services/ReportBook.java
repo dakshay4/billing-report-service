@@ -10,7 +10,6 @@ import com.moveinsync.billingreportservice.dto.ReportDataDTO;
 import com.moveinsync.billingreportservice.dto.VendorResponseDTO;
 import com.moveinsync.billingreportservice.enums.ReportDataType;
 import com.moveinsync.billingreportservice.enums.TableHeaders;
-import com.moveinsync.billingreportservice.enums.VendorHeaders;
 import com.moveinsync.tripsheetdomain.models.BillingCycleVO;
 import com.moveinsync.tripsheetdomain.response.VendorBillingFrozenStatusDTO;
 import org.slf4j.Logger;
@@ -23,9 +22,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Queue;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -33,6 +34,14 @@ public abstract class ReportBook<T extends TableHeaders> {
 
     private final VmsClientImpl vmsClient;
     private final TripsheetDomainServiceImpl tripsheetDomainService;
+
+    public VmsClientImpl getVmsClient() {
+        return vmsClient;
+    }
+
+    public TripsheetDomainServiceImpl getTripsheetDomainService() {
+        return tripsheetDomainService;
+    }
 
     protected ReportBook(VmsClientImpl vmsClient, TripsheetDomainServiceImpl tripsheetDomainService) {
         this.vmsClient = vmsClient;
@@ -101,9 +110,11 @@ public abstract class ReportBook<T extends TableHeaders> {
     public List<List<String>> reorderTable(List<List<String>> table) {
         List<String> baseRow = table.get(0);
         List<Integer> reorderIndices = new ArrayList<>();
+        Queue<String> diffLabels = new LinkedList<>();
         for (T header : getHeaders()) {
             String columnLabel = header.getLabel();
             int index = baseRow.indexOf(columnLabel);
+            if(index==-1) diffLabels.add(columnLabel);
             reorderIndices.add(index);
         }
 
@@ -114,7 +125,7 @@ public abstract class ReportBook<T extends TableHeaders> {
                 if (index != -1) {
                     reorderedRow.add(row.get(index));
                 } else {
-                    reorderedRow.add(""); // or any default value if not found
+                    reorderedRow.add(diffLabels.poll()); // or any default value if not found
                 }
             }
             table.set(i, reorderedRow);
@@ -151,13 +162,13 @@ public abstract class ReportBook<T extends TableHeaders> {
         }
     }
 
-    public void replaceEntityIdByVendorName(List<List<String>> table) {
-        Map<String, String> cabMap = tripsheetDomainService.findAllCabs();
+    public void replaceEntityIdByVendorName(List<List<String>> table, int index) {
+        Map<String, String> cabMap = tripsheetDomainService.cabToVendorNameMap();
         for(int i=1; i<table.size(); i++) {
             List<String> row = table.get(i);
-            String entityId = row.get(VendorHeaders.VENDOR.getIndex());
+            String entityId = row.get(index);
             if(cabMap.containsKey(entityId))
-                row.set(VendorHeaders.VENDOR.getIndex(), cabMap.get(entityId));
+                row.set(index, cabMap.get(entityId));
         }
     }
 }

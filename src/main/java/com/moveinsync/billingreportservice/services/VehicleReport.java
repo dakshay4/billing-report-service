@@ -7,6 +7,7 @@ import com.moveinsync.billingreportservice.dto.ReportDataDTO;
 import com.moveinsync.billingreportservice.enums.VehicleHeaders;
 
 import java.util.List;
+import java.util.Map;
 
 public class VehicleReport<T extends Enum<T>> extends ReportBook<VehicleHeaders> {
     public VehicleReport(VmsClientImpl vmsClient, TripsheetDomainServiceImpl tripsheetDomainService) {
@@ -23,6 +24,13 @@ public class VehicleReport<T extends Enum<T>> extends ReportBook<VehicleHeaders>
     public ReportDataDTO generateReport(BillingReportRequestDTO billingReportRequestDTO, ReportDataDTO reportDataDTO) {
         List<List<String>> table = reportDataDTO.getTable();
         table = filterIncomingTableHeadersAndData(table);
+        int index = VehicleHeaders.VEHICLE_NUMBER.getIndex();
+        for(int i=1; i<table.size(); i++) {
+            List<String> row = table.get(i);
+            Map<String, String> cabVehicleMap = getTripsheetDomainService().cabToVehicleNumberMap();
+            String vehicleNumber = cabVehicleMap.get(row.get(VehicleHeaders.ENTITY_ID.getIndex()));
+            row.set(index, vehicleNumber);
+        }
         List<String> totalRow = totalRow(table);
         table.add(totalRow);
         reportDataDTO.setTable(table);

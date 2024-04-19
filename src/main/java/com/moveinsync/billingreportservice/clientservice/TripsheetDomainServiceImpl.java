@@ -127,13 +127,24 @@ public class TripsheetDomainServiceImpl {
     return new ArrayList<>();
   }
 
-  public Map<String, String> findAllCabs() {
+  public Map<String, String> cabToVendorNameMap() {
     List<CabDTO> cabs = tripsheetDomainWebClient.getAllCabs(UserContextResolver.getCurrentContext().getBuid()).getBody();
     Map<String, String> map = new HashMap<>();
     for (CabDTO cab : cabs) {
       String key = cab.getVendor().getVendorId() + "-" + cab.getCabId();
       String value = cab.getVendor().getVendorName();
       map.put(key, value.toUpperCase());
+    }
+    return map;
+  }
+
+  public Map<String, String> cabToVehicleNumberMap() {
+    List<CabDTO> cabs = tripsheetDomainWebClient.getAllCabs(UserContextResolver.getCurrentContext().getBuid()).getBody();
+    Map<String, String> map = new HashMap<>();
+    for (CabDTO cab : cabs) {
+      String key = cab.getVendor().getVendorId() + "-" + cab.getCabId();
+      String value = cab.getVendor().getVendorName() + "-" + cab.getVendor().getVendorId() + " (" + cab.getRegistration() + ")";
+      map.put(key, value);
     }
     return map;
   }

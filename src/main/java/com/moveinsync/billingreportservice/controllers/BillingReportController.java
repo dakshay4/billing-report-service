@@ -89,8 +89,13 @@ public class BillingReportController {
     return ResponseEntity.ok(billingReportService.getVendorBillingAudit(billingCycleID));
   }
 
-  @GetMapping("/all/cabs")
+  @GetMapping("/all/cab-vendor")
   public ResponseEntity getAllCabs() {
-    return ResponseEntity.ok(billingReportService.getAllCabs());
+    return ResponseEntity.ok(billingReportService.cabToVendorNameMap());
+  }
+
+  @GetMapping("/all/cab-vehicle")
+  public ResponseEntity cabToVehicleNumberMap() {
+    return ResponseEntity.ok(billingReportService.cabToVehicleNumberMap());
   }
 }
