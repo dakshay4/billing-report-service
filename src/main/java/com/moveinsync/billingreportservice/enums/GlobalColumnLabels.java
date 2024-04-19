@@ -27,7 +27,13 @@ public enum GlobalColumnLabels {
     CAPACITY("Capacity"),
     VEHICLE_TYPE("Vehicle Type"),
     CONTRACT("Contract"),
-    ACTION("Action");
+    ACTION("Action"),
+    START_TIME("Start Time"),
+    END_TIME("End Time"),
+    TOTAL_HOURS("Total Hours"),
+    NUM_OF_TRIPS("Number of Trips")
+    ;
+
 
     private final String labelIdentifier;
 

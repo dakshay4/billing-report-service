@@ -4,6 +4,7 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.moveinsync.billingreportservice.Configurations.UserContextResolver;
+import com.moveinsync.billingreportservice.Utils.DateUtils;
 import com.moveinsync.billingreportservice.exceptions.MisCustomException;
 import com.moveinsync.billingreportservice.exceptions.ReportErrors;
 import com.moveinsync.data.envers.models.EntityAuditDetails;
@@ -11,6 +12,7 @@ import com.moveinsync.models.CabDTO;
 import com.moveinsync.tripsheetdomain.client.TripsheetDomainWebClient;
 import com.moveinsync.tripsheetdomain.models.BillingCycleVO;
 import com.moveinsync.tripsheetdomain.models.VendorResponse;
+import com.moveinsync.tripsheetdomain.response.CabSignInResponseDTO;
 import com.moveinsync.tripsheetdomain.response.VendorBillingFrozenStatusDTO;
 
 import org.slf4j.Logger;
@@ -18,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -147,5 +150,19 @@ public class TripsheetDomainServiceImpl {
       map.put(key, value);
     }
     return map;
+  }
+
+  public List<CabSignInResponseDTO> billingDuties(
+          Long startDate,
+          Long endDate,
+          Integer cabId,
+          Integer state,
+          Integer status,
+          Boolean audited
+          ) {
+    return tripsheetDomainWebClient.billingDuties(
+            UserContextResolver.getCurrentContext().getBuid(),
+            startDate,endDate, cabId, state, status, audited
+    ).getBody();
   }
 }

@@ -2,7 +2,7 @@ package com.moveinsync.billingreportservice.enums;
 
 public enum DutyHeaders implements TableHeaders {
 
-    DATE(0, GlobalColumnLabels.DATE, ReportDataType.STRING),
+    DATE(0, GlobalColumnLabels.DATE, ReportDataType.DATE),
     DUTY_COUNT(1, GlobalColumnLabels.DUTY_COUNT, ReportDataType.INTEGER),
     TRIP_COUNT(2, GlobalColumnLabels.TRIP_COUNT, ReportDataType.INTEGER),
     TRIP_KM(3, GlobalColumnLabels.TOTAL_TRIP_KM, ReportDataType.BIGDECIMAL),

@@ -10,5 +10,7 @@ public class Constants {
 
 
   public static final Integer VENDOR_STATUS_ACTIVE=1;
+  public static final int CAB_SIGN_IN_STATUS_ACTIVE = 1;
+  
 
 }

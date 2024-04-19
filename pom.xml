@@ -26,7 +26,7 @@
 		<dependency>
 			<groupId>com.moveinsync</groupId>
 			<artifactId>tripsheet-domain-client</artifactId>
-			<version>0.0.83-D-SNAPSHOT</version>
+			<version>0.0.83T-SNAPSHOT</version>
 			<exclusions>
 				<exclusion>
 					<groupId>com.moveinsync.billing.v2</groupId>
@@ -37,6 +37,11 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.moveinsync</groupId>
+			<artifactId>mis-timezone-utils</artifactId>
+			<version>0.0.5</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
