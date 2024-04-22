@@ -73,7 +73,7 @@ public class DateUtils {
       try {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern(format, Locale.forLanguageTag(UserContextResolver.getCurrentContext().getLocale()));
         return LocalDateTime.parse(dateString, formatter);
-      } catch (DateTimeParseException e) { }
+      } catch (Exception e) { }
     }
     return null;
   }

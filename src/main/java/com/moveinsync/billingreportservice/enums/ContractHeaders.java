@@ -20,8 +20,9 @@ public enum ContractHeaders implements TableHeaders {
     DRIVER_ALLOWANCE(13, GlobalColumnLabels.DRIVER_ALLOWANCE, ReportDataType.BIGDECIMAL),
     AC_COST(14, GlobalColumnLabels.AC_COST, ReportDataType.BIGDECIMAL),
     EXPENSE_COST(15, GlobalColumnLabels.EXPENSE_COST, ReportDataType.BIGDECIMAL),
-    GST(16, GlobalColumnLabels.GST, ReportDataType.BIGDECIMAL),
-    GRAND_TOTAL(17, GlobalColumnLabels.GRAND_TOTAL_GST, ReportDataType.BIGDECIMAL);
+    GRAND_TOTAL(16, GlobalColumnLabels.GRAND_TOTAL, ReportDataType.BIGDECIMAL),
+    GST(17, GlobalColumnLabels.GST, ReportDataType.BIGDECIMAL),
+    GRAND_TOTAL_GST(18, GlobalColumnLabels.GRAND_TOTAL_GST, ReportDataType.BIGDECIMAL);
 
     private final int index;
     private final GlobalColumnLabels key;

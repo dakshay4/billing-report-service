@@ -99,6 +99,7 @@ public abstract class ReportBook<T extends TableHeaders> {
                         break;
                     case INTEGER:
                         value = String.valueOf((value.isEmpty() ? 0 : Integer.parseInt(value)) + NumberUtils.parseInteger(rowData.get(j)));
+                        break;
                     case DATE:
                         String formattedDate =  DateUtils.formatDate(DateUtils.parse(rowData.get(j)), "dd/MM/yyyy");
                         rowData.set(j, formattedDate);

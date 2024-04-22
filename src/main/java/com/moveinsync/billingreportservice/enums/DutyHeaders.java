@@ -16,9 +16,10 @@ public enum DutyHeaders implements TableHeaders {
     EXTRA_DUTY_AMOUNT(11, GlobalColumnLabels.EXTRA_DUTY_COST, ReportDataType.BIGDECIMAL),
     EXTRA_HOUR_AMOUNT(12, GlobalColumnLabels.EXTRA_HOUR_COST, ReportDataType.BIGDECIMAL),
     DRIVER_BATA(13, GlobalColumnLabels.DRIVER_ALLOWANCE, ReportDataType.BIGDECIMAL),
-    GST(14, GlobalColumnLabels.GST, ReportDataType.BIGDECIMAL),
-    GRAND_TOTAL(15, GlobalColumnLabels.GRAND_TOTAL_GST, ReportDataType.BIGDECIMAL),
-    ACTION(16, GlobalColumnLabels.ACTION, ReportDataType.STRING);
+    GRAND_TOTAL(14, GlobalColumnLabels.GRAND_TOTAL, ReportDataType.BIGDECIMAL),
+    GST(15, GlobalColumnLabels.GST, ReportDataType.BIGDECIMAL),
+    GRAND_TOTAL_GST(16, GlobalColumnLabels.GRAND_TOTAL_GST, ReportDataType.BIGDECIMAL),
+    ACTION(17, GlobalColumnLabels.ACTION, ReportDataType.STRING);
 
     private final int index;
     private final GlobalColumnLabels key;

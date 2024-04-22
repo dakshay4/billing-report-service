@@ -16,9 +16,10 @@ public enum OfficeHeaders implements TableHeaders {
     DRIVER_ALLOWANCE(11, GlobalColumnLabels.DRIVER_ALLOWANCE, ReportDataType.BIGDECIMAL),
     AC_COST(12, GlobalColumnLabels.AC_COST, ReportDataType.BIGDECIMAL),
     EXPENSE_COST(13, GlobalColumnLabels.EXPENSE_COST, ReportDataType.BIGDECIMAL),
-    GST(14, GlobalColumnLabels.GST, ReportDataType.BIGDECIMAL),
-    GRAND_TOTAL(15, GlobalColumnLabels.GRAND_TOTAL_GST, ReportDataType.BIGDECIMAL),
-    FROZEN(16, GlobalColumnLabels.FROZEN, ReportDataType.BOOLEAN);
+    GRAND_TOTAL(14, GlobalColumnLabels.GRAND_TOTAL, ReportDataType.BIGDECIMAL),
+    GST(15, GlobalColumnLabels.GST, ReportDataType.BIGDECIMAL),
+    GRAND_TOTAL_GST(16, GlobalColumnLabels.GRAND_TOTAL_GST, ReportDataType.BIGDECIMAL),
+    FROZEN(17, GlobalColumnLabels.FROZEN, ReportDataType.BOOLEAN);
 
 
     private final int index;
