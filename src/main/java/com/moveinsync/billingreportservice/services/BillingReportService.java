@@ -281,7 +281,7 @@ public class BillingReportService {
     }
 
     public String regenerateBilling(RegenerateBillDTO regenerateBillDTO) {
-        return billingCalculationClient.generateBillCached(
+        return billingCalculationClient.generateBill(
                 regenerateBillDTO.billingCycleDTO().startDate(),
                 regenerateBillDTO.billingCycleDTO().endDate(),
                 UserContextResolver.getCurrentContext().getBuid()

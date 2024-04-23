@@ -11,12 +11,6 @@ public class MisCustomException extends RuntimeException {
     this.args = null;
   }
 
-  public MisCustomException(MisError misError, Object[] args) {
-    super(misError.getMessageKey());
-    this.misError = misError;
-    this.args = args;
-  }
-
   public MisCustomException(MisError misError, Throwable cause) {
     super(misError.getMessageKey(), cause);
     this.misError = misError;
@@ -24,6 +18,12 @@ public class MisCustomException extends RuntimeException {
 
   public MisCustomException(MisError misError, Object[] args, Throwable cause) {
     super(misError.getMessageKey(), cause);
+    this.misError = misError;
+    this.args = args;
+  }
+
+  public MisCustomException(MisError misError, Object ... args) {
+    super(misError.getMessageKey());
     this.misError = misError;
     this.args = args;
   }

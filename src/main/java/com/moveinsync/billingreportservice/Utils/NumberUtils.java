@@ -32,6 +32,12 @@ public class NumberUtils {
     }catch (NumberFormatException ex) {log.warn("Unable to Parse to BigDecimal {}", val1);}
     return BigDecimal.ZERO;
   }
+
+  public static BigDecimal roundOff(Double val1) {
+    if(val1 == null) return BigDecimal.ZERO;
+    return BigDecimal.valueOf(val1);
+  }
+  
   public static Integer parseInteger(String val) {
     Integer res = 0;
     try {
