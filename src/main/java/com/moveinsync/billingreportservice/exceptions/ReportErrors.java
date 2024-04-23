@@ -11,7 +11,8 @@ public enum ReportErrors implements MisError {
   VENDOR_AUDIT_NOT_DONE_FOR_BILLING_CYCLE(ErrorType.VALIDATION, "VENDOR_AUDIT_NOT_DONE_FOR_BILLING_CYCLE"),
   NO_PARAMETERS_PROVIDED_FOR_GENERATING_CACHE_KEY(ErrorType.RUNTIME, "No.parameters.provided.for.generating.cache.key"),
   CLIENT_ERROR(ErrorType.RUNTIME, "CLIENT.ERROR"),
-  INVALID_DATE_FORMAT(ErrorType.RUNTIME, "Invalid.Date.Format");
+  INVALID_DATE_FORMAT(ErrorType.RUNTIME, "Invalid.Date.Format"),
+  INVALID_CAB_ID(ErrorType.RUNTIME, "Invalid.Cab.Id");
 
   private ErrorType errorType;
   private String messageKey;

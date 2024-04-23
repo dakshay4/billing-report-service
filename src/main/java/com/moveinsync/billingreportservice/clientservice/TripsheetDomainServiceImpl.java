@@ -132,9 +132,9 @@ public class TripsheetDomainServiceImpl {
     List<CabDTO> cabs = tripsheetDomainWebClient.getAllCabs(UserContextResolver.getCurrentContext().getBuid()).getBody();
     Map<String, String> map = new HashMap<>();
     for (CabDTO cab : cabs) {
-      String key = cab.getVendor().getVendorId() + "-" + cab.getCabId();
-      String value = cab.getVendor().getVendorName();
-      map.put(key, value.toUpperCase());
+      String entityId = cab.getVendor().getVendorId() + "-" + cab.getCabId();
+      String vendorName = cab.getVendor().getVendorName();
+      map.put(entityId, vendorName.toUpperCase());
     }
     return map;
   }
@@ -143,8 +143,19 @@ public class TripsheetDomainServiceImpl {
     List<CabDTO> cabs = tripsheetDomainWebClient.getAllCabs(UserContextResolver.getCurrentContext().getBuid()).getBody();
     Map<String, String> map = new HashMap<>();
     for (CabDTO cab : cabs) {
+      String entityId = cab.getVendor().getVendorId() + "-" + cab.getCabId();
+      String vehicleNumber = cab.getVendor().getVendorName() + "-" + cab.getVendor().getVendorId() + " (" + cab.getRegistration() + ")";
+      map.put(entityId, vehicleNumber);
+    }
+    return map;
+  }
+
+  public Map<String, Integer> cabIdToIdentifierMap() {
+    List<CabDTO> cabs = tripsheetDomainWebClient.getAllCabs(UserContextResolver.getCurrentContext().getBuid()).getBody();
+    Map<String, Integer> map = new HashMap<>();
+    for (CabDTO cab : cabs) {
       String key = cab.getVendor().getVendorId() + "-" + cab.getCabId();
-      String value = cab.getVendor().getVendorName() + "-" + cab.getVendor().getVendorId() + " (" + cab.getRegistration() + ")";
+      Integer value = cab.getId();
       map.put(key, value);
     }
     return map;

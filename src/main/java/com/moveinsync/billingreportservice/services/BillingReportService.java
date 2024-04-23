@@ -120,6 +120,12 @@ public class BillingReportService {
                 reportDataDTO = reportBook.generateReport(reportRequestDTO, reportDataDTO);
                 break;
             }
+
+            case DATE -> {
+                ReportBook reportBook = new DateReport(vmsClient, tripsheetDomainClient);
+                reportDataDTO = reportBook.generateReport(reportRequestDTO, reportDataDTO);
+                break;
+            }
             default -> throw new MisCustomException(ReportErrors.INVALID_REPORT_TYPE);
         }
         return reportDataDTO;

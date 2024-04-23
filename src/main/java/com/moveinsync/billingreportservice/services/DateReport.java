@@ -15,9 +15,11 @@ import com.moveinsync.billingreportservice.exceptions.ReportErrors;
 import com.moveinsync.timezone.MisTimeZoneUtils;
 import com.moveinsync.tripsheetdomain.response.CabSignInResponseDTO;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class DateReport<T extends Enum<T>> extends ReportBook<DateHeaders> {
 
@@ -33,15 +35,17 @@ public class DateReport<T extends Enum<T>> extends ReportBook<DateHeaders> {
 
     @Override
     public ReportDataDTO generateReport(BillingReportRequestDTO billingReportRequestDTO, ReportDataDTO reportDataDTO) {
-        LocalDateTime dutyTime = DateUtils.parse(billingReportRequestDTO.getDate());
-        if(dutyTime == null) throw new MisCustomException(ReportErrors.INVALID_DATE_FORMAT, billingReportRequestDTO.getDate());
+        LocalDate dutyTime = DateUtils.parse(billingReportRequestDTO.getDate());
         String entityId = billingReportRequestDTO.getEntityId();
-
+        Map<String, Integer> entityIdTocabMap = getTripsheetDomainService().cabIdToIdentifierMap();
+        Integer cabIdentifier = entityIdTocabMap.get(entityId);
+        if(dutyTime == null) throw new MisCustomException(ReportErrors.INVALID_DATE_FORMAT, billingReportRequestDTO.getDate());
+        if(cabIdentifier == null) throw new MisCustomException(ReportErrors.INVALID_CAB_ID, billingReportRequestDTO.getDate());
         List<List<String>> table = new ArrayList<>();
         List<CabSignInResponseDTO> billingDuties = getTripsheetDomainService().billingDuties(
-                MisTimeZoneUtils.getEpochFromLocalDateTime(dutyTime, UserContextResolver.getCurrentContext().getBuid()),
-                MisTimeZoneUtils.getEpochFromLocalDateTime(dutyTime, UserContextResolver.getCurrentContext().getBuid()),
-                cabId, PlatformDuty.STATE_OFF_DUTY, Constants.CAB_SIGN_IN_STATUS_ACTIVE,true
+                MisTimeZoneUtils.getEpochFromLocalDateTime(dutyTime.atStartOfDay(), UserContextResolver.getCurrentContext().getBuid()),
+                MisTimeZoneUtils.getEpochFromLocalDateTime(dutyTime.atStartOfDay(), UserContextResolver.getCurrentContext().getBuid()),
+                cabIdentifier, PlatformDuty.STATE_OFF_DUTY, Constants.CAB_SIGN_IN_STATUS_ACTIVE,true
         );
         List<String> headerRow = new ArrayList<>();
         for (DateHeaders header : getHeaders()) {
