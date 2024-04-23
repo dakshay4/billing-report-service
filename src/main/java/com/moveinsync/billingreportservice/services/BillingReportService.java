@@ -228,7 +228,7 @@ public class BillingReportService {
 
     private List<FreezeBillingResponseDTO> freezeBillingForAllVendors(Date startDate, Date endDate) {
         List<FreezeBillingResponseDTO> freezeBillingResponse = new ArrayList<>();
-        List<VendorResponse> vendorResponse = tripsheetDomainClient.findVendorByStatuses(List.of(Constants.VENDOR_STATUS_ACTIVE));
+        List<VendorResponse> vendorResponse = tripsheetDomainClient.findVendorByStatus(List.of(Constants.VENDOR_STATUS_ACTIVE));
         vendorResponse.forEach(vendor ->{
             boolean freezeResult;
             if (!isVendorAuditDoneForBillingCycle(vendor.getId(), startDate, endDate)) {
@@ -291,7 +291,7 @@ public class BillingReportService {
 
     public List<VendorFreezeBillingAuditDTO> getVendorBillingAudit(int billingCycleID) {
         List<VendorFreezeBillingAuditDTO> vendorsFreezeBillingAudit = Lists.newArrayList();
-        List<VendorResponse> vendorResponses = tripsheetDomainClient.findVendorByStatuses(List.of(Constants.VENDOR_STATUS_ACTIVE));
+        List<VendorResponse> vendorResponses = tripsheetDomainClient.findVendorByStatus(List.of(Constants.VENDOR_STATUS_ACTIVE));
         for (VendorResponse vendor : vendorResponses) {
 
             List<EntityAuditDetails> auditDetails = tripsheetDomainClient.getVendorBillingFrozenStatusAuditById(billingCycleID, vendor.getId());
