@@ -21,6 +21,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -138,6 +139,7 @@ public abstract class ReportBook<T extends TableHeaders> {
         return table;
     }
 
+
     public void addFrozenColumn(BillingReportRequestDTO billingReportRequestDTO, List<List<String>> table,
                                 TableHeaders tableHeaderFrozen,
                                 TableHeaders tableHeaderVendor
@@ -174,5 +176,9 @@ public abstract class ReportBook<T extends TableHeaders> {
             if(cabMap.containsKey(entityId))
                 row.set(index, cabMap.get(entityId));
         }
+    }
+
+    public static void sortList(List<List<String>> table, int startRow, int columnIndex) {
+        table.subList(startRow, table.size()).sort(Comparator.comparing(row -> row.get(columnIndex)));
     }
 }

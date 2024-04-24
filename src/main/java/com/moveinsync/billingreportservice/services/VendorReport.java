@@ -11,9 +11,12 @@ import com.moveinsync.billingreportservice.enums.VendorHeaders;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 public class VendorReport<T extends Enum<T>> extends ReportBook<VendorHeaders> {
 
@@ -32,29 +35,32 @@ public class VendorReport<T extends Enum<T>> extends ReportBook<VendorHeaders> {
     table = filterIncomingTableHeadersAndData(table);
     addFrozenColumn(billingReportRequestDTO, table, VendorHeaders.FROZEN, VendorHeaders.VENDOR);
     if(billingReportRequestDTO.isOfficePresent()) {
-      replaceEntityIdByVendorName(table, VendorHeaders.VENDOR.getIndex());
       Map<String, List<String>> vendorAggregation = groupReportByVendorName(table);
+      /* Reset Office -> Vendor = Drill column with group by result based on Vendor Name */
       List<String> headers = getHeaderRow(table);
       table = new ArrayList<>(); table.add(headers);
-      for(Map.Entry aggregation : vendorAggregation.entrySet()) {
-        List<String> aggregationRow = (List<String>)aggregation.getValue();
-        table.add(aggregationRow);
-      }
+      table.addAll(
+              vendorAggregation.values().parallelStream().toList()
+      );
+    } else {
+      // For Simple VENDOR Report, Vendor is NA, and Entity Id is Vendor Name, so We need to delete vendor column and rename header
+      removeColumn(table,0);
     }
-
+    sortList(table, 1, VendorHeaders.VENDOR.getIndex());
     List<String> totalRow = totalRow(table);
     table.add(totalRow);
     reportDataDTO.setTable(table);
-    List<String> header = table.get(0);
-    for (int i=0; i< header.size(); i++) {
-        if (header.get(i).equals(VendorHeaders.VENDOR.getLabel())) header.set(i, "Vendor Name");
-    }
-
     return reportDataDTO;
   }
 
+  public static void removeColumn(List<List<String>> table, int columnIndex) {
+    for (List<String> row : table) {
+      row.remove(columnIndex);
+    }
+  }
+
   public Map<String, List<String>> groupReportByVendorName(List<List<String>> table) {
-    Map<String, List<String>> vendorNameAggregation = new HashMap<>();
+    Map<String, List<String>> vendorNameAggregation = new TreeMap<>(String::compareTo);
     List<String> headerRow = getHeaderRow(table);
     for (int i = 1; i < table.size(); i++) {
       List<String> rowData = table.get(i);

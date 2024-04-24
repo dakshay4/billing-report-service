@@ -2,6 +2,7 @@ package com.moveinsync.billingreportservice.enums;
 
 public enum GlobalColumnLabels {
 
+    VENDOR("Vendor"),
     ENTITY_ID("Entity Id"),
     VEHICLE_NUMBER("Vehicle Number"),
     OFFICE("Office"),
