@@ -31,8 +31,8 @@ public enum GlobalColumnLabels {
     START_TIME("Start Time"),
     END_TIME("End Time"),
     TOTAL_HOURS("Total Hours"),
-    NUM_OF_TRIPS("Number of Trips")
-    ;
+    NUM_OF_TRIPS("Number of Trips"),
+    DUTY_ID("Duty Id");
 
 
     private final String labelIdentifier;

@@ -60,6 +60,7 @@ public class DateReport<T extends Enum<T>> extends ReportBook<DateHeaders> {
             row.add(String.valueOf(billingDuty.getDutyHours()));
             row.add(String.valueOf(billingDuty.getBillingTripCount()));
             row.add(String.valueOf(billingDuty.getDutyId()));
+            row.add("View Map");
             table.add(row);
         });
         return new ReportDataDTO(table, null);
