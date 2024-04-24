@@ -5,7 +5,7 @@ public enum DateHeaders implements TableHeaders {
     START_TIME(1, GlobalColumnLabels.START_TIME, ReportDataType.DATE),
     END_TIME(2, GlobalColumnLabels.END_TIME, ReportDataType.DATE),
     TOTAL_HOURS(3, GlobalColumnLabels.TOTAL_HOURS, ReportDataType.BIGDECIMAL),
-    NUM_OF_TRIPS(4, GlobalColumnLabels.NUM_OF_TRIPS, ReportDataType.INTEGER),
+    NUM_OF_TRIPS(4, GlobalColumnLabels.TRIP_COUNT, ReportDataType.INTEGER),
     ACTION(5, GlobalColumnLabels.ACTION, ReportDataType.STRING);
 
 

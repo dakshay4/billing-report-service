@@ -55,11 +55,11 @@ public class DateReport<T extends Enum<T>> extends ReportBook<DateHeaders> {
         billingDuties.forEach(billingDuty->{
             List<String> row = new ArrayList<>();
             row.add(NumberUtils.roundOff(billingDuty.getTotalKM()).toString());
-            row.add(String.valueOf(billingDuty.getDutyId()));
             row.add(DateUtils.formatDate(billingDuty.getReportIn(),"dd/MM/yyyy hh:mm"));
             row.add(DateUtils.formatDate(billingDuty.getReportOff(),"dd/MM/yyyy hh:mm"));
             row.add(String.valueOf(billingDuty.getDutyHours()));
             row.add(String.valueOf(billingDuty.getBillingTripCount()));
+            row.add(String.valueOf(billingDuty.getDutyId()));
             table.add(row);
         });
         return new ReportDataDTO(table, null);

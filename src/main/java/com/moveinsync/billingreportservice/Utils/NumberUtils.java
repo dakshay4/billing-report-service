@@ -35,7 +35,7 @@ public class NumberUtils {
 
   public static BigDecimal roundOff(Double val1) {
     if(val1 == null) return BigDecimal.ZERO;
-    return BigDecimal.valueOf(val1);
+    return BigDecimal.valueOf(val1).setScale(scale, RoundingMode.HALF_EVEN);
   }
   
   public static Integer parseInteger(String val) {
