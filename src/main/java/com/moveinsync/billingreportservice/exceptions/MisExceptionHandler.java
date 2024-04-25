@@ -31,7 +31,7 @@ public class MisExceptionHandler {
     String localizedMessage = messageSource.getMessage(ex.getMisError().getMessageKey(), ex.getArgs(), locale);
     localizedMessage = replaceUnreplacedPlaceholders(localizedMessage);
     HttpStatus statusCode = ex.getMisError().getErrorType().getStatusCode();
-    MisErrorHttpResponse errorResponse = new MisErrorHttpResponse("Error", localizedMessage, System.currentTimeMillis(),
+    MisErrorHttpResponse errorResponse = new MisErrorHttpResponse(ex.getMisError().getErrorType().name(), localizedMessage, System.currentTimeMillis(),
         request.getRequestURI());
     logger.error("{}", ex);
     return new ResponseEntity<>(errorResponse, statusCode);

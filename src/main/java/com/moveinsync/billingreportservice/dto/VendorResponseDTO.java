@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class VendorResponseDTO {
 
+  private Integer id;
   private String vendorKey;
   private String vendorId;
   private String vendorName;

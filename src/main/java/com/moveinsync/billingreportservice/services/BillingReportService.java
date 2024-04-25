@@ -213,8 +213,9 @@ public class BillingReportService {
                     freezeBillingForAllVendors(startDate, endDate)
             );
         }else {
-            VendorResponseDTO vendorResponseDTO = vmsClient.fetchVendorByVendorNameCached(vendorName);
-            vendorId = vendorResponseDTO!=null ? NumberUtils.parseInteger(vendorResponseDTO.getVendorId()) : null;
+            VendorResponse vendorResponseDTO = tripsheetDomainClient.findVendorByName(vendorName);
+            if(vendorResponseDTO == null) throw new MisCustomException(ReportErrors.UNABLE_TO_FIND_VENDOR_FROM_VENDOR_NAME);
+            vendorId = vendorResponseDTO.getId();
             boolean freezeResult = false;
             if(vendorId!=null && vendorId!=0 && vendorId!=-1) {
                 if (freezeStatus) {
@@ -234,7 +235,8 @@ public class BillingReportService {
 
     private List<FreezeBillingResponseDTO> freezeBillingForAllVendors(Date startDate, Date endDate) {
         List<FreezeBillingResponseDTO> freezeBillingResponse = new ArrayList<>();
-        List<VendorResponse> vendorResponse = tripsheetDomainClient.findVendorByStatus(List.of(Constants.VENDOR_STATUS_ACTIVE));
+        List<VendorResponse> vendorResponse = tripsheetDomainClient.findVendorByStatusCached(Constants.VENDOR_STATUS_ACTIVE);
+        if(vendorResponse == null || vendorResponse.isEmpty()) throw new MisCustomException(ReportErrors.UNABLE_TO_FETCH_ALL_VENDORS);
         vendorResponse.forEach(vendor ->{
             boolean freezeResult;
             if (!isVendorAuditDoneForBillingCycle(vendor.getId(), startDate, endDate)) {
@@ -259,15 +261,15 @@ public class BillingReportService {
 
             Map<String, Integer> freezeVendorBilling =
                     tripsheetDomainClient.freezeVendorBilling(vendorId, startDate, endDate, freezeStatus);
+            logger.info("Freeze Vendor Billing Results {}", freezeVendorBilling);
 
             VendorBillingFrozenStatusDTO vendorBillingFrozenStatusDTO =
                     tripsheetDomainClient.updateVendorBillingFreezeStatus(vendorId, cycle.id(), freezeStatus);
-
-            logger.info("Freeze Vendor Billing Results {}", freezeVendorBilling);
             logger.info("vendorBillingFrozenStatusDTO Results {}", vendorBillingFrozenStatusDTO);
+
         }catch (WebClientResponseException webClientException) {
-            logger.warn("Web Client Call failed in Freeze Billing for VendorId: {} startDate: {} endDate: {}, response {}",
-                    vendorId, startDate, endDate, webClientException.getResponseBodyAsString());
+            logger.error("Web Client Call failed in Freeze Billing for VendorId: {} startDate: {} endDate: {}, response {}",
+                    vendorId, startDate, endDate, webClientException.getResponseBodyAsString(), webClientException);
             freezeResult = false;
         } catch (Exception ex) {
             logger.warn("Failed in Freeze Billing for VendorId: {} startDate: {} endDate: {}",
@@ -297,7 +299,8 @@ public class BillingReportService {
 
     public List<VendorFreezeBillingAuditDTO> getVendorBillingAudit(int billingCycleID) {
         List<VendorFreezeBillingAuditDTO> vendorsFreezeBillingAudit = Lists.newArrayList();
-        List<VendorResponse> vendorResponses = tripsheetDomainClient.findVendorByStatus(List.of(Constants.VENDOR_STATUS_ACTIVE));
+        List<VendorResponse> vendorResponses = tripsheetDomainClient.findVendorByStatusCached(Constants.VENDOR_STATUS_ACTIVE);
+        if(vendorResponses == null || vendorResponses.isEmpty()) throw new MisCustomException(ReportErrors.UNABLE_TO_FETCH_ALL_VENDORS);
         for (VendorResponse vendor : vendorResponses) {
 
             List<EntityAuditDetails> auditDetails = tripsheetDomainClient.getVendorBillingFrozenStatusAuditById(billingCycleID, vendor.getId());

@@ -150,9 +150,9 @@ public abstract class ReportBook<T extends TableHeaders> {
             List<String> dataRows = table.get(i);
             String vendorName = tableHeaderVendor!=null ? dataRows.get(tableHeaderVendor.getIndex()) : null;
             VendorResponseDTO vendorResponseDTO = vmsClient.fetchVendorByVendorNameCached(vendorName);
-            String vendorId = null;
+            Integer vendorId = null;
             if (vendorResponseDTO == null) return;
-            vendorId = vendorResponseDTO.getVendorId();
+            vendorId = vendorResponseDTO.getId();
             DateFormatReader.readDateFormatFromAnnotation(BillingReportRequestDTO.class,
                     BillingReportRequestDTO.Fields.cycleStart);
             Date start = DateUtils.convert(billingReportRequestDTO.getCycleStart(), new SimpleDateFormat(Objects.requireNonNull(DateFormatReader
@@ -162,7 +162,7 @@ public abstract class ReportBook<T extends TableHeaders> {
             BillingCycleVO billingCycleVO = tripsheetDomainService.fetchBillingCycle(start, end);
             if(billingCycleVO!=null) {
                 VendorBillingFrozenStatusDTO vendorBillingFrozenStatusDTO = tripsheetDomainService
-                        .findVendorBillingFrozenStatusById(billingCycleVO.getBillingCycleId(), Integer.parseInt(vendorId));
+                        .findVendorBillingFrozenStatusById(billingCycleVO.getBillingCycleId(), vendorId);
                 dataRows.set(frozenRowIndex,  String.valueOf(vendorBillingFrozenStatusDTO.isFreezed()));
             }
         }

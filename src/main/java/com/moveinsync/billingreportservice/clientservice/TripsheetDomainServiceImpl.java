@@ -4,6 +4,8 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.moveinsync.billingreportservice.Configurations.UserContextResolver;
+import com.moveinsync.billingreportservice.constants.Constants;
+import com.moveinsync.billingreportservice.dto.VendorResponseDTO;
 import com.moveinsync.billingreportservice.exceptions.MisCustomException;
 import com.moveinsync.billingreportservice.exceptions.ReportErrors;
 import com.moveinsync.data.envers.models.EntityAuditDetails;
@@ -34,6 +36,7 @@ public class TripsheetDomainServiceImpl {
   private static final String API_FETCH_ALL_BILLING_CYCLE = "/bill/cycle/all";
   private final TripsheetDomainWebClient tripsheetDomainWebClient;
   private final LoadingCache<String, List<BillingCycleVO>> billingCycleCache;
+  private final LoadingCache<Integer, List<VendorResponse>> vendorListCached;
 
   public TripsheetDomainServiceImpl(TripsheetDomainWebClient tripsheetDomainWebClient) {
     this.tripsheetDomainWebClient = tripsheetDomainWebClient;
@@ -42,6 +45,13 @@ public class TripsheetDomainServiceImpl {
               @Override
               public List<BillingCycleVO> load(String key) {
                 return fetchAllBillingCycles();
+              }
+            });
+    this.vendorListCached = CacheBuilder.newBuilder().expireAfterWrite(30, TimeUnit.MINUTES)
+            .build(new CacheLoader<Integer, List<VendorResponse>>() {
+              @Override
+              public List<VendorResponse> load(Integer status) {
+                return findVendorByStatus(status);
               }
             });
   }
@@ -93,8 +103,8 @@ public class TripsheetDomainServiceImpl {
 
   public VendorBillingFrozenStatusDTO updateVendorBillingFreezeStatus(int vendorId, int billingCycleId, boolean freezeStatus) {
     return tripsheetDomainWebClient.updateVendorBillingFreezeStatus(UserContextResolver.getCurrentContext().getBuid(),
-            vendorId,
             billingCycleId,
+            vendorId,
             freezeStatus).getBody();
   }
 
@@ -113,8 +123,21 @@ public class TripsheetDomainServiceImpl {
             ).getBody();
   }
 
-  public List<VendorResponse> findVendorByStatus(List<Integer> status) {
-    return tripsheetDomainWebClient.findVendorByStatus(UserContextResolver.getCurrentContext().getBuid(), status).getBody();
+  private List<VendorResponse> findVendorByStatus(Integer status) {
+    try {
+      return tripsheetDomainWebClient.findVendorByStatus(UserContextResolver.getCurrentContext().getBuid(), List.of(status)).getBody();
+    }catch (WebClientResponseException ex) {
+      logger.error("Failed to get all Vendors by status ", ex);
+    }
+    return null;
+  }
+
+  public List<VendorResponse> findVendorByStatusCached(Integer status) {
+    try {
+      return vendorListCached.get(status);
+    } catch (Exception e) {
+    throw new MisCustomException(ReportErrors.UNABLE_TO_FETCH_FROM_CACHE, e);
+    }
   }
 
   public List<EntityAuditDetails> getVendorBillingFrozenStatusAuditById(int billingCycleID, Integer id) {
@@ -169,4 +192,10 @@ public class TripsheetDomainServiceImpl {
             startDate, endDate, cabId, state, status, audited
     ).getBody();
   }
+
+  public VendorResponse findVendorByName(String vendorName) {
+    List<VendorResponse> vendorResponses = findVendorByStatusCached(Constants.VENDOR_STATUS_ACTIVE);
+    return vendorResponses.stream().filter(e-> vendorName.equals(e.getVendorName())).findFirst().orElse(null);
+  }
+
 }

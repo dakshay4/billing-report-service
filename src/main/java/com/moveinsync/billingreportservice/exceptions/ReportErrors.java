@@ -12,7 +12,9 @@ public enum ReportErrors implements MisError {
   NO_PARAMETERS_PROVIDED_FOR_GENERATING_CACHE_KEY(ErrorType.RUNTIME, "No.parameters.provided.for.generating.cache.key"),
   CLIENT_ERROR(ErrorType.RUNTIME, "CLIENT.ERROR"),
   INVALID_DATE_FORMAT(ErrorType.RUNTIME, "Invalid.Date.Format"),
-  INVALID_CAB_ID(ErrorType.RUNTIME, "Invalid.Cab.Id");
+  INVALID_CAB_ID(ErrorType.RUNTIME, "Invalid.Cab.Id"),
+  UNABLE_TO_FETCH_ALL_VENDORS(ErrorType.RUNTIME,"unable.to.fetch.all.vendors" ),
+  UNABLE_TO_FIND_VENDOR_FROM_VENDOR_NAME(ErrorType.RUNTIME,"Unable.to.find.vendor.from.vendor.name");
 
   private ErrorType errorType;
   private String messageKey;
