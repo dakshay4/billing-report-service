@@ -62,7 +62,7 @@ public class TransactionFilter implements Filter {
       Locale locale = LocaleUtils.toLocale(UserContextResolver.getCurrentContext().getLocale());
       String localizedMessage = messageSource.getMessage(ex.getMisError().getMessageKey(), ex.getArgs(), locale);
       MisErrorHttpResponse errorResponse = new MisErrorHttpResponse(ex.getMisError().getErrorType().name(), localizedMessage, System.currentTimeMillis(),
-              ((HttpServletRequest) request).getRequestURL().toString());
+              ((HttpServletRequest) request).getRequestURL().toString(), ex.getCause().getMessage());
       String errorResponseJson = objectMapper.writeValueAsString(errorResponse);
       httpResponse.getWriter().write(errorResponseJson);
     }

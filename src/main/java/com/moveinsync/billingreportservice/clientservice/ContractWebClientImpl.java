@@ -54,12 +54,12 @@ public class ContractWebClientImpl {
             .queryParam("buid", buId).build())
         .retrieve().bodyToMono(new ParameterizedTypeReference<List<ContractVO>>() {
         });
-    mono.subscribe(response -> logger.info("Response: {}", response), error -> {
+    mono.subscribe(response -> {}, error -> {
       if (error instanceof WebClientException) {
         WebClientException webClientException = (WebClientException) error;
         throw new WebClientException(webClientException.getStatusCode(), webClientException.getResponseBody());
       } else {
-        logger.info("Error: {}", error.getMessage());
+        logger.info("Error while Fetching Contract {} is : {}",contractName, error.getMessage());
       }
     });
     List<ContractVO> contracts = mono.block();
@@ -75,7 +75,7 @@ public class ContractWebClientImpl {
               UserContextResolver.getCurrentContext().getBuid(),
               contractName));
     } catch (Exception e) {
-      throw new MisCustomException(ReportErrors.UNABLE_TO_FETCH_FROM_CACHE, e);
+      throw new MisCustomException(ReportErrors.UNABLE_TO_FETCH_FROM_CONTRACT, e, contractName);
     }
   }
 

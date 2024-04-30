@@ -28,6 +28,12 @@ public class MisCustomException extends RuntimeException {
     this.args = args;
   }
 
+  public MisCustomException(MisError misError, Throwable cause, Object ... args) {
+    super(misError.getMessageKey(), cause);
+    this.misError = misError;
+    this.args = args;
+  }
+
   public MisError getMisError() {
     return misError;
   }

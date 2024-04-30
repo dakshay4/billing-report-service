@@ -15,5 +15,6 @@ public class MisErrorHttpResponse {
   private String message;
   private long timestamp;
   private String path;
+  private String cause;
 
 }

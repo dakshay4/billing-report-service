@@ -34,7 +34,7 @@ public class MisExceptionHandler {
     localizedMessage = replaceUnreplacedPlaceholders(localizedMessage);
     HttpStatus statusCode = ex.getMisError().getErrorType().getStatusCode();
     MisErrorHttpResponse errorResponse = new MisErrorHttpResponse(ex.getMisError().getErrorType().name(), localizedMessage, System.currentTimeMillis(),
-        request.getRequestURI());
+        request.getRequestURI(), ex.getCause().getMessage());
     logger.error("{}", ex);
     return new ResponseEntity<>(errorResponse, statusCode);
   }
@@ -42,7 +42,7 @@ public class MisExceptionHandler {
   @ExceptionHandler(Exception.class)
   public ResponseEntity<MisErrorHttpResponse> handleException(Exception ex, HttpServletRequest request) {
     MisErrorHttpResponse errorResponse = new MisErrorHttpResponse("Error", ex.getMessage(), System.currentTimeMillis(),
-        request.getRequestURI());
+        request.getRequestURI(), ex.getCause().getMessage());
     logger.error("{}", ex);
 
     return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
