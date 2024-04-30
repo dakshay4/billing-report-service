@@ -49,10 +49,8 @@ public class TransactionFilter implements Filter {
             buid = e.getValue();
         }
       }
-      if (buid == null)
-        throw new MisCustomException(ReportErrors.BUID_NOT_FOUND);
-      if (empGuid == null)
-        throw new MisCustomException(ReportErrors.EMP_GUID_NOT_FOUND);
+//      if (buid == null) throw new MisCustomException(ReportErrors.BUID_NOT_FOUND);
+//      if (empGuid == null) throw new MisCustomException(ReportErrors.EMP_GUID_NOT_FOUND);
       UserContextResolver.getCurrentContext().setEmpGuid(empGuid);
       UserContextResolver.getCurrentContext().setBuid(buid);
 
