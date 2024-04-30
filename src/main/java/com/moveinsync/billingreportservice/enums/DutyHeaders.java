@@ -19,7 +19,8 @@ public enum DutyHeaders implements TableHeaders {
     GRAND_TOTAL(14, GlobalColumnLabels.GRAND_TOTAL, ReportDataType.BIGDECIMAL),
     GST(15, GlobalColumnLabels.GST, ReportDataType.BIGDECIMAL),
     GRAND_TOTAL_GST(16, GlobalColumnLabels.GRAND_TOTAL_GST, ReportDataType.BIGDECIMAL),
-    ACTION(17, GlobalColumnLabels.ACTION, ReportDataType.STRING);
+    ACTION(17, GlobalColumnLabels.ACTION, ReportDataType.STRING),
+    ENTITY_ID(18, GlobalColumnLabels.ENTITY_ID, ReportDataType.STRING);
 
     private final int index;
     private final GlobalColumnLabels key;

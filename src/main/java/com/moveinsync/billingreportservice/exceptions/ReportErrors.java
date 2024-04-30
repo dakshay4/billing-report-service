@@ -14,7 +14,9 @@ public enum ReportErrors implements MisError {
   INVALID_DATE_FORMAT(ErrorType.RUNTIME, "Invalid.Date.Format"),
   INVALID_CAB_ID(ErrorType.RUNTIME, "Invalid.Cab.Id"),
   UNABLE_TO_FETCH_ALL_VENDORS(ErrorType.RUNTIME,"unable.to.fetch.all.vendors" ),
-  UNABLE_TO_FIND_VENDOR_FROM_VENDOR_NAME(ErrorType.RUNTIME,"Unable.to.find.vendor.from.vendor.name");
+  UNABLE_TO_FIND_VENDOR_FROM_VENDOR_NAME(ErrorType.RUNTIME,"Unable.to.find.vendor.from.vendor.name"),
+  BUID_NOT_FOUND(ErrorType.VALIDATION, "Business.unit.id.is.not.present"),
+  EMP_GUID_NOT_FOUND(ErrorType.VALIDATION, "Emp.guid.is.not.present");
 
   private ErrorType errorType;
   private String messageKey;

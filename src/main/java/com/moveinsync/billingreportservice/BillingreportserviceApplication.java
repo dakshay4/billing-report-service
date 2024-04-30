@@ -1,5 +1,6 @@
 package com.moveinsync.billingreportservice;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.moveinsync.billingreportservice.exceptions.ReportErrorSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +21,11 @@ public class BillingreportserviceApplication {
   @Bean
   public MessageSource messageSource() {
     return new ReportErrorSource();
+  }
+
+  @Bean
+  public ObjectMapper objectMapper() {
+    return new ObjectMapper();
   }
 
 }

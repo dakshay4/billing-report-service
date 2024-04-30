@@ -3,6 +3,7 @@ package com.moveinsync.billingreportservice.exceptions;
 import com.moveinsync.billingreportservice.Configurations.UserContextResolver;
 import com.moveinsync.http.v2.MisHttpResponse;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.LocaleUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,11 +20,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @ControllerAdvice
+@RequiredArgsConstructor
 public class MisExceptionHandler {
 
   private final Logger logger = LoggerFactory.getLogger(getClass());
-  @Autowired
-  private MessageSource messageSource;
+
+  private final MessageSource messageSource;
 
   @ExceptionHandler(MisCustomException.class)
   public ResponseEntity<MisErrorHttpResponse> handleCustomException(MisCustomException ex, HttpServletRequest request) {

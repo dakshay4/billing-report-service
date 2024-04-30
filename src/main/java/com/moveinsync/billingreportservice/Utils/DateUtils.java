@@ -106,10 +106,10 @@ public class DateUtils {
     }
 
     public static String formatDate(LocalDateTime reqDate, String requiredDateFormat) {
-        SimpleDateFormat outputFormat = new SimpleDateFormat(requiredDateFormat);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(requiredDateFormat);
         String formattedDate = "";
         try {
-            formattedDate = outputFormat.format(reqDate);
+            formattedDate = reqDate.format(formatter);
         } catch (Exception e) {
 
         }
@@ -118,10 +118,10 @@ public class DateUtils {
 
 
     public static String formatDate(LocalDate reqDate, String requiredDateFormat) {
-        SimpleDateFormat outputFormat = new SimpleDateFormat(requiredDateFormat);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(requiredDateFormat);
         String formattedDate = "";
         try {
-            formattedDate = outputFormat.format(reqDate);
+            formattedDate = reqDate.format(formatter);
         } catch (Exception e) {
 
         }
