@@ -2,6 +2,7 @@ package com.moveinsync.billingreportservice.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.moveinsync.billingreportservice.constants.Constants;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,9 +16,9 @@ import lombok.experimental.FieldNameConstants;
 public class BillingReportRequestDTO {
 
   private String bunitId;
-  @JsonFormat(pattern = "dd/MM/yyyy HH/mm/ss")
+  @JsonFormat(pattern = Constants.ETS_DATE_TIME_FORMAT)
   private String cycleStart;
-  @JsonFormat(pattern = "dd/MM/yyyy HH/mm/ss")
+  @JsonFormat(pattern = Constants.ETS_DATE_TIME_FORMAT)
   private String cycleEnd;
   private String vendor;
   private String contract;

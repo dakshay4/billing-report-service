@@ -1,7 +1,11 @@
 package com.moveinsync.billingreportservice.Utils;
 
 import com.moveinsync.billingreportservice.Configurations.UserContextResolver;
+import com.moveinsync.billingreportservice.constants.Constants;
 import com.moveinsync.billingreportservice.exceptions.MisLocale;
+import com.moveinsync.timezone.MisTimeZoneUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -45,7 +49,7 @@ public class DateUtils {
             // Date formats with weekday names
             "EEEE, dd MMMM yyyy",
             "EEEE, MMMM dd, yyyy",
-
+            Constants.ETS_DATE_TIME_FORMAT
     };
 
     private static final String[] DATE_TIME_FORMATS = {
@@ -66,9 +70,10 @@ public class DateUtils {
             "yyyy-MM-dd'T'HH:mm:ss.SSSXXX",
             "yyyy-MM-dd'T'HH:mm:ss.SSSSSS",
             "yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSS",
-
-            "dd/MM/yyyy HH/mm/ss"
+            Constants.ETS_DATE_TIME_FORMAT
     };
+
+    private final static Logger logger = LoggerFactory.getLogger(DateUtils.class);
 
     public static LocalDate parse(String dateString) {
         for (String format : DATE_FORMATS) {
@@ -76,20 +81,21 @@ public class DateUtils {
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern(format, Locale.forLanguageTag(UserContextResolver.getCurrentContext().getLocale()));
                 return LocalDate.parse(dateString, formatter);
             } catch (Exception e) {
+                logger.error("Failed to parse string date {} to the formats available", dateString);
             }
         }
         return null;
     }
 
     public static String formatDate(String reqDate, String requiredDateFormat) {
-        SimpleDateFormat inputFormat = new SimpleDateFormat("dd/MM/yyyy HH/mm/ss");
+        SimpleDateFormat inputFormat = new SimpleDateFormat(Constants.ETS_DATE_TIME_FORMAT);
         SimpleDateFormat outputFormat = new SimpleDateFormat(requiredDateFormat);
         String formattedDate = "";
         try {
             Date date = inputFormat.parse(reqDate);
             formattedDate = outputFormat.format(date);
         } catch (Exception e) {
-
+            logger.error("Failed to format string date {} to the Required format from the date format {}", reqDate, Constants.ETS_DATE_TIME_FORMAT);
         }
         return formattedDate;
     }
@@ -100,7 +106,7 @@ public class DateUtils {
         try {
             formattedDate = outputFormat.format(reqDate);
         } catch (Exception e) {
-
+            logger.error("Failed to format Util Date date {} to the Required Format", reqDate);
         }
         return formattedDate;
     }
@@ -111,7 +117,7 @@ public class DateUtils {
         try {
             formattedDate = reqDate.format(formatter);
         } catch (Exception e) {
-
+            logger.error("Failed to format LocalDateTime date {} to the Required Format", reqDate);
         }
         return formattedDate;
     }
@@ -123,7 +129,7 @@ public class DateUtils {
         try {
             formattedDate = reqDate.format(formatter);
         } catch (Exception e) {
-
+            logger.error("Failed to format LocalDate date {} to the Required Format", reqDate);
         }
         return formattedDate;
     }
@@ -131,20 +137,16 @@ public class DateUtils {
 
     public static Date convert(String reqDate, SimpleDateFormat format) {
         try {
-            Date date = format.parse(reqDate);
-            return date;
+            return format.parse(reqDate);
         } catch (Exception e) {
-
+            logger.error("Failed to format String date {} to the Format {}", reqDate, format);
         }
         return null;
     }
 
     public static long getEpochFromDate(Date date) {
-        LocalDateTime localDateTime = LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault());
-        return localDateTime.toInstant(ZoneOffset.UTC).toEpochMilli();
-    }
-
-    public static Long getEpochFromDate(LocalDateTime startDate) {
-        return startDate.toInstant(ZoneOffset.UTC).toEpochMilli();
+        long epochMillis = MisTimeZoneUtils.getEpochFromDate(date, UserContextResolver.getCurrentContext().getBuid());
+        logger.info("Epoch Millis {} from date is {} ", epochMillis, date);
+        return epochMillis;
     }
 }
