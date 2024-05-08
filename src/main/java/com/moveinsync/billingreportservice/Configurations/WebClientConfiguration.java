@@ -67,28 +67,28 @@ public class WebClientConfiguration {
   @Value("${web.client.evict.life.timeout:60000}")
   private Integer webClientEvictLifeTimeout;
 
-  @Value("${tripsheetdomain_url}")
+  @Value("${tripsheetdomain.url}")
   private String tripsheetDomainUrl;
 
   @Value("${billingCalculationUrl}")
   private String billingCalculationUrl;
 
-  @Value("${vms_url}")
+  @Value("${vms.url}")
   private String vmsUrl;
 
-  @Value("${reporting_service_url}")
+  @Value("${reporting.service.url}")
   private String reportServiceUrl;
 
-  @Value("${contract_service_url}")
+  @Value("${contract.service.url}")
   private String contractServiceUrl;
 
-  @Value("${contract_service_auth_token}")
+  @Value("${contract.service.auth.token}")
   private String contractServiceAuthToken;
 
-  @Value("${x_reporting_auth_token}")
+  @Value("${x.reporting.auth.token}")
   private String reportingAuthToken;
 
-  @Value("${tripsheetdomain_x_mis_token}")
+  @Value("${tripsheetdomain.x.mis.token}")
   private String tripsheetDomainToken;
 
   @Bean
