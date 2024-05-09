@@ -77,12 +77,9 @@ public class VmsClientImpl {
         try {
             Optional<VendorResponseDTO> res = vendorByEmpGuidCacheCache.get(empGuid);
             return res.orElse(null);
-        }catch (WebClientResponseException ex) {
+        }catch (WebClientResponseException | WebClientRequestException ex) {
             throw new MisCustomException(ReportErrors.CLIENT_ERROR, ex);
-        } catch (WebClientRequestException ex) {
-            throw new MisCustomException(ReportErrors.CLIENT_ERROR, ex);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new MisCustomException(ReportErrors.UNABLE_TO_FETCH_FROM_CACHE, e);
         }
     }

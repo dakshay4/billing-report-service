@@ -187,10 +187,15 @@ public class TripsheetDomainServiceImpl {
   public List<CabSignInResponseDTO> billingDuties(
           Long startDate, Long endDate, Integer cabId, Integer state, Integer status, Boolean audited
   ) {
-    return tripsheetDomainWebClient.billingDuties(
-            UserContextResolver.getCurrentContext().getBuid(),
-            startDate, endDate, cabId, state, status, audited
-    ).getBody();
+    try {
+      return tripsheetDomainWebClient.billingDuties(
+              UserContextResolver.getCurrentContext().getBuid(),
+              startDate, endDate, cabId, state, status, audited
+      ).getBody();
+    } catch (WebClientResponseException webClientResponseException) {
+      logger.error("API Call Failed to get Billing duties from Tripsheet domain ", webClientResponseException);
+    }
+    return new ArrayList<>();
   }
 
   public VendorResponse findVendorByName(String vendorName) {

@@ -15,7 +15,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 public class ReportingService {
   private final WebClient reportingServiceClient;
 
-  public ReportingService(@Qualifier(BeanConstants.REPORTING_SERVICE_CLIENT) WebClient reportingServiceClient) {
+  public ReportingService(WebClient reportingServiceClient) {
     this.reportingServiceClient = reportingServiceClient;
   }
 

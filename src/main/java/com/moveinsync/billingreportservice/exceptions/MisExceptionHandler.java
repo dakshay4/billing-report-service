@@ -41,9 +41,10 @@ public class MisExceptionHandler {
 
   @ExceptionHandler(Exception.class)
   public ResponseEntity<MisErrorHttpResponse> handleException(Exception ex, HttpServletRequest request) {
+    String cause = ex.getCause()!=null ? ex.getCause().getMessage() : null;
     MisErrorHttpResponse errorResponse = new MisErrorHttpResponse("Error", ex.getMessage(), System.currentTimeMillis(),
-        request.getRequestURI(), ex.getCause().getMessage());
-    logger.error("{}", ex);
+        request.getRequestURI(), cause);
+    logger.error("Exception Handler -- {}", ex);
 
     return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
   }

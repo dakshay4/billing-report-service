@@ -29,9 +29,10 @@ public class DateUtils {
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern(format.getPattern(), Locale.forLanguageTag(UserContextResolver.getCurrentContext().getLocale()));
                 return LocalDate.parse(dateString, formatter);
             } catch (Exception e) {
-                logger.error("Failed to parse string date {} to the formats available", dateString);
+
             }
         }
+        logger.error("Failed to parse string date {} to the formats available", dateString);
         return null;
     }
 

@@ -2,8 +2,6 @@ package com.moveinsync.billingreportservice.constants;
 
 public class Constants {
 
-  public static final String ETS_DATE_FORMAT = "dd/MM/yyyy";
-
   public static final String AUTHORIZATION = "Authorization";
   public static final String X_AUTH_TOKEN = "x-wis-token";
   public static final String X_MIS_TOKEN = "x-mis-token";

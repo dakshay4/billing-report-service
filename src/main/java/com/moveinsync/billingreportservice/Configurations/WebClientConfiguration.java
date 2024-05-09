@@ -125,13 +125,11 @@ public class WebClientConfiguration {
     return Mono.just(clientResponse);
   }
 
-  @Qualifier(BeanConstants.VMS_CLIENT)
   @Bean
   public WebClient vmsClient(WebClient.Builder webClientBuilder) {
     return webClientBuilder.baseUrl(vmsUrl).build();
   }
 
-  @Qualifier(BeanConstants.REPORTING_SERVICE_CLIENT)
   @Bean
   public WebClient reportingServiceClient(WebClient.Builder webClientBuilder) {
     return webClientBuilder.baseUrl(reportServiceUrl).defaultHeader(Constants.X_AUTH_TOKEN, reportingAuthToken).build();

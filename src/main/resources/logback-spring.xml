@@ -26,20 +26,19 @@
             <appender-ref ref="APP_FILE" />
             <appender-ref ref="CONSOLE" />
         </logger>
-        <Logger name="org.hibernate.orm.deprecation" level="OFF" additivity="false">
+        <root name="com.moveinsync.billingreportservice" level="INFO">
             <appender-ref ref="APP_FILE" />
             <appender-ref ref="CONSOLE" />
-        </Logger>
+        </root>
     </springProfile>
 
     <springProfile name="dev | staging | qa | uat | prod">
-        <logger name="com.moveinsync.billingreportservice" level="DEBUG" additivity="false">
+        <logger name="com.moveinsync.billingreportservice" level="DEBUG">
             <appender-ref ref="APP_FILE" />
         </logger>
-        <Logger name="org.hibernate.orm.deprecation" level="OFF" additivity="false">
+        <root name="com.moveinsync.billingreportservice" level="INFO">
             <appender-ref ref="APP_FILE" />
-        </Logger>
+        </root>
     </springProfile>
-
 
 </configuration>
