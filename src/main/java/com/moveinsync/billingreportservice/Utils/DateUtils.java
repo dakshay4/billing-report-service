@@ -2,6 +2,7 @@ package com.moveinsync.billingreportservice.Utils;
 
 import com.moveinsync.billingreportservice.Configurations.UserContextResolver;
 import com.moveinsync.billingreportservice.constants.Constants;
+import com.moveinsync.billingreportservice.enums.DateFormatPattern;
 import com.moveinsync.billingreportservice.exceptions.MisLocale;
 import com.moveinsync.timezone.MisTimeZoneUtils;
 import org.slf4j.Logger;
@@ -20,65 +21,12 @@ import java.util.Locale;
 public class DateUtils {
 
 
-    private static final String[] DATE_FORMATS = {
-            // Standard date formats
-            "yyyy-MM-dd",
-            "dd/MM/yyyy",
-            "MM/dd/yyyy",
-            "dd.MM.yyyy",
-            "yyyy/MM/dd",
-
-            "dd-MMM-yyyy",
-            "dd-MM-yyyy",
-            "MMM-dd-yyyy",
-            "MMM/dd/yyyy",
-            "dd/MMM/yyyy",
-            "MMM dd, yyyy",
-            "dd MMM yyyy",
-            "MMM yyyy",
-
-            // Date formats with full month names
-            "dd-MMMM-yyyy",
-            "MMMM-dd-yyyy",
-            "MMMM/dd/yyyy",
-            "dd/MMMM/yyyy",
-            "MMMM dd, yyyy",
-            "dd MMMM yyyy",
-            "MMMM yyyy",
-
-            // Date formats with weekday names
-            "EEEE, dd MMMM yyyy",
-            "EEEE, MMMM dd, yyyy",
-            Constants.ETS_DATE_TIME_FORMAT
-    };
-
-    private static final String[] DATE_TIME_FORMATS = {
-            "yyyy-MM-dd HH:mm:ss",
-            "dd/MM/yyyy HH:mm:ss",
-            "MM/dd/yyyy HH:mm:ss",
-            "dd.MM.yyyy HH:mm:ss",
-            "yyyy/MM/dd HH:mm:ss",
-            "yyyy-MM-dd HH:mm:ss.SSS",
-            "dd/MM/yyyy HH:mm:ss.SSS",
-            "MM/dd/yyyy HH:mm:ss.SSS",
-            "dd.MM.yyyy HH:mm:ss.SSS",
-            "yyyy/MM/dd HH:mm:ss.SSS",
-            // Date formats with time zone
-            "yyyy-MM-dd'T'HH:mm:ss'Z'",
-            "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",
-            "yyyy-MM-dd'T'HH:mm:ssXXX",
-            "yyyy-MM-dd'T'HH:mm:ss.SSSXXX",
-            "yyyy-MM-dd'T'HH:mm:ss.SSSSSS",
-            "yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSS",
-            Constants.ETS_DATE_TIME_FORMAT
-    };
-
     private final static Logger logger = LoggerFactory.getLogger(DateUtils.class);
 
     public static LocalDate parse(String dateString) {
-        for (String format : DATE_FORMATS) {
+        for (DateFormatPattern format : DateFormatPattern.values()) {
             try {
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern(format, Locale.forLanguageTag(UserContextResolver.getCurrentContext().getLocale()));
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern(format.getPattern(), Locale.forLanguageTag(UserContextResolver.getCurrentContext().getLocale()));
                 return LocalDate.parse(dateString, formatter);
             } catch (Exception e) {
                 logger.error("Failed to parse string date {} to the formats available", dateString);
@@ -88,14 +36,14 @@ public class DateUtils {
     }
 
     public static String formatDate(String reqDate, String requiredDateFormat) {
-        SimpleDateFormat inputFormat = new SimpleDateFormat(Constants.ETS_DATE_TIME_FORMAT);
+        SimpleDateFormat inputFormat = new SimpleDateFormat(DateFormatPattern.ETS_DATE_TIME_FORMAT.getPattern());
         SimpleDateFormat outputFormat = new SimpleDateFormat(requiredDateFormat);
         String formattedDate = "";
         try {
             Date date = inputFormat.parse(reqDate);
             formattedDate = outputFormat.format(date);
         } catch (Exception e) {
-            logger.error("Failed to format string date {} to the Required format from the date format {}", reqDate, Constants.ETS_DATE_TIME_FORMAT);
+            logger.error("Failed to format string date {} to the Required format from the date format {}", reqDate, DateFormatPattern.ETS_DATE_TIME_FORMAT.getPattern());
         }
         return formattedDate;
     }

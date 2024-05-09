@@ -2,6 +2,7 @@ package com.moveinsync.billingreportservice.Utils;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.moveinsync.billingreportservice.constants.Constants;
+import com.moveinsync.billingreportservice.enums.DateFormatPattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +38,7 @@ public class DateFormatReader {
             logger.error("SecurityException while accessing field '{}' in class '{}'", fieldName, klass.getName(), e);
         }
         logger.info("No @JsonFormat annotation found on field: {}", fieldName);
-        logger.info("Returning Default format {}", Constants.ETS_DATE_TIME_FORMAT);
-        return Constants.ETS_DATE_TIME_FORMAT;
+        logger.info("Returning Default format {}", DateFormatPattern.ETS_DATE_TIME_FORMAT.getPattern());
+        return DateFormatPattern.ETS_DATE_TIME_FORMAT.getPattern();
     }
 }

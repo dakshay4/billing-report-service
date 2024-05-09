@@ -5,9 +5,11 @@ import com.moveinsync.billingreportservice.Utils.DateUtils;
 import com.moveinsync.billingreportservice.Utils.NumberUtils;
 import com.moveinsync.billingreportservice.clientservice.TripsheetDomainServiceImpl;
 import com.moveinsync.billingreportservice.clientservice.VmsClientImpl;
+import com.moveinsync.billingreportservice.constants.Constants;
 import com.moveinsync.billingreportservice.dto.BillingReportRequestDTO;
 import com.moveinsync.billingreportservice.dto.ReportDataDTO;
 import com.moveinsync.billingreportservice.dto.VendorResponseDTO;
+import com.moveinsync.billingreportservice.enums.DateFormatPattern;
 import com.moveinsync.billingreportservice.enums.ReportDataType;
 import com.moveinsync.billingreportservice.enums.TableHeaders;
 import com.moveinsync.tripsheetdomain.models.BillingCycleVO;
@@ -63,6 +65,12 @@ public abstract class ReportBook<T extends TableHeaders> {
         return new ArrayList<>();
     }
 
+    /**
+     * This will Filter out the table columns and only allow Column Labels which are present in Report enum
+     * Also Rearrange the column labels as per the index specified in the Report Enum
+     * @param table
+     * @return
+     */
     public List<List<String>> filterIncomingTableHeadersAndData(List<List<String>> table) {
         if(table == null || table.isEmpty()) return new ArrayList<>();
         List<String> header = table.get(0);
@@ -79,6 +87,13 @@ public abstract class ReportBook<T extends TableHeaders> {
         return table;
     }
 
+    /**
+     * The method is used to return the grand total row of the table data
+     * It iterates over each row, and update the Decimal values rounded off and
+     * updates DATE cell with the {@link com.moveinsync.billingreportservice.enums.DateFormatPattern-ETS_DATE_TIME_FORMAT}
+     * @param table
+     * @return
+     */
     public List<String> totalRow(List<List<String>> table) {
         if (table == null || table.isEmpty())
             return new ArrayList<>();
@@ -101,7 +116,7 @@ public abstract class ReportBook<T extends TableHeaders> {
                         value = String.valueOf((value.isEmpty() ? 0 : Integer.parseInt(value)) + NumberUtils.parseInteger(rowData.get(j)));
                         break;
                     case DATE:
-                        String formattedDate =  DateUtils.formatDate(DateUtils.parse(rowData.get(j)), "dd/MM/yyyy");
+                        String formattedDate =  DateUtils.formatDate(DateUtils.parse(rowData.get(j)), DateFormatPattern.DD_MM_YYYY.getPattern());
                         rowData.set(j, formattedDate);
                 }
                 totalRow.set(j, value);
