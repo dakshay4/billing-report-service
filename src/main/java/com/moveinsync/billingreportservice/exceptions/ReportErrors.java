@@ -17,7 +17,8 @@ public enum ReportErrors implements MisError {
   UNABLE_TO_FIND_VENDOR_FROM_VENDOR_NAME(ErrorType.RUNTIME,"Unable.to.find.vendor.from.vendor.name"),
   BUID_NOT_FOUND(ErrorType.VALIDATION, "Business.unit.id.is.not.present"),
   EMP_GUID_NOT_FOUND(ErrorType.VALIDATION, "Emp.guid.is.not.present"),
-  UNABLE_TO_FETCH_FROM_CONTRACT(ErrorType.RUNTIME, "Unable.to.fetch.contract");
+  UNABLE_TO_FETCH_FROM_CONTRACT(ErrorType.RUNTIME, "Unable.to.fetch.contract"),
+  BILLING_CYCLE_NOT_FOUND(ErrorType.RUNTIME, "Billing.cycle.not.found");
 
   private ErrorType errorType;
   private String messageKey;

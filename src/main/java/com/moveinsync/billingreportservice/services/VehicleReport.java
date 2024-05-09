@@ -9,7 +9,7 @@ import com.moveinsync.billingreportservice.enums.VehicleHeaders;
 import java.util.List;
 import java.util.Map;
 
-public class VehicleReport<T extends Enum<T>> extends ReportBook<VehicleHeaders> {
+public class VehicleReport extends ReportBook<VehicleHeaders> {
     public VehicleReport(VmsClientImpl vmsClient, TripsheetDomainServiceImpl tripsheetDomainService) {
         super(vmsClient, tripsheetDomainService);
     }

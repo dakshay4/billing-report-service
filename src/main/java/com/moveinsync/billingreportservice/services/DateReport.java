@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class DateReport<T extends Enum<T>> extends ReportBook<DateHeaders> {
+public class DateReport extends ReportBook<DateHeaders> {
 
 
     protected DateReport(VmsClientImpl vmsClient, TripsheetDomainServiceImpl tripsheetDomainService) {

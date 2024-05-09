@@ -8,7 +8,7 @@ import com.moveinsync.billingreportservice.enums.DutyHeaders;
 
 import java.util.List;
 
-public class DutyReport<T extends Enum<T>> extends ReportBook<DutyHeaders>  {
+public class DutyReport extends ReportBook<DutyHeaders>  {
 
 
     public DutyReport(VmsClientImpl vmsClient, TripsheetDomainServiceImpl tripsheetDomainService) {

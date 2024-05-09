@@ -8,7 +8,7 @@ import com.moveinsync.billingreportservice.enums.OfficeHeaders;
 
 import java.util.List;
 
-public class OfficeReport<T extends Enum<T>> extends ReportBook<OfficeHeaders>   {
+public class OfficeReport extends ReportBook<OfficeHeaders>   {
     public OfficeReport(VmsClientImpl vmsClient, TripsheetDomainServiceImpl tripsheetDomainService) {
         super(vmsClient, tripsheetDomainService);
     }

@@ -20,7 +20,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
 
-public class ContractReport <T extends Enum<T>> extends ReportBook<ContractHeaders>   {
+public class ContractReport extends ReportBook<ContractHeaders>   {
     @Override
     public ContractHeaders[] getHeaders() {
         return ContractHeaders.values();

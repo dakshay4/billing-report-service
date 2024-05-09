@@ -5,7 +5,6 @@ import com.moveinsync.billing.model.BillingStatusVO;
 import com.moveinsync.billing.types.BillingCurrentStatus;
 import com.moveinsync.billingreportservice.Configurations.UserContextResolver;
 import com.moveinsync.billingreportservice.Utils.DateUtils;
-import com.moveinsync.billingreportservice.Utils.NumberUtils;
 import com.moveinsync.billingreportservice.clientservice.BillingCalculationClientImpl;
 import com.moveinsync.billingreportservice.clientservice.ContractWebClientImpl;
 import com.moveinsync.billingreportservice.clientservice.ReportingService;
@@ -24,6 +23,12 @@ import com.moveinsync.billingreportservice.dto.VendorFreezeBillingAuditDTO;
 import com.moveinsync.billingreportservice.dto.VendorResponseDTO;
 import com.moveinsync.billingreportservice.enums.BillingEntityType;
 import com.moveinsync.billingreportservice.enums.BillingReportAggregatedTypes;
+import com.moveinsync.billingreportservice.enums.ContractHeaders;
+import com.moveinsync.billingreportservice.enums.DateHeaders;
+import com.moveinsync.billingreportservice.enums.DutyHeaders;
+import com.moveinsync.billingreportservice.enums.OfficeHeaders;
+import com.moveinsync.billingreportservice.enums.VehicleHeaders;
+import com.moveinsync.billingreportservice.enums.VendorHeaders;
 import com.moveinsync.billingreportservice.exceptions.MisCustomException;
 import com.moveinsync.billingreportservice.exceptions.ReportErrors;
 
@@ -85,46 +90,40 @@ public class BillingReportService {
     public ReportDataDTO getData(BillingReportAggregatedTypes reportName, BillingReportRequestDTO reportRequestDTO) {
         String empGuid = UserContextResolver.getCurrentContext().getEmpGuid();
         VendorResponseDTO vendorResponseDTO = vmsClient.fetchVendorByEmpGuIdCached(empGuid);
-        String vendorName = reportRequestDTO.getVendor() != null ? reportRequestDTO.getVendor()
-                : (vendorResponseDTO != null ? vendorResponseDTO.getVendorName() : null);
+        String vendorNameFromVms = (vendorResponseDTO != null ? vendorResponseDTO.getVendorName() : null);
+        String vendorName = reportRequestDTO.getVendor() != null ? reportRequestDTO.getVendor() : vendorNameFromVms;
         ExternalReportRequestDTO externalReportRequestDTO = prepareNRSRequest(reportRequestDTO, vendorName, reportName);
         ReportDataDTO reportDataDTO = reportingService.getReportFromNrs(externalReportRequestDTO);
         logger.info("Response from reportDataDTO {}", reportDataDTO);
         switch (reportName) {
             case VENDOR -> {
-                ReportBook reportBook = new VendorReport(vmsClient, tripsheetDomainClient);
+                ReportBook<VendorHeaders> reportBook = new VendorReport(vmsClient, tripsheetDomainClient);
                 reportDataDTO = reportBook.generateReport(reportRequestDTO, reportDataDTO);
-                break;
             }
 
             case OFFICE -> {
-                ReportBook reportBook = new OfficeReport(vmsClient, tripsheetDomainClient);
+                ReportBook<OfficeHeaders> reportBook = new OfficeReport(vmsClient, tripsheetDomainClient);
                 reportDataDTO = reportBook.generateReport(reportRequestDTO, reportDataDTO);
-                break;
             }
 
             case VEHICLE -> {
-                ReportBook reportBook = new VehicleReport(vmsClient, tripsheetDomainClient);
+                ReportBook<VehicleHeaders> reportBook = new VehicleReport(vmsClient, tripsheetDomainClient);
                 reportDataDTO = reportBook.generateReport(reportRequestDTO, reportDataDTO);
-                break;
             }
 
             case DUTY -> {
-                ReportBook reportBook = new DutyReport(vmsClient, tripsheetDomainClient);
+                ReportBook<DutyHeaders> reportBook = new DutyReport(vmsClient, tripsheetDomainClient);
                 reportDataDTO = reportBook.generateReport(reportRequestDTO, reportDataDTO);
-                break;
             }
 
             case CONTRACT -> {
-                ReportBook reportBook = new ContractReport(vmsClient, tripsheetDomainClient, contractWebClient);
+                ReportBook<ContractHeaders> reportBook = new ContractReport(vmsClient, tripsheetDomainClient, contractWebClient);
                 reportDataDTO = reportBook.generateReport(reportRequestDTO, reportDataDTO);
-                break;
             }
 
             case DATE -> {
-                ReportBook reportBook = new DateReport(vmsClient, tripsheetDomainClient);
+                ReportBook<DateHeaders> reportBook = new DateReport(vmsClient, tripsheetDomainClient);
                 reportDataDTO = reportBook.generateReport(reportRequestDTO, reportDataDTO);
-                break;
             }
             default -> throw new MisCustomException(ReportErrors.INVALID_REPORT_TYPE);
         }
@@ -219,7 +218,7 @@ public class BillingReportService {
             boolean freezeResult = false;
             if(vendorId!=null && vendorId!=0 && vendorId!=-1) {
                 if (freezeStatus) {
-                    if (!isVendorAuditDoneForBillingCycle(vendorId, startDate, endDate))
+                    if (isVendorAuditNotDoneForBillingCycle(vendorId, startDate, endDate))
                         throw new MisCustomException(ReportErrors.VENDOR_AUDIT_NOT_DONE_FOR_BILLING_CYCLE);
                 } else {
                     tripsheetDomainClient.updateFrozen(startDate, endDate, freezeStatus); // Unfreeze Bill Cycle
@@ -239,7 +238,7 @@ public class BillingReportService {
         if(vendorResponse == null || vendorResponse.isEmpty()) throw new MisCustomException(ReportErrors.UNABLE_TO_FETCH_ALL_VENDORS);
         vendorResponse.forEach(vendor ->{
             boolean freezeResult;
-            if (!isVendorAuditDoneForBillingCycle(vendor.getId(), startDate, endDate)) {
+            if (isVendorAuditNotDoneForBillingCycle(vendor.getId(), startDate, endDate)) {
                 freezeResult = false;
             }else {
                 freezeBilling(startDate, vendor.getId(), endDate, true);
@@ -258,6 +257,7 @@ public class BillingReportService {
             List<BillingCycleDTO> billingCycles = fetchAllBillingCycles();
             BillingCycleDTO cycle = billingCycles.stream().filter(e -> e.startDate().equals(startDate)).findFirst()
                     .orElse(null);
+            if (cycle == null) throw new MisCustomException(ReportErrors.BILLING_CYCLE_NOT_FOUND, startDate);
 
             Map<String, Integer> freezeVendorBilling =
                     tripsheetDomainClient.freezeVendorBilling(vendorId, startDate, endDate, freezeStatus);
@@ -274,18 +274,19 @@ public class BillingReportService {
         } catch (Exception ex) {
             logger.warn("Failed in Freeze Billing for VendorId: {} startDate: {} endDate: {}",
                     vendorId, startDate, endDate, ex);
+            freezeResult = false;
         }
         return freezeResult;
     }
 
-    private boolean isVendorAuditDoneForBillingCycle(int vendorId, Date startDate, Date endDate) {
+    private boolean isVendorAuditNotDoneForBillingCycle(int vendorId, Date startDate, Date endDate) {
         List<Integer> vendorCabIds = tripsheetDomainClient.allCabsIdsOfActiveVendor(-1, vendorId);
         Integer count = tripsheetDomainClient.getCountBetweenDateAndByAudit(
                 DateUtils.getEpochFromDate(startDate),
                 DateUtils.getEpochFromDate(endDate),
                 vendorCabIds
         );
-        return count == null || count <= 0;
+        return count != null && count > 0;
     }
 
     public String regenerateBilling(RegenerateBillDTO regenerateBillDTO) {
@@ -326,13 +327,12 @@ public class BillingReportService {
     public static VendorFreezeBillingAuditDTO convertToVendorBillingFreezeAuditVO(
             EntityAuditDetails entityAuditDetails,
             VendorResponse vendorResponse){
-        VendorFreezeBillingAuditDTO vo = new VendorFreezeBillingAuditDTO(
+        return new VendorFreezeBillingAuditDTO(
                 entityAuditDetails.getComment(),
                 entityAuditDetails.getAuditDate(),
                 (String)entityAuditDetails.getPropertyAuditDetailsList().get(0).getOldValue(),
                 (String)entityAuditDetails.getPropertyAuditDetailsList().get(0).getNewValue(),
                 vendorResponse.getVendorName());
-        return vo;
     }
 
 
@@ -342,20 +342,5 @@ public class BillingReportService {
     public  Map<String, String> cabToVehicleNumberMap(){
         return tripsheetDomainClient.cabToVehicleNumberMap();
     }
-
-
-/*
-  private boolean isVendorAuditDoneForBillingCycle(int vendorID, Date startDate, Date endDate)
-          throws STWInternalServerException {
-    boolean isAuditDone = false;
-    try {
-      isAuditDone = vendorBillingManagementService.isVendorCabsAuditDoneForBillingCycle(vendorID, startDate,
-              endDate);
-    } catch (VehicleManagementException e) {
-      throw new STWInternalServerException(e);
-    }
-    return isAuditDone;
-  }
-*/
 
 }
