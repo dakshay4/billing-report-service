@@ -64,7 +64,6 @@ public abstract class ReportBook<T extends TableHeaders> {
     }
 
     public List<List<String>> filterIncomingTableHeadersAndData(List<List<String>> table) {
-        logger.info("Filtered table {}", table);
         if(table == null || table.isEmpty()) return new ArrayList<>();
         List<String> header = table.get(0);
         Set<String> headerLabels = Arrays.stream(getHeaders()).map(e->e.getLabel()).collect(

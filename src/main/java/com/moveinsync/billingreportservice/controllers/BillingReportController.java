@@ -42,7 +42,7 @@ public class BillingReportController {
 
   @PostMapping("/data/{reportName}")
   public ReportDataDTO reportdata(@PathVariable BillingReportAggregatedTypes reportName,
-      @RequestBody BillingReportRequestDTO reportRequestDTO) throws UserDefinedException {
+      @RequestBody BillingReportRequestDTO reportRequestDTO) {
     return billingReportService.getData(reportName, reportRequestDTO);
   }
 
