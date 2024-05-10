@@ -5,7 +5,6 @@ import com.moveinsync.billingreportservice.Utils.DateUtils;
 import com.moveinsync.billingreportservice.Utils.NumberUtils;
 import com.moveinsync.billingreportservice.clientservice.TripsheetDomainServiceImpl;
 import com.moveinsync.billingreportservice.clientservice.VmsClientImpl;
-import com.moveinsync.billingreportservice.constants.Constants;
 import com.moveinsync.billingreportservice.dto.BillingReportRequestDTO;
 import com.moveinsync.billingreportservice.dto.ReportDataDTO;
 import com.moveinsync.billingreportservice.dto.VendorResponseDTO;
@@ -71,7 +70,7 @@ public abstract class ReportBook<T extends TableHeaders> {
      * @param table
      * @return
      */
-    public List<List<String>> filterIncomingTableHeadersAndData(List<List<String>> table) {
+    protected List<List<String>> filterIncomingTableHeadersAndData(List<List<String>> table) {
         if(table == null || table.isEmpty()) return new ArrayList<>();
         List<String> header = table.get(0);
         Set<String> headerLabels = Arrays.stream(getHeaders()).map(e->e.getLabel()).collect(
@@ -94,7 +93,7 @@ public abstract class ReportBook<T extends TableHeaders> {
      * @param table
      * @return
      */
-    public List<String> totalRow(List<List<String>> table) {
+    protected List<String> totalRow(List<List<String>> table) {
         if (table == null || table.isEmpty())
             return new ArrayList<>();
         List<String> header = table.get(0);
@@ -126,7 +125,7 @@ public abstract class ReportBook<T extends TableHeaders> {
         return totalRow;
     }
 
-    public List<List<String>> reorderTable(List<List<String>> table) {
+    protected List<List<String>> reorderTable(List<List<String>> table) {
         List<String> baseRow = table.get(0);
         List<Integer> reorderIndices = new ArrayList<>();
         Queue<String> diffLabels = new LinkedList<>();

@@ -1,6 +1,6 @@
 package com.moveinsync.billingreportservice.exceptions;
 
-public class MisCustomException extends RuntimeException {
+  public class MisCustomException extends RuntimeException {
 
   private final MisError misError;
   private Object[] args;
