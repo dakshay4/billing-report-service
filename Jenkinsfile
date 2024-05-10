@@ -81,10 +81,5 @@ pipeline {
                 }
             }
         }
-        stage('Sleep'){
-            steps {
-                sleep 1000
-            }
-        }
     }
 }
