@@ -53,7 +53,7 @@ pipeline {
                         cd $WORKSPACE && mvn clean package -U -Dmaven.test.skip=true -s /opt/maven_settings/settings.xml
                     """
                     sh """
-                       VERSION=\$(ls $WORKSPACE/target/*.jar | awk -F '/' '{print \$NF}'  | awk -F 'billing-report-service-' '{print \$NF}' | awk -F '.war' '{print \$1}')
+                       VERSION=\$(ls $WORKSPACE/target/*.jar | awk -F '/' '{print \$NF}'  | awk -F 'billingreportservice-' '{print \$NF}' | awk -F '.jar' '{print \$1}')
                        echo \${VERSION} > jar_version.txt
                     """
                     script{
@@ -74,7 +74,7 @@ pipeline {
                         withSonarQubeEnv("new-sonarqube") {
                             sh """
                                 ${scannerHome}/bin/sonar-scanner \
-                                     -Dsonar.projectName= -Dsonar.projectKey=billing-report-service -bitbucket-pr-analysis ${prKey} ${prBranch} ${prBase} -Dsonar.java.binaries=target/classes -Dsonar.sources=src -Dsonar.java.libraries=/root/.m2/repository/org/projectlombok/lombok/*/*.jar -Dsonar.projectVersion=${VERSION}
+                                     -Dsonar.projectName=billing-report-service -Dsonar.projectKey=billing-report-service -bitbucket-pr-analysis ${prKey} ${prBranch} ${prBase} -Dsonar.java.binaries=target/classes -Dsonar.sources=src -Dsonar.java.libraries=/root/.m2/repository/org/projectlombok/lombok/*/*.jar -Dsonar.projectVersion=${VERSION}
                                 """
                         }
                     }
