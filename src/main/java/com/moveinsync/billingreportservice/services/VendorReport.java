@@ -79,7 +79,9 @@ public class VendorReport extends ReportBook<VendorHeaders> {
             value = String.valueOf((value.isBlank() ? 0 : Integer.parseInt(value)) + NumberUtils.parseInteger(rowData.get(j)));
           case STRING ->
             value = rowData.get(j);
-          default -> {}
+          default -> {
+            // Ignore Other Values
+          }
         }
         vendorWiseSubTotalRow.set(j, value);
       }

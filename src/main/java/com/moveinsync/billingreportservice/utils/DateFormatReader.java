@@ -13,7 +13,7 @@ public class DateFormatReader {
 
 
 
-    private final static Logger logger = LoggerFactory.getLogger(DateFormatReader.class);
+    private static final Logger logger = LoggerFactory.getLogger(DateFormatReader.class);
 
     /**
      * Reads the date format pattern from a JsonFormat annotation on the specified field in the given class.

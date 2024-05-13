@@ -23,7 +23,7 @@ public class UserContextResolver {
    * {@link MisLocale}
    */
   private String locale = "en_US";
-  private final static Logger logger = LoggerFactory.getLogger(UserContextResolver.class);
+  private static final Logger logger = LoggerFactory.getLogger(UserContextResolver.class);
 
   public static UserContextResolver getCurrentContext() {
     long threadId = Thread.currentThread().getId();

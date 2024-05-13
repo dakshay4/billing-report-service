@@ -137,27 +137,32 @@ public class ContractReport extends ReportBook<ContractHeaders>   {
             List<String> rowData = table.get(i);
             Integer capacity = getCapacity(rowData, header);
             int requiredColumns = ContractHeaders.values().length;
-            List<String> capacityWiseSubTotalRow = capacityBasedSubTotal.getOrDefault(capacity,
-                    new ArrayList<>(Collections.nCopies(requiredColumns, "")));
+            List<String> capacityWiseSubTotalRow = capacityBasedSubTotal.getOrDefault(capacity, new ArrayList<>(Collections.nCopies(requiredColumns, "")));
             for (int j = 0; j < requiredColumns; j++) {
                 if(i == ContractHeaders.CAPACITY.getIndex()) continue;
-                String value = capacityWiseSubTotalRow.get(j);
-                ContractHeaders contractHeader = ContractHeaders.getFromLabelName(header.get(j));
-                ReportDataType dataType = contractHeader != null ? contractHeader.getDataType() : ReportDataType.STRING;
-                switch (dataType) {
-                    case BIGDECIMAL -> {
-                        rowData.set(j, String.valueOf(NumberUtils.roundOff(rowData.get(j))));
-                        BigDecimal subTotal = NumberUtils.roundOffAndAnd(value, rowData.get(j));
-                        value = String.valueOf(subTotal);
-                    }
-                    case INTEGER -> value = String.valueOf((value.isBlank() ? 0 : Integer.parseInt(value)) + NumberUtils.parseInteger(rowData.get(j)));
-                    default -> {}
-                }
-                capacityWiseSubTotalRow.set(j, value);
+                populateSubTotalValue(header, capacityWiseSubTotalRow, j, rowData);
             }
             capacityBasedSubTotal.put(capacity, capacityWiseSubTotalRow);
         }
         return capacityBasedSubTotal;
+    }
+
+    private static void populateSubTotalValue(List<String> header, List<String> capacityWiseSubTotalRow, int cell, List<String> rowData) {
+        String value = capacityWiseSubTotalRow.get(cell);
+        ContractHeaders contractHeader = ContractHeaders.getFromLabelName(header.get(cell));
+        ReportDataType dataType = contractHeader != null ? contractHeader.getDataType() : ReportDataType.STRING;
+        switch (dataType) {
+            case BIGDECIMAL -> {
+                rowData.set(cell, String.valueOf(NumberUtils.roundOff(rowData.get(cell))));
+                BigDecimal subTotal = NumberUtils.roundOffAndAnd(value, rowData.get(cell));
+                value = String.valueOf(subTotal);
+            }
+            case INTEGER -> value = String.valueOf((value.isBlank() ? 0 : Integer.parseInt(value)) + NumberUtils.parseInteger(rowData.get(cell)));
+            default -> {
+                // Ignore Other Values
+            }
+        }
+        capacityWiseSubTotalRow.set(cell, value);
     }
 
     public static void sortDataBasedOnCapacity(List<List<String>> data) {

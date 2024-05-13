@@ -68,15 +68,14 @@ public abstract class ReportBook<T extends TableHeaders> {
     protected List<List<String>> filterIncomingTableHeadersAndData(List<List<String>> table) {
         if(table == null || table.isEmpty()) return new ArrayList<>();
         List<String> header = table.get(0);
-        Set<String> headerLabels = Arrays.stream(getHeaders()).map(e->e.getLabel()).collect(
+        Set<String> headerLabels = Arrays.stream(getHeaders()).map(TableHeaders::getLabel).collect(
                 Collectors.toSet());
         List<Integer> validIndices = new ArrayList<>();
         for (int i = 0; i < header.size(); i++)
             if (headerLabels.contains(header.get(i)))
                 validIndices.add(i);
 
-        table = table.stream().map(row -> validIndices.stream().map(row::get).collect(Collectors.toList()))
-                .collect(Collectors.toList());
+        table = table.stream().map(row -> validIndices.stream().map(row::get).toList()).toList();
         table = reorderTable(table);
         return table;
     }
@@ -113,7 +112,9 @@ public abstract class ReportBook<T extends TableHeaders> {
                         String formattedDate = DateUtils.formatDate(DateUtils.parse(rowData.get(j)), DateFormatPattern.DD_MM_YYYY.getPattern());
                         rowData.set(j, formattedDate);
                     }
-                    default -> {}
+                    default -> {
+                        // Ignore Other Values
+                    }
                 }
                 totalRow.set(j, value);
             }
