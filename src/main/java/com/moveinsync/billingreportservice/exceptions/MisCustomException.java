@@ -1,9 +1,18 @@
 package com.moveinsync.billingreportservice.exceptions;
 
-  public class MisCustomException extends RuntimeException {
+import lombok.Getter;
 
-  private final MisError misError;
-  private Object[] args;
+import java.io.Serial;
+import java.io.Serializable;
+
+@Getter
+public class MisCustomException extends RuntimeException implements Serializable{
+
+  @Serial
+  private static final long serialVersionUID = 3882501414944821995L;
+
+  private final transient MisError misError;
+  private final transient Object[] args;
 
   public MisCustomException(MisError error) {
     super();
@@ -14,6 +23,7 @@ package com.moveinsync.billingreportservice.exceptions;
   public MisCustomException(MisError misError, Throwable cause) {
     super(misError.getMessageKey(), cause);
     this.misError = misError;
+    this.args = null;
   }
 
   public MisCustomException(MisError misError, Object[] args, Throwable cause) {
@@ -34,11 +44,4 @@ package com.moveinsync.billingreportservice.exceptions;
     this.args = args;
   }
 
-  public MisError getMisError() {
-    return misError;
-  }
-
-  public Object[] getArgs() {
-    return args;
-  }
 }

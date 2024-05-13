@@ -1,6 +1,6 @@
 package com.moveinsync.billingreportservice.clientservice;
 
-import com.moveinsync.billingreportservice.Utils.DateUtils;
+import com.moveinsync.billingreportservice.utils.DateUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
@@ -27,8 +27,7 @@ public class BillingCalculationClientImpl {
                         .queryParam("callerId", "1").build()
                 )
                 .retrieve().bodyToMono(String.class);
-        String res = mono.block();
-        return res;
+        return mono.block();
     }
 
 }

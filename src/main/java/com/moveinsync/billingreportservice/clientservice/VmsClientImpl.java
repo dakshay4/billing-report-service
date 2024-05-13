@@ -4,12 +4,10 @@ package com.moveinsync.billingreportservice.clientservice;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import com.moveinsync.billingreportservice.Configurations.UserContextResolver;
+import com.moveinsync.billingreportservice.configurations.UserContextResolver;
 import com.moveinsync.billingreportservice.dto.VendorResponseDTO;
 import com.moveinsync.billingreportservice.exceptions.MisCustomException;
 import com.moveinsync.billingreportservice.exceptions.ReportErrors;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -23,7 +21,6 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class VmsClientImpl {
 
-    private static final Logger logger = LoggerFactory.getLogger(TripsheetDomainServiceImpl.class);
     private static final String LIST_ALL_VENDOR_OF_BU_API = "vendors/bu/";
     private static final String LIST_VENDOR_OF_BU_FROM_EMP_GUID = "vendors/id/";
     private final WebClient vmsClient;

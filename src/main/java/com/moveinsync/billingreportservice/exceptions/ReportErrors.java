@@ -1,6 +1,11 @@
   package com.moveinsync.billingreportservice.exceptions;
 
-  public enum ReportErrors implements MisError {
+  import lombok.Getter;
+
+  import java.io.Serializable;
+
+  @Getter
+  public enum ReportErrors implements MisError, Serializable {
 
     UNABLE_TO_FETCH_REPORTS(ErrorType.RUNTIME, "UNABLE_TO_FETCH_REPORTS"),
     REPORTING_SERVER_CALL_FAILED(ErrorType.RUNTIME, "REPORTING_SERVER_CALL_FAILED"),
@@ -28,11 +33,4 @@
       this.messageKey = messageKey;
     }
 
-    public ErrorType getErrorType() {
-      return errorType;
-    }
-
-    public String getMessageKey() {
-      return messageKey;
-    }
   }

@@ -1,4 +1,4 @@
-package com.moveinsync.billingreportservice.Configurations;
+package com.moveinsync.billingreportservice.configurations;
 
 import com.moveinsync.billingreportservice.exceptions.MisLocale;
 import lombok.AllArgsConstructor;
@@ -16,7 +16,6 @@ import java.util.concurrent.ConcurrentHashMap;
 public class UserContextResolver {
 
   private static final Map<Long, UserContextResolver> contextMap = new ConcurrentHashMap<>();
-  private final static Logger logger = LoggerFactory.getLogger(UserContextResolver.class);
   private String empGuid;
   private String buid;
   private Long sessionStartTime;
@@ -24,6 +23,7 @@ public class UserContextResolver {
    * {@link MisLocale}
    */
   private String locale = "en_US";
+  private final static Logger logger = LoggerFactory.getLogger(UserContextResolver.class);
 
   public static UserContextResolver getCurrentContext() {
     long threadId = Thread.currentThread().getId();

@@ -2,7 +2,9 @@ package com.moveinsync.billingreportservice.clientservice;
 
 import com.moveinsync.billingreportservice.exceptions.MisCustomException;
 import com.moveinsync.billingreportservice.exceptions.ReportErrors;
+import lombok.experimental.UtilityClass;
 
+@UtilityClass
 public class CacheKeyStrategy {
 
   public static final String DELIMITER = "###";

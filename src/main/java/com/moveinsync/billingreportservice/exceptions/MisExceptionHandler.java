@@ -1,17 +1,14 @@
 package com.moveinsync.billingreportservice.exceptions;
 
-import com.moveinsync.billingreportservice.Configurations.UserContextResolver;
-import com.moveinsync.http.v2.MisHttpResponse;
+import com.moveinsync.billingreportservice.configurations.UserContextResolver;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.LocaleUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 

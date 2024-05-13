@@ -1,4 +1,4 @@
-package com.moveinsync.billingreportservice.Configurations;
+package com.moveinsync.billingreportservice.configurations;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,9 +15,7 @@ public class CustomSecurityConfig {
   @Bean
 
   public SecurityFilterChain configure(HttpSecurity http) throws Exception {
-    return http.csrf(csrf -> csrf.disable()).authorizeRequests(auth -> {
-      auth.requestMatchers("/").permitAll();
-    }).httpBasic(withDefaults()).build();
+    return http.csrf(csrf -> csrf.disable()).authorizeRequests(auth -> auth.requestMatchers("/").permitAll()).httpBasic(withDefaults()).build();
   }
 
 }

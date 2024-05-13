@@ -3,8 +3,8 @@ package com.moveinsync.billingreportservice.services;
 import com.google.common.collect.Lists;
 import com.moveinsync.billing.model.BillingStatusVO;
 import com.moveinsync.billing.types.BillingCurrentStatus;
-import com.moveinsync.billingreportservice.Configurations.UserContextResolver;
-import com.moveinsync.billingreportservice.Utils.DateUtils;
+import com.moveinsync.billingreportservice.configurations.UserContextResolver;
+import com.moveinsync.billingreportservice.utils.DateUtils;
 import com.moveinsync.billingreportservice.clientservice.BillingCalculationClientImpl;
 import com.moveinsync.billingreportservice.clientservice.ContractWebClientImpl;
 import com.moveinsync.billingreportservice.clientservice.ReportingService;
@@ -136,41 +136,63 @@ public class BillingReportService {
         reportFilterDTO.setContract(reportRequestDTO.getContract());
         if(reportRequestDTO.isOfficePresent()) reportFilterDTO.setOffice(Lists.newArrayList(reportRequestDTO.getOffice()));
         reportFilterDTO.setEntity(BillingEntityType.TRIP);
-        if (vendorName != null && BillingReportAggregatedTypes.VEHICLE.equals(reportName)) {
-            reportFilterDTO.setVendor(Lists.newArrayList());
-            reportFilterDTO.setEntity(BillingEntityType.VEHICLE);
-            reportFilterDTO.setParentEntity("VENDOR:" + reportRequestDTO.getVendor());
-        }
-        if (BillingReportAggregatedTypes.VEHICLE.equals(reportName) && (reportRequestDTO.isOfficePresent() || reportRequestDTO.isContractPresent())) {
-            reportFilterDTO.setEntity(BillingEntityType.TRIP);
-            if(vendorName!=null) reportFilterDTO.setVendor(Lists.newArrayList(vendorName));
-            reportFilterDTO.setParentEntity(null);
-        }
 
+        populateRequestForVehicleReport(vendorName, reportName, reportFilterDTO);
+        populateRequestForContractVehicleDrillDown(reportRequestDTO, vendorName, reportName, reportFilterDTO);
+        populateRequestForVendorReport(reportRequestDTO, vendorName, reportName, reportFilterDTO);
+        populateRequestForContractReport(vendorName, reportName, reportFilterDTO);
+        populateRequestForDutyReport(reportName, reportFilterDTO);
+        populateRequestForOfficeReport(vendorName, reportName, reportFilterDTO);
+
+        return ExternalReportRequestDTO.builder().reportFilter(reportFilterDTO).reportName(reportName.getReportName())
+                .bunit(reportRequestDTO.getBunitId()).startDate(DateUtils.formatDate(reportRequestDTO.getCycleStart(), "yyyy-MM-dd"))
+                .endDate(DateUtils.formatDate(reportRequestDTO.getCycleEnd(), "yyyy-MM-dd")).build();
+    }
+
+    private void populateRequestForOfficeReport(String vendorName, BillingReportAggregatedTypes reportName, ExternalReportRequestDTO.ReportFilterDTO reportFilterDTO) {
+        if (BillingReportAggregatedTypes.OFFICE.equals(reportName)) {
+            if(vendorName !=null) reportFilterDTO.setVendor(Lists.newArrayList(vendorName));
+            reportFilterDTO.setEntity(BillingEntityType.TRIP);
+        }
+    }
+
+    private void populateRequestForDutyReport(BillingReportAggregatedTypes reportName, ExternalReportRequestDTO.ReportFilterDTO reportFilterDTO) {
+        if ( BillingReportAggregatedTypes.DUTY.equals(reportName)) {
+            reportFilterDTO.setEntityId(reportFilterDTO.getEntityId()); //CAB ID
+            reportFilterDTO.setEntity(BillingEntityType.TRIP);
+        }
+    }
+
+    private void populateRequestForContractReport(String vendorName, BillingReportAggregatedTypes reportName, ExternalReportRequestDTO.ReportFilterDTO reportFilterDTO) {
+        if ( BillingReportAggregatedTypes.CONTRACT.equals(reportName)) {
+            if(vendorName !=null) reportFilterDTO.setEntityId(vendorName);
+            reportFilterDTO.setEntity(BillingEntityType.TRIP);
+        }
+    }
+
+    private void populateRequestForVendorReport(BillingReportRequestDTO reportRequestDTO, String vendorName, BillingReportAggregatedTypes reportName, ExternalReportRequestDTO.ReportFilterDTO reportFilterDTO) {
         if (BillingReportAggregatedTypes.VENDOR.equals(reportName)) {
             reportFilterDTO.setVendor(Lists.newArrayList());
             reportFilterDTO.setEntityId(vendorName);
             if(reportRequestDTO.isOfficePresent()) reportFilterDTO.setEntity(BillingEntityType.TRIP);
             else reportFilterDTO.setEntity(BillingEntityType.VENDOR);
         }
+    }
 
-        if ( BillingReportAggregatedTypes.CONTRACT.equals(reportName)) {
-            if(vendorName!=null) reportFilterDTO.setEntityId(vendorName);
+    private void populateRequestForContractVehicleDrillDown(BillingReportRequestDTO reportRequestDTO, String vendorName, BillingReportAggregatedTypes reportName, ExternalReportRequestDTO.ReportFilterDTO reportFilterDTO) {
+        if (BillingReportAggregatedTypes.VEHICLE.equals(reportName) && (reportRequestDTO.isOfficePresent() || reportRequestDTO.isContractPresent())) {
             reportFilterDTO.setEntity(BillingEntityType.TRIP);
+            if(vendorName !=null) reportFilterDTO.setVendor(Lists.newArrayList(vendorName));
+            reportFilterDTO.setParentEntity(null);
         }
+    }
 
-        if ( BillingReportAggregatedTypes.DUTY.equals(reportName)) {
-            reportFilterDTO.setEntityId(reportFilterDTO.getEntityId()); //CAB ID
-            reportFilterDTO.setEntity(BillingEntityType.TRIP);
+    private void populateRequestForVehicleReport(String vendorName, BillingReportAggregatedTypes reportName, ExternalReportRequestDTO.ReportFilterDTO reportFilterDTO) {
+        if (vendorName != null && BillingReportAggregatedTypes.VEHICLE.equals(reportName)) {
+            reportFilterDTO.setVendor(Lists.newArrayList());
+            reportFilterDTO.setEntity(BillingEntityType.VEHICLE);
+            reportFilterDTO.setParentEntity("VENDOR:" + vendorName);
         }
-
-        if (BillingReportAggregatedTypes.OFFICE.equals(reportName)) {
-            if(vendorName!=null) reportFilterDTO.setVendor(Lists.newArrayList(vendorName));
-            reportFilterDTO.setEntity(BillingEntityType.TRIP);
-        }
-        return ExternalReportRequestDTO.builder().reportFilter(reportFilterDTO).reportName(reportName.getReportName())
-                .bunit(reportRequestDTO.getBunitId()).startDate(DateUtils.formatDate(reportRequestDTO.getCycleStart(), "yyyy-MM-dd"))
-                .endDate(DateUtils.formatDate(reportRequestDTO.getCycleEnd().toString(), "yyyy-MM-dd")).build();
     }
 
     public List<ReportGenerationTime> getReportGenerationTime(LocalDate startDate, LocalDate endDate) {
@@ -200,36 +222,37 @@ public class BillingReportService {
     }
 
     public List<FreezeBillingResponseDTO> freezeBilling(FreezeBillingDTO freezeBillingDTO) {
-        Integer vendorId = freezeBillingDTO.vendorId();
         String vendorName = freezeBillingDTO.vendorName();
         boolean freezeStatus = freezeBillingDTO.frozen();
         Date startDate = freezeBillingDTO.startDate();
         Date endDate = freezeBillingDTO.endDate();
 
         List<FreezeBillingResponseDTO> freezeBillingResponse = new ArrayList<>();
-        if(freezeStatus && (vendorId!=null && vendorId == -1) || vendorName == null ) {
-            freezeBillingResponse.addAll(
-                    freezeBillingForAllVendors(startDate, endDate)
-            );
+        if(freezeStatus && vendorName == null) {
+            freezeBillingResponse.addAll(freezeBillingForAllVendors(startDate, endDate));
         }else {
-            VendorResponse vendorResponseDTO = tripsheetDomainClient.findVendorByName(vendorName);
-            if(vendorResponseDTO == null) throw new MisCustomException(ReportErrors.UNABLE_TO_FIND_VENDOR_FROM_VENDOR_NAME);
-            vendorId = vendorResponseDTO.getId();
-            boolean freezeResult = false;
-            if(vendorId!=null && vendorId!=0 && vendorId!=-1) {
-                if (freezeStatus) {
-                    if (isVendorAuditNotDoneForBillingCycle(vendorId, startDate, endDate))
-                        throw new MisCustomException(ReportErrors.VENDOR_AUDIT_NOT_DONE_FOR_BILLING_CYCLE);
-                } else {
-                    tripsheetDomainClient.updateFrozen(startDate, endDate, freezeStatus); // Unfreeze Bill Cycle
-                }
-                freezeResult = freezeBilling(startDate, vendorId, endDate, freezeStatus);
-            }
-            freezeBillingResponse.add(
-                    new FreezeBillingResponseDTO(freezeResult, vendorId, vendorName)
-            );
+            freezingForSpecificVendor(vendorName, freezeStatus, startDate, endDate, freezeBillingResponse);
         }
         return freezeBillingResponse;
+    }
+
+    private void freezingForSpecificVendor(String vendorName, boolean freezeStatus, Date startDate, Date endDate, List<FreezeBillingResponseDTO> freezeBillingResponse) {
+        VendorResponse vendorResponseDTO = tripsheetDomainClient.findVendorByName(vendorName);
+        if(vendorResponseDTO == null) throw new MisCustomException(ReportErrors.UNABLE_TO_FIND_VENDOR_FROM_VENDOR_NAME);
+        Integer vendorId = vendorResponseDTO.getId();
+        boolean freezeResult = false;
+        if(vendorId!=null && vendorId!=0 && vendorId!=-1) {
+            if (freezeStatus) {
+                if (isVendorAuditNotDoneForBillingCycle(vendorId, startDate, endDate))
+                    throw new MisCustomException(ReportErrors.VENDOR_AUDIT_NOT_DONE_FOR_BILLING_CYCLE);
+            } else {
+                tripsheetDomainClient.updateFrozen(startDate, endDate, freezeStatus); // Unfreeze Bill Cycle
+            }
+            freezeResult = freezeBilling(startDate, vendorId, endDate, freezeStatus);
+        }
+        freezeBillingResponse.add(
+                new FreezeBillingResponseDTO(freezeResult, vendorId, vendorName)
+        );
     }
 
     private List<FreezeBillingResponseDTO> freezeBillingForAllVendors(Date startDate, Date endDate) {

@@ -1,6 +1,6 @@
 package com.moveinsync.billingreportservice.services;
 
-import com.moveinsync.billingreportservice.Utils.NumberUtils;
+import com.moveinsync.billingreportservice.utils.NumberUtils;
 import com.moveinsync.billingreportservice.clientservice.TripsheetDomainServiceImpl;
 import com.moveinsync.billingreportservice.clientservice.VmsClientImpl;
 import com.moveinsync.billingreportservice.dto.BillingReportRequestDTO;
@@ -11,12 +11,9 @@ import com.moveinsync.billingreportservice.enums.VendorHeaders;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.stream.Collectors;
 
 public class VendorReport extends ReportBook<VendorHeaders> {
 
@@ -73,16 +70,16 @@ public class VendorReport extends ReportBook<VendorHeaders> {
         VendorHeaders vendorHeaders = VendorHeaders.getFromLabelName(headerRow.get(j));
         ReportDataType dataType = vendorHeaders != null ? vendorHeaders.getDataType() : ReportDataType.STRING;
         switch (dataType) {
-          case BIGDECIMAL:
+          case BIGDECIMAL -> {
             rowData.set(j, String.valueOf(NumberUtils.roundOff(rowData.get(j))));
             BigDecimal subTotal = NumberUtils.roundOffAndAnd(value, rowData.get(j));
             value = String.valueOf(subTotal);
-            break;
-          case INTEGER:
+          }
+          case INTEGER ->
             value = String.valueOf((value.isBlank() ? 0 : Integer.parseInt(value)) + NumberUtils.parseInteger(rowData.get(j)));
-            break;
-          case STRING:
+          case STRING ->
             value = rowData.get(j);
+          default -> {}
         }
         vendorWiseSubTotalRow.set(j, value);
       }

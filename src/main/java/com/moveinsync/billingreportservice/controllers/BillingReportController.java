@@ -1,6 +1,5 @@
 package com.moveinsync.billingreportservice.controllers;
 
-import com.moveinsync.billing.exception.UserDefinedException;
 import com.moveinsync.billingreportservice.dto.BillingCycleDTO;
 import com.moveinsync.billingreportservice.dto.BillingReportRequestDTO;
 import com.moveinsync.billingreportservice.dto.FreezeBillingDTO;
@@ -10,12 +9,8 @@ import com.moveinsync.billingreportservice.dto.RegenerateBillResponseDTO;
 import com.moveinsync.billingreportservice.dto.ReportDataDTO;
 import com.moveinsync.billingreportservice.dto.ReportGenerationTime;
 import com.moveinsync.billingreportservice.enums.BillingReportAggregatedTypes;
-import com.moveinsync.billingreportservice.exceptions.MisCustomException;
-import com.moveinsync.billingreportservice.exceptions.ReportErrors;
 import com.moveinsync.billingreportservice.services.BillingReportService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -32,13 +27,11 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/billingReports/web")
+@RequiredArgsConstructor
 public class BillingReportController {
 
-  private final Logger LOG = LoggerFactory.getLogger(getClass());
-  @Autowired
-  private BillingReportService billingReportService;
-  @Autowired
-  private MessageSource messageSource;
+  private final BillingReportService billingReportService;
+  private final MessageSource messageSource;
 
   @PostMapping("/data/{reportName}")
   public ReportDataDTO reportdata(@PathVariable BillingReportAggregatedTypes reportName,
@@ -55,8 +48,7 @@ public class BillingReportController {
 
   @GetMapping("/billing-cycles/all")
   public List<BillingCycleDTO> billingCyclesAll() {
-    List<BillingCycleDTO> billingCycles = billingReportService.fetchAllBillingCycles();
-    return billingCycles;
+    return billingReportService.fetchAllBillingCycles();
   }
 
   @PostMapping("/freeze-billing")
@@ -74,13 +66,6 @@ public class BillingReportController {
     String message = billingReportService.regenerateBilling(regenerateBillDTO);
     RegenerateBillResponseDTO regenerateBillResponseDTO = new RegenerateBillResponseDTO(message);
     return ResponseEntity.ok(regenerateBillResponseDTO);
-  }
-
-  @GetMapping("/exception")
-  public Object exception() {
-    throw new MisCustomException(ReportErrors.UNABLE_TO_FETCH_REPORTS);
-    // return messageSource.getMessage("UNABLE_TO_FETCH_REPORTS", new Object[]{"Test"}, Locale.US);
-
   }
 
   @GetMapping("/vendors/audits/all")

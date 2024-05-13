@@ -5,8 +5,8 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.moveinsync.billing.model.BillingStatusVO;
 import com.moveinsync.billing.model.ContractVO;
-import com.moveinsync.billingreportservice.Configurations.UserContextResolver;
-import com.moveinsync.billingreportservice.Configurations.WebClientException;
+import com.moveinsync.billingreportservice.configurations.UserContextResolver;
+import com.moveinsync.billingreportservice.configurations.WebClientException;
 import com.moveinsync.billingreportservice.constants.Constants;
 import com.moveinsync.billingreportservice.exceptions.MisCustomException;
 import com.moveinsync.billingreportservice.exceptions.ReportErrors;
@@ -28,11 +28,12 @@ import reactor.core.publisher.Mono;
 @Component
 public class ContractWebClientImpl {
 
-  private final static String API_CONTRACT_GET_LIST = "/api/contracts/";
-  private final static String API_BILLING_STATUS_ALL = "/api/billingStatus/";
   private static final Logger logger = LoggerFactory.getLogger(ContractWebClientImpl.class);
   private final WebClient contractClient;
   private final LoadingCache<String, Optional<ContractVO>> cache;
+
+  private final static String API_CONTRACT_GET_LIST = "/api/contracts/";
+  private final static String API_BILLING_STATUS_ALL = "/api/billingStatus/";
 
   public ContractWebClientImpl(WebClient contractClient) {
     this.contractClient = contractClient;

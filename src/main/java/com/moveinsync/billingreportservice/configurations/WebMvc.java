@@ -1,8 +1,7 @@
-package com.moveinsync.billingreportservice.Configurations;
+package com.moveinsync.billingreportservice.configurations;
 
 import com.moveinsync.billingreportservice.controllers.CustomInterceptor;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;

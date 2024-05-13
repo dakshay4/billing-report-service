@@ -1,7 +1,6 @@
-package com.moveinsync.billingreportservice.Configurations;
+package com.moveinsync.billingreportservice.configurations;
 
 import com.mis.serverdata.utils.GsonUtils;
-import com.moveinsync.billingreportservice.constants.BeanConstants;
 import com.moveinsync.billingreportservice.constants.Constants;
 
 import com.moveinsync.processing.CircuitBreakerBuilder;
@@ -10,7 +9,6 @@ import com.moveinsync.tripsheetdomain.client.TripsheetDomainWebClient;
 import io.micrometer.prometheus.PrometheusMeterRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

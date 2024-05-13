@@ -1,9 +1,9 @@
 package com.moveinsync.billingreportservice.services;
 
 import com.mis.serverdata.pc.duty.PlatformDuty;
-import com.moveinsync.billingreportservice.Configurations.UserContextResolver;
-import com.moveinsync.billingreportservice.Utils.DateUtils;
-import com.moveinsync.billingreportservice.Utils.NumberUtils;
+import com.moveinsync.billingreportservice.configurations.UserContextResolver;
+import com.moveinsync.billingreportservice.utils.DateUtils;
+import com.moveinsync.billingreportservice.utils.NumberUtils;
 import com.moveinsync.billingreportservice.clientservice.TripsheetDomainServiceImpl;
 import com.moveinsync.billingreportservice.clientservice.VmsClientImpl;
 import com.moveinsync.billingreportservice.constants.Constants;
@@ -16,7 +16,6 @@ import com.moveinsync.timezone.MisTimeZoneUtils;
 import com.moveinsync.tripsheetdomain.response.CabSignInResponseDTO;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;

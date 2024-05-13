@@ -1,35 +1,33 @@
-package com.moveinsync.billingreportservice.Utils;
+package com.moveinsync.billingreportservice.utils;
 
-import com.moveinsync.billingreportservice.Configurations.UserContextResolver;
-import com.moveinsync.billingreportservice.constants.Constants;
+import com.moveinsync.billingreportservice.configurations.UserContextResolver;
 import com.moveinsync.billingreportservice.enums.DateFormatPattern;
-import com.moveinsync.billingreportservice.exceptions.MisLocale;
 import com.moveinsync.timezone.MisTimeZoneUtils;
+import lombok.experimental.UtilityClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.Date;
 import java.util.Locale;
 
+
+@UtilityClass
 public class DateUtils {
 
 
-    private final static Logger logger = LoggerFactory.getLogger(DateUtils.class);
+    private static final Logger logger = LoggerFactory.getLogger(DateUtils.class);
 
     public static LocalDate parse(String dateString) {
         for (DateFormatPattern format : DateFormatPattern.values()) {
             try {
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern(format.getPattern(), Locale.forLanguageTag(UserContextResolver.getCurrentContext().getLocale()));
                 return LocalDate.parse(dateString, formatter);
-            } catch (Exception e) {
-
+            } catch (Exception ignored) {
+                // Formatter unable to parse the format for the dateString, it will try in loop other formats, and is success, return otherwise log.
             }
         }
         logger.error("Failed to parse string date {} to the formats available", dateString);

@@ -3,9 +3,8 @@ package com.moveinsync.billingreportservice.clientservice;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import com.moveinsync.billingreportservice.Configurations.UserContextResolver;
+import com.moveinsync.billingreportservice.configurations.UserContextResolver;
 import com.moveinsync.billingreportservice.constants.Constants;
-import com.moveinsync.billingreportservice.dto.VendorResponseDTO;
 import com.moveinsync.billingreportservice.exceptions.MisCustomException;
 import com.moveinsync.billingreportservice.exceptions.ReportErrors;
 import com.moveinsync.data.envers.models.EntityAuditDetails;
@@ -33,7 +32,6 @@ import java.util.stream.Collectors;
 public class TripsheetDomainServiceImpl {
 
   private static final Logger logger = LoggerFactory.getLogger(TripsheetDomainServiceImpl.class);
-  private static final String API_FETCH_ALL_BILLING_CYCLE = "/bill/cycle/all";
   private final TripsheetDomainWebClient tripsheetDomainWebClient;
   private final LoadingCache<String, List<BillingCycleVO>> billingCycleCache;
   private final LoadingCache<Integer, List<VendorResponse>> vendorListCached;
@@ -97,7 +95,7 @@ public class TripsheetDomainServiceImpl {
   public List<BillingCycleVO> updateFrozen(Date startDate, Date endDate, boolean b) {
      return tripsheetDomainWebClient.updateFrozen(UserContextResolver.getCurrentContext().getBuid(),
              startDate.toInstant().toEpochMilli(),
-             endDate.toInstant().toEpochMilli(), false).getBody();
+             endDate.toInstant().toEpochMilli(), b).getBody();
 
   }
 

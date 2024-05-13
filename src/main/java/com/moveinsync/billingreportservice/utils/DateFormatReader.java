@@ -1,20 +1,17 @@
-package com.moveinsync.billingreportservice.Utils;
+package com.moveinsync.billingreportservice.utils;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.moveinsync.billingreportservice.constants.Constants;
 import com.moveinsync.billingreportservice.enums.DateFormatPattern;
+import lombok.experimental.UtilityClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
 
+@UtilityClass
 public class DateFormatReader {
 
 
-
-    private DateFormatReader() {
-        throw new AssertionError("Utility class should not be instantiated");
-    }
 
     private final static Logger logger = LoggerFactory.getLogger(DateFormatReader.class);
 
@@ -41,4 +38,5 @@ public class DateFormatReader {
         logger.info("Returning Default format {}", DateFormatPattern.ETS_DATE_TIME_FORMAT.getPattern());
         return DateFormatPattern.ETS_DATE_TIME_FORMAT.getPattern();
     }
+
 }

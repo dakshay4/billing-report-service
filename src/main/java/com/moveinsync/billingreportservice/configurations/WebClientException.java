@@ -1,4 +1,4 @@
-package com.moveinsync.billingreportservice.Configurations;
+package com.moveinsync.billingreportservice.configurations;
 
 public class WebClientException extends RuntimeException {
 

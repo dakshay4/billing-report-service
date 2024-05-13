@@ -1,10 +1,9 @@
-package com.moveinsync.billingreportservice.Configurations;
+package com.moveinsync.billingreportservice.configurations;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.moveinsync.billingreportservice.constants.Constants;
 import com.moveinsync.billingreportservice.exceptions.MisCustomException;
 import com.moveinsync.billingreportservice.exceptions.MisErrorHttpResponse;
-import com.moveinsync.billingreportservice.exceptions.ReportErrors;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -27,7 +26,6 @@ import java.util.Locale;
 @RequiredArgsConstructor
 public class TransactionFilter implements Filter {
 
-  private final Logger LOG = LoggerFactory.getLogger(getClass());
 
   private final MessageSource messageSource;
 
@@ -49,8 +47,6 @@ public class TransactionFilter implements Filter {
             buid = e.getValue();
         }
       }
-//      if (buid == null) throw new MisCustomException(ReportErrors.BUID_NOT_FOUND);
-//      if (empGuid == null) throw new MisCustomException(ReportErrors.EMP_GUID_NOT_FOUND);
       UserContextResolver.getCurrentContext().setEmpGuid(empGuid);
       UserContextResolver.getCurrentContext().setBuid(buid);
 
@@ -67,5 +63,4 @@ public class TransactionFilter implements Filter {
       httpResponse.getWriter().write(errorResponseJson);
     }
   }
-  // other methods
 }

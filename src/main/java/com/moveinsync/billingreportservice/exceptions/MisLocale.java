@@ -2,5 +2,5 @@ package com.moveinsync.billingreportservice.exceptions;
 
 public enum MisLocale {
 
-  en_US, en_CA, fr_CA, es_MX
+  EN_US, EN_CA, FR_CA, ES_MX
 }

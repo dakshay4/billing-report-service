@@ -1,6 +1,6 @@
 package com.moveinsync.billingreportservice.controllers;
 
-import com.moveinsync.billingreportservice.Configurations.UserContextResolver;
+import com.moveinsync.billingreportservice.configurations.UserContextResolver;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;

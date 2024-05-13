@@ -1,8 +1,8 @@
 package com.moveinsync.billingreportservice.services;
 
-import com.moveinsync.billingreportservice.Utils.DateFormatReader;
-import com.moveinsync.billingreportservice.Utils.DateUtils;
-import com.moveinsync.billingreportservice.Utils.NumberUtils;
+import com.moveinsync.billingreportservice.utils.DateFormatReader;
+import com.moveinsync.billingreportservice.utils.DateUtils;
+import com.moveinsync.billingreportservice.utils.NumberUtils;
 import com.moveinsync.billingreportservice.clientservice.TripsheetDomainServiceImpl;
 import com.moveinsync.billingreportservice.clientservice.VmsClientImpl;
 import com.moveinsync.billingreportservice.dto.BillingReportRequestDTO;
@@ -13,8 +13,6 @@ import com.moveinsync.billingreportservice.enums.ReportDataType;
 import com.moveinsync.billingreportservice.enums.TableHeaders;
 import com.moveinsync.tripsheetdomain.models.BillingCycleVO;
 import com.moveinsync.tripsheetdomain.response.VendorBillingFrozenStatusDTO;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 import java.math.BigDecimal;
@@ -53,9 +51,6 @@ public abstract class ReportBook<T extends TableHeaders> {
 
     public abstract T[] getHeaders();
 
-    private final static  Logger logger = LoggerFactory.getLogger(ReportBook.class);
-
-//    public abstract Class getEnumClass();
 
     public abstract ReportDataDTO generateReport(BillingReportRequestDTO billingReportRequestDTO, ReportDataDTO reportDataDTO);
 
@@ -106,17 +101,19 @@ public abstract class ReportBook<T extends TableHeaders> {
                 TableHeaders tableHeaders = TableHeaders.getFromLabelName(getHeaders()[0].getClass(), header.get(j));
                 ReportDataType dataType = tableHeaders != null ? tableHeaders.getDataType() : ReportDataType.STRING;
                 switch (dataType) {
-                    case BIGDECIMAL:
+                    case BIGDECIMAL -> {
                         rowData.set(j, String.valueOf(NumberUtils.roundOff(rowData.get(j))));
                         BigDecimal subTotal = NumberUtils.roundOffAndAnd(value, rowData.get(j));
                         value = String.valueOf(subTotal);
-                        break;
-                    case INTEGER:
+                    }
+                    case INTEGER ->
                         value = String.valueOf((value.isEmpty() ? 0 : Integer.parseInt(value)) + NumberUtils.parseInteger(rowData.get(j)));
-                        break;
-                    case DATE:
-                        String formattedDate =  DateUtils.formatDate(DateUtils.parse(rowData.get(j)), DateFormatPattern.DD_MM_YYYY.getPattern());
+
+                    case DATE -> {
+                        String formattedDate = DateUtils.formatDate(DateUtils.parse(rowData.get(j)), DateFormatPattern.DD_MM_YYYY.getPattern());
                         rowData.set(j, formattedDate);
+                    }
+                    default -> {}
                 }
                 totalRow.set(j, value);
             }

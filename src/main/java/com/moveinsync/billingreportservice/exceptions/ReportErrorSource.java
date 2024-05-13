@@ -8,19 +8,15 @@ import java.util.Locale;
 @Configuration
 public class ReportErrorSource extends ResourceBundleMessageSource {
 
-  private final static String service_baseName = "reportErrors";
-
   public ReportErrorSource() {
     setBasename(getBaseName());
     setDefaultEncoding("UTF-8");
   }
 
+  private final static String service_baseName = "reportErrors";
+
   private String getBaseName() {
     return "error_" + service_baseName;
   }
 
-  @Override
-  protected String getMessageInternal(String key, Object[] args, Locale locale) {
-    return super.getMessageInternal(key, args, locale);
-  }
 }
