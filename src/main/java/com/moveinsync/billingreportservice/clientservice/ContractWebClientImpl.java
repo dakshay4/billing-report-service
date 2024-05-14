@@ -32,8 +32,8 @@ public class ContractWebClientImpl {
   private final WebClient contractClient;
   private final LoadingCache<String, Optional<ContractVO>> cache;
 
-  private final static String API_CONTRACT_GET_LIST = "/api/contracts/";
-  private final static String API_BILLING_STATUS_ALL = "/api/billingStatus/";
+  private static final String API_CONTRACT_GET_LIST = "/api/contracts/";
+  private static final String API_BILLING_STATUS_ALL = "/api/billingStatus/";
 
   public ContractWebClientImpl(WebClient contractClient) {
     this.contractClient = contractClient;
