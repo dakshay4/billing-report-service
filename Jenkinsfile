@@ -68,11 +68,18 @@ pipeline {
                     script {
                         def scannerHome = tool name: 'sonarqube', type: 'hudson.plugins.sonar.SonarRunnerInstallation'
                         // Define the keys
-                        def prKey = "-Dsonar.pullrequest.key=${env.CHANGE_ID}"
-                        def prBranch = "-Dsonar.pullrequest.branch=${env.CHANGE_BRANCH}"
-                        def prBase = "-Dsonar.pullrequest.base=${env.CHANGE_TARGET}"
+                        def prKey
+                        def prBranch
+                        def prBase
+                        if (env.CHANGE_ID) {
+                        // pull request
+                            prKey = "-Dsonar.pullrequest.key=${env.CHANGE_ID}"
+                            prBranch = "-Dsonar.pullrequest.branch=${env.CHANGE_BRANCH}"
+                            prBase = "-Dsonar.pullrequest.base=${env.CHANGE_TARGET}"
+                        }
                         withSonarQubeEnv("new-sonarqube") {
                             sh """
+                                if ${env.}
                                 ${scannerHome}/bin/sonar-scanner \
                                      -Dsonar.projectName=billing-report-service -Dsonar.projectKey=billing-report-service ${prKey} ${prBranch} ${prBase} -Dsonar.java.binaries=target/classes -Dsonar.sources=src -Dsonar.java.libraries=/root/.m2/repository/org/projectlombok/lombok/*/*.jar -Dsonar.projectVersion=${VERSION}
                                 """
