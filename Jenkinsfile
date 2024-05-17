@@ -68,9 +68,9 @@ pipeline {
                     script {
                         def scannerHome = tool name: 'sonarqube', type: 'hudson.plugins.sonar.SonarRunnerInstallation'
                         // Define the keys
-                        def prKey
-                        def prBranch
-                        def prBase
+                        def prKey = ""
+                        def prBranch = ""
+                        def prBase = ""
                         if (env.CHANGE_ID) {
                         // pull request
                             prKey = "-Dsonar.pullrequest.key=${env.CHANGE_ID}"
