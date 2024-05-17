@@ -79,7 +79,6 @@ pipeline {
                         }
                         withSonarQubeEnv("new-sonarqube") {
                             sh """
-                                if ${env.}
                                 ${scannerHome}/bin/sonar-scanner \
                                      -Dsonar.projectName=billing-report-service -Dsonar.projectKey=billing-report-service ${prKey} ${prBranch} ${prBase} -Dsonar.java.binaries=target/classes -Dsonar.sources=src -Dsonar.java.libraries=/root/.m2/repository/org/projectlombok/lombok/*/*.jar -Dsonar.projectVersion=${VERSION}
                                 """
